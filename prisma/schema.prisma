@@ -7,31 +7,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Product {
-  id           String        @id @default(cuid())
-  barcode      String        @unique
-  name         String
-  brand        String?
-  imageUrl     String?
-  unit         String?       // e.g. "1l", "500g"
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  priceReports PriceReport[]
-}
-
-model PriceReport {
-  id           String   @id @default(cuid())
-  productId    String
-  product      Product  @relation(fields: [productId], references: [id])
-  store        Store
-  price        Int      // in øre to avoid floating point (e.g. 2999 = 29,99 kr)
-  isOnSale     Boolean  @default(false)
-  regularPrice Int?     // in øre, populated when isOnSale is true
-  reportedAt   DateTime @default(now())
-  reportedById String?
-  reportedBy   User?    @relation(fields: [reportedById], references: [id])
-
-  @@index([productId, store, reportedAt])
+enum Role {
+  USER
+  PRODUCT_ADMIN
+  ADMIN
 }
 
 enum Store {
@@ -46,6 +25,43 @@ enum Store {
   ODA
 }
 
+enum PriceUnit {
+  PER_UNIT
+  PER_KG
+}
+
+model Product {
+  id           String        @id @default(cuid())
+  barcode      String?       @unique
+  pluCode      String?       @unique
+  name         String
+  brand        String?
+  imageUrl     String?
+  weightG      Int?          // weight in grams, e.g. 400 for a 400g product
+  volumeMl     Int?          // volume in millilitres, e.g. 1000 for 1l product
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  createdById  String?
+  createdBy    User?         @relation(fields: [createdById], references: [id])
+  priceReports PriceReport[]
+}
+
+model PriceReport {
+  id           String    @id @default(cuid())
+  productId    String
+  product      Product   @relation(fields: [productId], references: [id])
+  store        Store
+  price        Int       // in øre, e.g. 2999 = 29,99 kr
+  priceUnit    PriceUnit @default(PER_UNIT)
+  isOnSale     Boolean   @default(false)
+  regularPrice Int?      // in øre, populated when isOnSale is true
+  reportedAt   DateTime  @default(now())
+  reportedById String?
+  reportedBy   User?     @relation(fields: [reportedById], references: [id])
+
+  @@index([productId, store, reportedAt])
+}
+
 // NextAuth models
 model User {
   id            String        @id @default(cuid())
@@ -53,9 +69,11 @@ model User {
   email         String?       @unique
   emailVerified DateTime?
   image         String?
+  role          Role          @default(USER)
   accounts      Account[]
   sessions      Session[]
   priceReports  PriceReport[]
+  products      Product[]
   createdAt     DateTime      @default(now())
 }
 
