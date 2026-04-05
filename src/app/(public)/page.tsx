@@ -13,45 +13,31 @@ export default function LandingPage() {
         <p className="max-w-md text-lg text-muted-foreground">
           Skann strekkoder i butikk og se hvor du handler billigst. Bygget på folkelig innsamling av priser.
         </p>
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Button size="lg" asChild>
-            <Link href="/login">Kom i gang</Link>
-          </Button>
-          <Button size="lg" variant="outline" asChild>
-            <Link href="#features">Les mer</Link>
-          </Button>
-        </div>
+        <Button size="lg" asChild>
+          <Link href="/login">Logg inn</Link>
+        </Button>
       </section>
 
       {/* Features */}
       <section id="features" className="border-t px-6 py-16">
         <div className="mx-auto grid max-w-3xl gap-8 sm:grid-cols-3">
           <div className="flex flex-col items-center gap-3 text-center">
-            <div className="flex size-12 items-center justify-center rounded-full bg-primary/10">
+            <div className="flex size-12 items-center justify-center rounded-full bg-primary/20">
               <ScanBarcode className="size-6 text-primary" />
             </div>
             <h2 className="font-semibold">Skann</h2>
-            <p className="text-sm text-muted-foreground">
-              Bruk kameraet til å skanne strekkoder på varer i butikk
-            </p>
           </div>
           <div className="flex flex-col items-center gap-3 text-center">
-            <div className="flex size-12 items-center justify-center rounded-full bg-primary/10">
+            <div className="flex size-12 items-center justify-center rounded-full bg-primary/20">
               <TrendingDown className="size-6 text-primary" />
             </div>
             <h2 className="font-semibold">Sammenlign</h2>
-            <p className="text-sm text-muted-foreground">
-              Se priser fra Rema, Kiwi, Meny, Spar og alle andre butikker
-            </p>
           </div>
           <div className="flex flex-col items-center gap-3 text-center">
-            <div className="flex size-12 items-center justify-center rounded-full bg-primary/10">
+            <div className="flex size-12 items-center justify-center rounded-full bg-primary/20">
               <ShoppingCart className="size-6 text-primary" />
             </div>
             <h2 className="font-semibold">Spar</h2>
-            <p className="text-sm text-muted-foreground">
-              Finn hvilken butikk som er billigst for hele handlelisten din
-            </p>
           </div>
         </div>
       </section>
