@@ -8,7 +8,7 @@ export function GoogleSignInButton() {
     <Button
       size="lg"
       className="w-full"
-      onClick={() => signIn("google", { callbackUrl: "/" })}
+      onClick={() => signIn("google", { callbackUrl: "/search" })}
     >
       <svg role="img" viewBox="0 0 24 24" className="size-4" xmlns="http://www.w3.org/2000/svg">
         <path
