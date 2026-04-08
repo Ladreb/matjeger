@@ -2,7 +2,12 @@
 
 # Matjeger
 
-A Norwegian grocery price comparison PWA. Users scan product barcodes and report prices per store chain. The app shows which store is cheapest for a given shopping list.
+A Norwegian grocery price comparison PWA. Users scan product barcodes and report prices per store chain. The user can create custom shopping lists and the app will show them which store is cheapest.
+
+## Rules
+- Write in plain, clear language
+- Ask clarifying questions before making assumptions
+- When you are unsure, say so
 
 ## Stack
 
