@@ -48,35 +48,40 @@ export default function LandingPage() {
             Matprisene stiger. Få kontrollen.
           </p>
           <p className="mt-4 text-muted-foreground">
-            Matjeger gir deg oversikten du fortjener. Se hva ting faktisk koster og velg butikken som lønner seg for deg.
+            Se hva ting faktisk koster og finn butikken som lønner seg for deg.
           </p>
         </AnimatedSection>
       </section>
 
       {/* How it works */}
       <section className="snap-start flex min-h-[calc(100svh-3.5rem)] flex-col items-center justify-center border-t px-6">
-        <AnimatedSection className="mx-auto grid max-w-3xl gap-8 sm:grid-cols-3">
-          <div className="flex flex-col gap-3">
-            <Users className="size-6 text-primary" />
-            <h3 className="font-semibold">Alle hjelper alle</h3>
-            <p className="text-sm text-muted-foreground">
-              Folk som deg skanner priser i butikk og deler med resten. Alle vinner på det.
-            </p>
+        <AnimatedSection className="flex flex-col items-center gap-16 mx-auto max-w-3xl">
+          <div className="grid gap-8 sm:grid-cols-3">
+            <div className="flex flex-col gap-3">
+              <Users className="size-6 text-primary" />
+              <h3 className="font-semibold">Alle hjelper alle</h3>
+              <p className="text-sm text-muted-foreground">
+                Hver skanning bidrar til fellesskapet.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3">
+              <BarChart2 className="size-6 text-primary" />
+              <h3 className="font-semibold">Alle kjeder, ett sted</h3>
+              <p className="text-sm text-muted-foreground">
+                Rema, Kiwi, Meny, Spar og flere. Alt samlet på ett sted.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3">
+              <BadgeCheck className="size-6 text-primary" />
+              <h3 className="font-semibold">Hele handlelisten</h3>
+              <p className="text-sm text-muted-foreground">
+                Matjeger finner billigste butikk for hele handlelisten din.
+              </p>
+            </div>
           </div>
-          <div className="flex flex-col gap-3">
-            <BarChart2 className="size-6 text-primary" />
-            <h3 className="font-semibold">Alle kjeder, ett sted</h3>
-            <p className="text-sm text-muted-foreground">
-              Rema 1000, Kiwi, Meny, Spar og flere. Du slipper å sjekke appen til hver kjede. Alt er samlet her.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3">
-            <BadgeCheck className="size-6 text-primary" />
-            <h3 className="font-semibold">Hele handlelisten</h3>
-            <p className="text-sm text-muted-foreground">
-              Ikke bare én vare. Matjeger regner ut hvilken butikk som er billigst for alt du trenger å kjøpe.
-            </p>
-          </div>
+          <Button size="lg" asChild>
+            <Link href="/login">Kom i gang</Link>
+          </Button>
         </AnimatedSection>
       </section>
 
