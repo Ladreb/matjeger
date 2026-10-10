@@ -23,6 +23,18 @@ A Norwegian grocery price comparison PWA. Users scan product barcodes and report
 - **PWA:** next-pwa (disabled in development)
 - **Deployment:** Vercel
 
+## Code principles
+
+- **Group by domain.** Code lives in `src/features/<domain>/{components,lib,types}`. Pages in `src/app` stay thin and only compose feature code.
+- **Reusable components.** Write it inline first and extract on the second real use. Generic UI goes in `src/components/ui`, domain-specific UI stays in its feature.
+- **YAGNI.** Build only what the current roadmap step needs. No speculative options, layers or abstractions.
+- **Readable without comments.** Name functions and variables so the code explains itself. Comment only to explain why (a business rule, an odd external API), never what.
+- **SOLID, applied to TypeScript.**
+  - One reason to change per function or component.
+  - Pass dependencies in instead of hardwiring them where it helps testing or reuse.
+  - Extend behaviour with data (enums, config) instead of editing existing logic.
+  - Keep types and props small and focused.
+
 ## Key conventions
 
 - Prices are always stored as integers in **øre** (1 kr = 100 øre) to avoid floating point issues. Use `formatPrice()` from `@/lib/utils` to display them.
