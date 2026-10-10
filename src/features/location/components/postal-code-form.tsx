@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { postalCodeFromPosition, savePostalCode } from "../lib/actions";
 
 export function PostalCodeForm({ initial }: { initial?: string | null }) {
@@ -55,14 +56,13 @@ export function PostalCodeForm({ initial }: { initial?: string | null }) {
           save();
         }}
       >
-        <input
+        <Input
           inputMode="numeric"
           autoComplete="postal-code"
           maxLength={4}
           placeholder="Postnummer"
           value={value}
           onChange={(e) => setValue(e.target.value.replace(/\D/g, ""))}
-          className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
         />
         <Button type="submit" disabled={pending}>
           Lagre

@@ -12,8 +12,8 @@ Update checkboxes as work lands.
 ## Next (in order)
 0. [x] **Test environment**: create Neon `dev` branch, point `.env.development.local` at it (see DECISIONS #4)
 1. [ ] **Location + schema**: schema and migration done on dev, NOT yet on production (needs `prisma migrate deploy`; fails if `PriceReport` has rows); "Where do you shop?" flow (see DECISIONS #3)
-2. [ ] **Role guards**: `requireRole()` helper for server actions and pages
-3. [ ] **Admin product CRUD**: create/edit products (barcode, name, brand, weight/volume, image)
+2. [x] **Role guards**: `requireCatalogueEditor()` for pages and server actions
+3. [x] **Admin product create/edit**: `/admin/products` (list, create, edit; no delete, no image yet)
 4. [ ] **Barcode scan**: ZXing camera scan on `/scan`, lookup, manual entry fallback
 5. [ ] **Price reporting**: chain + price form, latest price per chain on product page, staleness warning
 6. [ ] **Search**: product search by name/brand on `/search`
