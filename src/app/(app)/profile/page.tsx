@@ -1,4 +1,7 @@
 import { getServerSession } from "next-auth";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { canEditCatalogue } from "@/features/auth/lib/roles";
 import { authOptions } from "@/features/auth/lib/auth";
 import { PostalCodeForm } from "@/features/location/components/postal-code-form";
 import { SignOutButton } from "@/features/auth/components/sign-out-button";
@@ -16,6 +19,11 @@ export default async function ProfilePage() {
         <p className="text-sm font-medium">Postnummer</p>
         <PostalCodeForm initial={session?.user?.postalCode} />
       </div>
+      {session && canEditCatalogue(session.user.role) && (
+        <Button asChild variant="secondary">
+          <Link href="/admin/products">Administrer produkter</Link>
+        </Button>
+      )}
       <SignOutButton />
     </div>
   );

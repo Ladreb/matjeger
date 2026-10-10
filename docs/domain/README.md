@@ -4,9 +4,9 @@ What Matjeger does, by domain. Each domain maps to a folder in `src/features/<do
 
 | Domain | Status | Description |
 | --- | --- | --- |
-| [Users and roles](users-and-roles.md) | Login done, role checks not built | Google login, three roles |
+| [Users and roles](users-and-roles.md) | Login and role guard done | Google login, three roles |
 | [Location](location.md) | Built (on test database) | The user's postal code |
-| [Products](products.md) | Schema only | Curated catalogue of groceries |
+| [Products](products.md) | Admin create and edit done | Curated catalogue of groceries |
 | [Pricing](pricing.md) | Schema only | Price reports per chain and postal code |
 | Shopping list | Not started | Cheapest chain for a list near the user |
 
