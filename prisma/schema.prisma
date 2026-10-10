@@ -51,6 +51,7 @@ model PriceReport {
   productId    String
   product      Product   @relation(fields: [productId], references: [id])
   store        Store
+  postalCode   String    // 4 digits, copied from the reporter's saved postal code
   price        Int       // in øre, e.g. 2999 = 29,99 kr
   priceUnit    PriceUnit @default(PER_UNIT)
   isOnSale     Boolean   @default(false)
@@ -59,7 +60,7 @@ model PriceReport {
   reportedById String?
   reportedBy   User?     @relation(fields: [reportedById], references: [id])
 
-  @@index([productId, store, reportedAt])
+  @@index([productId, store, postalCode, reportedAt])
 }
 
 // NextAuth models
@@ -70,6 +71,7 @@ model User {
   emailVerified DateTime?
   image         String?
   role          Role          @default(USER)
+  postalCode    String?       // where the user shops, 4 digits
   accounts      Account[]
   sessions      Session[]
   priceReports  PriceReport[]

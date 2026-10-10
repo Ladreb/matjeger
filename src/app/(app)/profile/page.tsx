@@ -1,5 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/features/auth/lib/auth";
+import { PostalCodeForm } from "@/features/location/components/postal-code-form";
 import { SignOutButton } from "@/features/auth/components/sign-out-button";
 
 export default async function ProfilePage() {
@@ -10,6 +11,10 @@ export default async function ProfilePage() {
       <div className="flex flex-col gap-1">
         <p className="font-semibold">{session?.user?.name}</p>
         <p className="text-sm text-muted-foreground">{session?.user?.email}</p>
+      </div>
+      <div className="flex flex-col gap-2">
+        <p className="text-sm font-medium">Postnummer</p>
+        <PostalCodeForm initial={session?.user?.postalCode} />
       </div>
       <SignOutButton />
     </div>

@@ -1,8 +1,11 @@
-@AGENTS.md
-
 # Matjeger
 
 A Norwegian grocery price comparison PWA. Users scan product barcodes and report prices per store chain. The user can create custom shopping lists and the app will show them which store is cheapest.
+
+## Where to start
+
+- `docs/ROADMAP.md` — what is built, what is next (keep checkboxes updated)
+- `docs/DECISIONS.md` — product and technical decisions with reasons
 
 ## Rules
 - Write in plain, clear language
@@ -23,7 +26,10 @@ A Norwegian grocery price comparison PWA. Users scan product barcodes and report
 ## Key conventions
 
 - Prices are always stored as integers in **øre** (1 kr = 100 øre) to avoid floating point issues. Use `formatPrice()` from `@/lib/utils` to display them.
-- Store chains are an enum in the Prisma schema (`Store`). Norwegian chains only — no location needed since pricing is national.
+- Store chains are an enum in the Prisma schema (`Store`). Norwegian chains only.
+- Prices can vary by postal code. Users save their postal code once and it is attached to reports automatically (see `docs/DECISIONS.md` #3).
+- Latest price report wins. Old reports are shown with a staleness warning, not hidden.
+- Products are curated in-house by admins (`PRODUCT_ADMIN`/`ADMIN`). Regular users report prices only. Letting users propose unknown barcodes is a later feature.
 - Norwegian locale throughout: `lang="nb"`, price formatting with `nb-NO`.
 - Prisma client is a singleton exported from `@/lib/db` as `db`.
 - shadcn/ui components go in `src/components/ui/`. Use `npx shadcn@latest add <component>` to add new ones.
