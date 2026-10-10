@@ -72,7 +72,7 @@ function OutcomeMessage({ outcome }: { outcome: Outcome }) {
   return (
     <Link
       href={`/products/${result.product.id}`}
-      className="rounded-lg border p-3"
+      className="block rounded-lg border p-3"
     >
       <p className="font-medium">{result.product.name}</p>
       {result.product.brand && (

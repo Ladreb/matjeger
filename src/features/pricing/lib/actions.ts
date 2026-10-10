@@ -9,7 +9,7 @@ import { isStore } from "./stores";
 
 export type ReportPriceState =
   | { ok: true; message: string }
-  | { ok: false; message: string; values?: { store: string; price: string } }
+  | { ok: false; message: string; values: { store: string; price: string } }
   | null;
 
 export async function reportPrice(
@@ -17,13 +17,14 @@ export async function reportPrice(
   _previous: ReportPriceState,
   formData: FormData,
 ): Promise<ReportPriceState> {
-  const session = await getServerSession(authOptions);
-  if (!session) return { ok: false, message: "Du må være logget inn" };
-
   const values = {
     store: String(formData.get("store") ?? ""),
     price: String(formData.get("price") ?? ""),
   };
+
+  const session = await getServerSession(authOptions);
+  if (!session) return { ok: false, message: "Du må være logget inn", values };
+
   const { store } = values;
   if (!isStore(store)) {
     return { ok: false, message: "Velg en butikkjede", values };

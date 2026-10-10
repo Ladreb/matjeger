@@ -29,6 +29,7 @@ Update checkboxes as work lands.
 - [ ] Users propose unknown barcodes, admin review queue
 - [ ] `StoreLocation` (specific branches)
 - [ ] Price accuracy: when users report different prices, show a range or a consensus instead of only the latest (see `docs/domain/pricing.md`)
+- [ ] Latest price per chain: Prisma `distinct` runs in memory and loads every report for the product and postal code; switch to `DISTINCT ON (store)` when reports grow
 - [ ] Sale price and per-kg in the report form
 - [ ] Tests
 - [ ] Think about UPC-A: the scanner reads 12-digit UPC-A codes, but products are probably stored as 13-digit EAN, so a lookup can miss. Possible fix: pad to 13 digits before lookup. Not prioritized

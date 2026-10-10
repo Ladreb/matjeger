@@ -19,7 +19,7 @@ export function ReportPriceForm({ productId }: { productId: string }) {
         <select
           name="store"
           required
-          defaultValue={state?.ok === false ? (state.values?.store ?? "") : ""}
+          defaultValue={state?.ok === false ? state.values.store : ""}
           className="h-9 rounded-md border border-input bg-background px-3 text-sm"
         >
           <option value="" disabled>
@@ -38,20 +38,20 @@ export function ReportPriceForm({ productId }: { productId: string }) {
           name="price"
           inputMode="decimal"
           placeholder="29,90"
-          defaultValue={state?.ok === false ? (state.values?.price ?? "") : ""}
+          defaultValue={state?.ok === false ? state.values.price : ""}
           required
         />
       </label>
-      {state && (
-        <p
-          role="status"
-          className={
-            state.ok ? "text-sm text-muted-foreground" : "text-sm text-destructive"
-          }
-        >
-          {state.message}
-        </p>
-      )}
+      <p
+        role={state?.ok === false ? "alert" : "status"}
+        className={
+          state?.ok === false
+            ? "text-sm text-destructive"
+            : "text-sm text-muted-foreground"
+        }
+      >
+        {state?.message}
+      </p>
       <Button type="submit" disabled={pending}>
         {pending ? "Sender ..." : "Rapporter pris"}
       </Button>
