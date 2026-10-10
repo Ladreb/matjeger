@@ -15,7 +15,7 @@ Update checkboxes as work lands.
 2. [x] **Role guards**: `requireCatalogueEditor()` for pages and server actions
 3. [x] **Admin product create/edit**: `/admin/products` (list, create, edit; no delete, no image yet)
 4. [x] **Barcode scan**: ZXing camera scan on `/scan`, lookup, manual entry fallback
-5. [ ] **Price reporting**: chain + price form, latest price per chain on product page, staleness warning
+5. [x] **Price reporting**: chain + price form, latest price per chain on product page, staleness warning
 6. [ ] **Search**: product search by name/brand on `/search`
 7. [ ] **Shopping list**: lists per user, cheapest chain for a list near the user's postal code
 8. [ ] **PWA**: icons, manifest, service worker (branch `fix/pwa-serwist` is unmerged)
@@ -28,6 +28,9 @@ Update checkboxes as work lands.
 ## Later
 - [ ] Users propose unknown barcodes, admin review queue
 - [ ] `StoreLocation` (specific branches)
+- [ ] Price accuracy: when users report different prices, show a range or a consensus instead of only the latest (see `docs/domain/pricing.md`)
+- [ ] Latest price per chain: Prisma `distinct` runs in memory and loads every report for the product and postal code; switch to `DISTINCT ON (store)` when reports grow
+- [ ] Sale price and per-kg in the report form
 - [ ] Tests
 - [ ] Think about UPC-A: the scanner reads 12-digit UPC-A codes, but products are probably stored as 13-digit EAN, so a lookup can miss. Possible fix: pad to 13 digits before lookup. Not prioritized
 
