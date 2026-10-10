@@ -15,7 +15,14 @@ export function ScanView() {
 
   function lookup(barcode: string) {
     startTransition(async () => {
-      setOutcome({ barcode, result: await lookupBarcode(barcode) });
+      try {
+        setOutcome({ barcode, result: await lookupBarcode(barcode) });
+      } catch {
+        setOutcome({
+          barcode,
+          result: { ok: false, error: "Noe gikk galt. Prøv igjen." },
+        });
+      }
     });
   }
 
@@ -43,9 +50,7 @@ export function ScanView() {
           </Button>
         </>
       )}
-      {!outcome && (
-        <ManualBarcodeForm onSubmit={lookup} disabled={pending} />
-      )}
+      <ManualBarcodeForm onSubmit={lookup} disabled={pending} />
     </div>
   );
 }
