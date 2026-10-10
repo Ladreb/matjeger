@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { lookupBarcode, type LookupResult } from "../lib/actions";
@@ -69,11 +70,15 @@ function OutcomeMessage({ outcome }: { outcome: Outcome }) {
     );
   }
   return (
-    <div>
+    <Link
+      href={`/products/${result.product.id}`}
+      className="rounded-lg border p-3"
+    >
       <p className="font-medium">{result.product.name}</p>
       {result.product.brand && (
         <p className="text-sm text-muted-foreground">{result.product.brand}</p>
       )}
-    </div>
+      <p className="mt-1 text-sm text-primary">Se priser og rapporter</p>
+    </Link>
   );
 }
