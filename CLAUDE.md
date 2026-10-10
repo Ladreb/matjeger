@@ -27,7 +27,7 @@ A Norwegian grocery price comparison PWA. Users scan product barcodes and report
 
 - Prices are always stored as integers in **øre** (1 kr = 100 øre) to avoid floating point issues. Use `formatPrice()` from `@/lib/utils` to display them.
 - Store chains are an enum in the Prisma schema (`Store`). Norwegian chains only.
-- Prices can vary by postal code. Users save their postal code once and it is attached to reports automatically (see `docs/DECISIONS.md`, status: proposed).
+- Prices can vary by postal code. Users save their postal code once and it is attached to reports automatically (see `docs/DECISIONS.md` #3).
 - Latest price report wins. Old reports are shown with a staleness warning, not hidden.
 - Products are curated in-house by admins (`PRODUCT_ADMIN`/`ADMIN`). Regular users report prices only. Letting users propose unknown barcodes is a later feature.
 - Norwegian locale throughout: `lang="nb"`, price formatting with `nb-NO`.
