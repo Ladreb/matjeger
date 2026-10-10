@@ -6,6 +6,10 @@ A Norwegian grocery price comparison PWA. Users scan product barcodes and report
 
 - `docs/ROADMAP.md` — what is built, what is next (keep checkboxes updated)
 - `docs/DECISIONS.md` — product and technical decisions with reasons
+- `docs/domain/` — what each domain does (products, pricing, location, users)
+- `docs/technology/` — architecture patterns and environments (test vs production)
+
+Update the matching domain or technology doc when you change behaviour.
 
 ## Rules
 - Write in plain, clear language
@@ -26,7 +30,7 @@ A Norwegian grocery price comparison PWA. Users scan product barcodes and report
 ## Code principles
 
 - **Group by domain.** Code lives in `src/features/<domain>/{components,lib,types}`. Pages in `src/app` stay thin and only compose feature code.
-- **Reusable components.** Write it inline first and extract on the second real use. Generic UI goes in `src/components/ui`, domain-specific UI stays in its feature.
+- **Reusable components, not by default.** Extract a component only once it has two or more real uses. Until then keep it next to its only user. Generic UI goes in `src/components/ui`, domain-specific UI stays in its feature.
 - **YAGNI.** Build only what the current roadmap step needs. No speculative options, layers or abstractions.
 - **Readable without comments.** Name functions and variables so the code explains itself. Comment only to explain why (a business rule, an odd external API), never what.
 - **SOLID, applied to TypeScript.**
@@ -64,11 +68,13 @@ src/
   app/              # Next.js App Router pages and API routes
   components/
     ui/             # shadcn/ui components
+  features/         # one folder per domain: components/, lib/, types/
   lib/
     db.ts           # Prisma client singleton
     utils.ts        # cn(), formatPrice()
 prisma/
   schema.prisma     # Database schema
+docs/               # roadmap, decisions, domain/, technology/
 public/
   manifest.json     # PWA manifest
 ```

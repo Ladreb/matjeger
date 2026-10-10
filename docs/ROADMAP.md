@@ -27,5 +27,4 @@ Update checkboxes as work lands.
 
 ## Housekeeping
 - [ ] `package.json` name is still `fervent-johnson`
-- [ ] Empty skill folders in `.claude/skills/`
 - [ ] Stale worktrees (`.claude/worktrees/*`) and branches
