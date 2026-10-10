@@ -20,6 +20,11 @@ Update checkboxes as work lands.
 7. [ ] **Shopping list**: lists per user, cheapest chain for a list near the user's postal code
 8. [ ] **PWA**: icons, manifest, service worker (branch `fix/pwa-serwist` is unmerged)
 
+## Before first real deploy
+- [ ] Production Google OAuth client with production redirect URI (`/api/auth/callback/google`)
+- [ ] Vercel env vars: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`
+- [ ] Run `prisma migrate deploy` on the production database (see `docs/technology/environments.md`)
+
 ## Later
 - [ ] Users propose unknown barcodes, admin review queue
 - [ ] `StoreLocation` (specific branches)
