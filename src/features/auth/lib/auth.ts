@@ -21,6 +21,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = user.id;
         session.user.role = user.role as Role;
+        session.user.postalCode = user.postalCode ?? null;
       }
       return session;
     },
