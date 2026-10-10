@@ -15,5 +15,5 @@ export const STORE_LABELS: Record<Store, string> = {
 export const STORES = Object.keys(STORE_LABELS) as Store[];
 
 export function isStore(value: string): value is Store {
-  return value in STORE_LABELS;
+  return Object.hasOwn(STORE_LABELS, value);
 }

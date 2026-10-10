@@ -30,7 +30,7 @@ export default async function ProductPage({
         )}
       </div>
 
-      {postalCode ? (
+      {postalCode && (
         <>
           <section className="flex flex-col gap-2">
             <h2 className="font-medium">Priser i {postalCode}</h2>
@@ -41,10 +41,6 @@ export default async function ProductPage({
             <ReportPriceForm productId={product.id} />
           </section>
         </>
-      ) : (
-        <p className="text-sm text-muted-foreground">
-          Lagre postnummeret ditt for å se og rapportere priser.
-        </p>
       )}
     </div>
   );

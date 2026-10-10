@@ -6,7 +6,7 @@ export function findLatestPricesPerStore(
 ) {
   return db.priceReport.findMany({
     where: { productId, postalCode },
-    orderBy: { reportedAt: "desc" },
+    orderBy: [{ reportedAt: "desc" }, { id: "desc" }],
     distinct: ["store"],
     select: { id: true, store: true, price: true, reportedAt: true },
   });
