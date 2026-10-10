@@ -4,4 +4,4 @@
 - Roles (`Role` enum): `USER`, `PRODUCT_ADMIN`, `ADMIN`. New users start as `USER`. Promote users by editing the row (Prisma Studio).
 - `USER` reports prices. `PRODUCT_ADMIN` and `ADMIN` also create and edit products.
 - The session carries `id`, `role` and `postalCode`.
-- Not built yet: role checks. The next step is a `requireRole()` helper for server actions and pages.
+- Role checks: `canEditCatalogue(role)` says whether a role may manage products. `requireCatalogueEditor()` guards pages and server actions: no session goes to `/login`, wrong role gets a 404, so `/admin` is not revealed.
