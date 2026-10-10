@@ -7,3 +7,10 @@ export function listProducts() {
 export function findProduct(id: string) {
   return db.product.findUnique({ where: { id } });
 }
+
+export function findProductByBarcode(barcode: string) {
+  return db.product.findUnique({
+    where: { barcode },
+    select: { id: true, name: true, brand: true },
+  });
+}

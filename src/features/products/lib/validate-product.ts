@@ -1,3 +1,4 @@
+import { isValidBarcode } from "./barcode";
 import type { ProductFormValues } from "./product-form-values";
 
 export type ProductData = {
@@ -11,7 +12,6 @@ export type ProductData = {
 
 type Validation = { ok: true; data: ProductData } | { ok: false; error: string };
 
-const BARCODE_PATTERN = /^\d{8,14}$/;
 const DIGITS_PATTERN = /^\d+$/;
 
 export function validateProduct(values: ProductFormValues): Validation {
@@ -20,7 +20,7 @@ export function validateProduct(values: ProductFormValues): Validation {
   if (!values.barcode && !values.pluCode) {
     return { ok: false, error: "Produktet trenger strekkode eller PLU-kode" };
   }
-  if (values.barcode && !BARCODE_PATTERN.test(values.barcode)) {
+  if (values.barcode && !isValidBarcode(values.barcode)) {
     return { ok: false, error: "Strekkode må være 8 til 14 siffer" };
   }
   if (values.pluCode && !DIGITS_PATTERN.test(values.pluCode)) {
