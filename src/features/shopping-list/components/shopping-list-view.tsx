@@ -1,0 +1,293 @@
+"use client";
+
+import { ChevronRight, ShoppingCart } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { STORE_LABELS } from "@/features/pricing/lib/stores";
+import { formatPrice } from "@/lib/utils";
+import {
+  clearCheckedItems,
+  removeItem,
+  setChecked,
+  setQuantity,
+  type ListActionResult,
+} from "../lib/actions";
+import { computePlans, type StorePrice } from "../lib/plans";
+import { clampQuantity } from "../lib/quantity";
+import type { ListItemData } from "../types/shopping-list";
+import { PlanCard } from "./plan-card";
+import { ShoppingListItem } from "./shopping-list-item";
+
+type Props = {
+  initialItems: ListItemData[];
+  prices: StorePrice[];
+  postalCode: string | null;
+  now: Date;
+};
+
+type SavedValues = { quantity: number; checked: boolean };
+
+const SAVE_FAILED = "Kunne ikke lagre endringen. Prøv igjen.";
+const FAILED: ListActionResult = { ok: false, message: SAVE_FAILED };
+
+function byAddedOrder(a: ListItemData, b: ListItemData) {
+  return a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id);
+}
+
+function countText(count: number) {
+  return count === 1 ? "1 vare" : `${count} varer`;
+}
+
+export function ShoppingListView({ initialItems, prices, postalCode, now }: Props) {
+  const [items, setItems] = useState(initialItems);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [clearFailed, setClearFailed] = useState(false);
+  const confirmed = useRef(
+    new Map<string, SavedValues>(
+      initialItems.map((item) => [
+        item.id,
+        { quantity: item.quantity, checked: item.checked },
+      ]),
+    ),
+  );
+  const unfinishedSaves = useRef(new Map<string, number>());
+  const heading = useRef<HTMLHeadingElement>(null);
+  const focusHeadingAfterRender = useRef(false);
+
+  useEffect(() => {
+    if (focusHeadingAfterRender.current) {
+      focusHeadingAfterRender.current = false;
+      heading.current?.focus();
+    }
+  }, [items]);
+
+  const { plans, unpricedProductIds } = useMemo(
+    () =>
+      computePlans(
+        items.map(({ productId, quantity }) => ({ productId, quantity })),
+        prices,
+        now,
+      ),
+    [items, prices, now],
+  );
+
+  const itemsByProductId = useMemo(
+    () => new Map(items.map((item) => [item.productId, item])),
+    [items],
+  );
+  const pricedProductIds = useMemo(
+    () => new Set(prices.map((price) => price.productId)),
+    [prices],
+  );
+
+  function updateItem(id: string, changes: Partial<SavedValues>) {
+    setItems((current) =>
+      current.map((item) => (item.id === id ? { ...item, ...changes } : item)),
+    );
+  }
+
+  function setError(id: string, message: string | null) {
+    setErrors((current) => {
+      const rest = { ...current };
+      delete rest[id];
+      return message ? { ...rest, [id]: message } : rest;
+    });
+  }
+
+  // Only the last unfinished save of a field may undo the screen, so fast taps do not fight each other.
+  async function save<Field extends keyof SavedValues>(
+    id: string,
+    field: Field,
+    value: SavedValues[Field],
+    send: () => Promise<ListActionResult>,
+  ) {
+    const key = `${id}:${field}`;
+    updateItem(id, { [field]: value });
+    setError(id, null);
+    unfinishedSaves.current.set(key, (unfinishedSaves.current.get(key) ?? 0) + 1);
+
+    const result = await send().catch(() => FAILED);
+
+    const remaining = (unfinishedSaves.current.get(key) ?? 1) - 1;
+    unfinishedSaves.current.set(key, remaining);
+    const saved = confirmed.current.get(id);
+    if (result.ok) {
+      if (saved) saved[field] = value;
+      return;
+    }
+    setError(id, SAVE_FAILED);
+    if (remaining === 0 && saved) updateItem(id, { [field]: saved[field] });
+  }
+
+  function restore(removed: ListItemData[]) {
+    setItems((current) => [...current, ...removed].sort(byAddedOrder));
+  }
+
+  async function remove(item: ListItemData) {
+    setItems((current) => current.filter((other) => other.id !== item.id));
+    focusHeadingAfterRender.current = true;
+    const result = await removeItem(item.id).catch(() => FAILED);
+    if (!result.ok) {
+      restore([item]);
+      setError(item.id, SAVE_FAILED);
+    }
+  }
+
+  async function clearMarked() {
+    const removed = items.filter((item) => item.checked);
+    setItems((current) => current.filter((item) => !item.checked));
+    focusHeadingAfterRender.current = true;
+    setClearFailed(false);
+    const result = await clearCheckedItems().catch(() => FAILED);
+    if (!result.ok) {
+      restore(removed);
+      setClearFailed(true);
+    }
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="flex flex-col items-center gap-3 px-4 py-12 text-center">
+        <ShoppingCart aria-hidden className="size-10 text-muted-foreground" />
+        <h1 ref={heading} tabIndex={-1} className="text-xl font-semibold">
+          Handlelisten er tom
+        </h1>
+        <p className="text-muted-foreground">
+          Legg til varer fra søket eller fra en produktside, så finner vi
+          billigste butikk.
+        </p>
+        <Button asChild className="h-11">
+          <Link href="/search">Søk etter varer</Link>
+        </Button>
+        <Button asChild variant="ghost" className="h-11">
+          <Link href="/scan">Skann en vare</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  const markedCount = items.filter((item) => item.checked).length;
+  const cheapest = plans[0];
+  const cheapestIsComplete = cheapest?.uncoveredProductIds.length === 0;
+
+  return (
+    <div className="flex flex-col gap-4 p-4">
+      <div>
+        <h1 ref={heading} tabIndex={-1} className="text-xl font-semibold">
+          Handlelisten
+        </h1>
+        <p className="text-sm text-muted-foreground">{countText(items.length)}</p>
+      </div>
+
+      {postalCode && cheapest && (
+        <a
+          href="#billigste-butikk"
+          className="flex items-center justify-between gap-2 rounded-lg bg-secondary p-3 text-sm"
+        >
+          <span className="flex flex-col">
+            <span>
+              {cheapestIsComplete ? "Billigst" : "Færrest varer mangler"}:{" "}
+              <b>{STORE_LABELS[cheapest.stops[0].store]}</b>,{" "}
+              {!cheapestIsComplete && "fra "}
+              {formatPrice(cheapest.total)}
+            </span>
+            <span className="text-muted-foreground">Se sammenligning</span>
+          </span>
+          <ChevronRight aria-hidden className="size-4" />
+        </a>
+      )}
+
+      <ul className="flex flex-col divide-y rounded-lg border">
+        {items.map((item) => (
+          <ShoppingListItem
+            key={item.id}
+            item={item}
+            noPriceInPostalCode={
+              postalCode && !pricedProductIds.has(item.productId)
+                ? postalCode
+                : null
+            }
+            error={errors[item.id]}
+            onQuantityChange={(quantity) => {
+              const next = clampQuantity(quantity);
+              void save(item.id, "quantity", next, () => setQuantity(item.id, next));
+            }}
+            onCheckedChange={(checked) =>
+              void save(item.id, "checked", checked, () => setChecked(item.id, checked))
+            }
+            onRemove={() => void remove(item)}
+          />
+        ))}
+      </ul>
+
+      {markedCount > 0 && (
+        <div className="flex flex-col gap-1">
+          <Button
+            type="button"
+            variant="outline"
+            className="h-11"
+            onClick={() => void clearMarked()}
+          >
+            Fjern markerte varer fra listen ({markedCount})
+          </Button>
+          {clearFailed && (
+            <p role="alert" className="text-sm text-destructive">
+              {SAVE_FAILED}
+            </p>
+          )}
+        </div>
+      )}
+
+      <section id="billigste-butikk" className="flex scroll-mt-16 flex-col gap-3">
+        <div>
+          <h2 className="text-lg font-semibold">Billigste butikk</h2>
+          {postalCode && (
+            <p className="text-sm text-muted-foreground">
+              Priser for postnummer {postalCode}
+            </p>
+          )}
+        </div>
+
+        {!postalCode && (
+          <p className="text-sm text-muted-foreground">
+            Lagre postnummeret ditt ovenfor for å se hvilken butikk som er
+            billigst.
+          </p>
+        )}
+
+        {postalCode && plans.length === 0 && (
+          <p className="text-sm text-muted-foreground">
+            Ingen har rapportert priser for varene på listen i {postalCode} ennå.
+            Åpne en vare og rapporter prisen.
+          </p>
+        )}
+
+        {postalCode &&
+          plans.map((plan, index) => (
+            <PlanCard
+              key={plan.stops
+                .map((stop) => `${stop.store}:${stop.lines.map((l) => l.productId)}`)
+                .join("|")}
+              plan={plan}
+              rank={index + 1}
+              isCheapest={index === 0 && cheapestIsComplete}
+              open={index === 0}
+              now={now}
+              itemsByProductId={itemsByProductId}
+            />
+          ))}
+
+        {postalCode && plans.length > 0 && unpricedProductIds.length > 0 && (
+          <p className="text-sm text-muted-foreground">
+            Ingen pris ennå, ikke med i sammenligningen:{" "}
+            {unpricedProductIds
+              .map((productId) => itemsByProductId.get(productId)?.name)
+              .join(", ")}
+            .
+          </p>
+        )}
+      </section>
+    </div>
+  );
+}

@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { currentListIdSql } from "@/features/shopping-list/lib/current-list";
 import { db } from "@/lib/db";
 
 export function listProducts() {
@@ -22,11 +23,19 @@ const FUZZY_MIN_TERM_LENGTH = 4;
 const FUZZY_MIN_SIMILARITY = 0.4;
 const INSIDE_WORD_MIN_TERM_LENGTH = 3;
 
-type SearchResult = { id: string; name: string; brand: string | null };
+type SearchResult = {
+  id: string;
+  name: string;
+  brand: string | null;
+  onList: boolean;
+};
 
 // Short terms (is, te, øl) have too few trigrams to tell a typo from noise, so they only match whole words and word starts.
 // The separators here must stay the same as in the SQL translate(), so "0,5" matches "0,5 l" on both sides.
-export function searchProducts(term: string): Promise<SearchResult[]> {
+export function searchProducts(
+  term: string,
+  userId: string,
+): Promise<SearchResult[]> {
   const lowered = term
     .toLowerCase()
     .replace(/[,.\-/()]/g, " ")
@@ -37,7 +46,12 @@ export function searchProducts(term: string): Promise<SearchResult[]> {
   const pattern = lowered.replace(/[\\%_]/g, "\\$&");
 
   return db.$queryRaw<SearchResult[]>(Prisma.sql`
-    SELECT id, name, brand FROM (
+    SELECT id, name, brand,
+      EXISTS (
+        SELECT 1 FROM "ShoppingListItem" i
+        WHERE i."listId" = ${currentListIdSql(userId)} AND i."productId" = ranked.id
+      ) AS "onList"
+    FROM (
       SELECT p.id, p.name, p.brand, w.score,
         CASE
           WHEN w.words LIKE '% ' || ${pattern}::text || ' %' THEN 0

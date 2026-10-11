@@ -26,3 +26,6 @@ Before this, `.env` and `.env.development.local` pointed at the same Neon databa
 
 ## 5. Login: Google now, magic link later, no passwords (decided, 2026-10-11)
 Reason for a second login: not everyone wants Google. Passwords were rejected: the Credentials provider forces JWT sessions (the app uses database sessions), and we would own hashing, verification, reset and rate limiting. Email magic link uses the existing `VerificationToken` model and links to the Google account by verified email. It needs an email sender and a domain, so it is planned together with the first production deploy. Testing without a real account uses the dev login (see `docs/technology/environments.md`), which is switched off outside local development.
+
+## 6. Shopping list: a list table now, one list shown, at most 2 stops per plan (decided, 2026-10-11)
+`ShoppingList` is its own table (owned by a user) and `ShoppingListItem` belongs to a list, unique per list and product. Reason: several lists per user is expected, and adding the table later would mean migrating every item. The app shows and uses the user's oldest list and creates it on the first add, so the UI has no names or overview yet. A plan is one chain plus, if it has gaps, one extra chain. More stops are not worth the walking. Ranking details are in `docs/domain/shopping-list.md`.

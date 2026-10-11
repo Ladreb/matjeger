@@ -20,7 +20,7 @@ Update checkboxes as work lands.
 4. [x] **Barcode scan**: ZXing camera scan on `/scan`, lookup, manual entry fallback
 5. [x] **Price reporting**: chain + price form, latest price per chain on product page, staleness warning
 6. [x] **Search**: product search by name/brand on `/search`, fuzzy, as you type, loading skeleton on the product page (measurements in `docs/technology/performance.md`)
-7. [ ] **Shopping list**: lists per user, cheapest chain for a list near the user's postal code
+7. [x] **Shopping list**: one list per user (schema allows several), add from search and product page, plan cards with the cheapest chain and at most 2 stops (see `docs/domain/shopping-list.md`)
 8. [ ] **PWA**: icons, manifest, service worker (branch `fix/pwa-serwist` is unmerged)
 
 ## Before first real deploy
@@ -38,8 +38,9 @@ Update checkboxes as work lands.
 - [ ] Sale price and per-kg in the report form
 - [ ] Search: split multi-word searches into words ("tine melk"), collapse double spaces in stored names ("Foo, bar" becomes "foo  bar" and misses the exact ranks), and add GIN trigram indexes on `Product` name, brand and description (the query scans every product today, which is fine for a curated catalogue); fold æ/ø/å so "ol" finds "øl"
 - [ ] Run Prisma migrations over the direct connection (`DATABASE_URL_UNPOOLED`) instead of the pooled one; this changes the production migration steps in `docs/technology/environments.md`
+- [ ] Several shopping lists: names, an overview, a list picker, and `listId` passed to the actions instead of "the user's oldest list" (see `docs/domain/shopping-list.md`)
 - [ ] Session lookup runs two queries per page (`@auth/prisma-adapter`) and is the fixed cost of every request; look at it if requests need to get faster
-- [ ] Tests
+- [ ] More tests: Vitest runs with `npm test` and covers the plan ranking and staleness; actions, queries and components have none
 - [ ] Think about UPC-A: the scanner reads 12-digit UPC-A codes, but products are probably stored as 13-digit EAN, so a lookup can miss. Possible fix: pad to 13 digits before lookup. Not prioritized
 
 ## Housekeeping

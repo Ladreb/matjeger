@@ -61,6 +61,7 @@ Update the matching domain or technology doc when you change behaviour.
 npm run dev          # Start development server
 npm run build        # Build for production
 npm run lint         # Run ESLint
+npm test             # Run unit tests (Vitest)
 npx prisma studio    # Open Prisma Studio (DB GUI)
 npx prisma migrate dev --name <name>   # Create and apply a migration
 npx prisma generate  # Regenerate Prisma client after schema changes
