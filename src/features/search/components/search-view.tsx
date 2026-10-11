@@ -1,23 +1,13 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { searchProducts } from "@/features/products/lib/queries";
+import { SearchBox } from "./search-box";
 
 export async function SearchView({ query }: { query: string }) {
   const products = query ? await searchProducts(query) : null;
 
   return (
     <div className="flex flex-col gap-4 p-4">
-      <form action="/search" className="flex gap-2">
-        <Input
-          name="q"
-          type="search"
-          defaultValue={query}
-          placeholder="Søk etter navn eller merke"
-          aria-label="Søk etter produkter"
-        />
-        <Button type="submit">Søk</Button>
-      </form>
+      <SearchBox initialQuery={query} />
 
       {products?.length === 0 && (
         <p className="text-muted-foreground">
