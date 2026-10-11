@@ -9,6 +9,8 @@ A Norwegian grocery price comparison PWA. Users scan product barcodes and report
 - `docs/domain/` — what each domain does (products, pricing, location, users)
 - `docs/technology/` — architecture patterns and environments (test vs production)
 
+- `docs/handover/` — temporary files for handing work from one role to another (for example designer to developer). Build from the file, move what it says to the permanent docs, then delete it in the same PR.
+
 Update the matching domain or technology doc when you change behaviour.
 
 ## Rules
