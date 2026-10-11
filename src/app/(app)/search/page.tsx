@@ -3,8 +3,9 @@ import { SearchView } from "@/features/search/components/search-view";
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string | string[] }>;
 }) {
   const { q } = await searchParams;
-  return <SearchView query={q?.trim() ?? ""} />;
+  const query = Array.isArray(q) ? q[0] : q;
+  return <SearchView query={query?.trim() ?? ""} />;
 }
