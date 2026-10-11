@@ -28,7 +28,9 @@ Set `ENABLE_DEV_TOOLS=true` in `.env.development.local` to turn these on. Never 
 
 ## Applying migrations to production
 
-Production deploys apply pending migrations themselves. `vercel.json` sets the build command to run `prisma migrate deploy` over the direct connection (`DATABASE_URL_UNPOOLED`) and then `next build`, only when `VERCEL_ENV` is `production`. Preview builds never migrate. If a migration fails, the build fails and the running version stays live, so code never goes live ahead of its schema.
+Production deploys apply pending migrations themselves. `vercel.json` runs `scripts/vercel-build.sh`, which runs `prisma migrate deploy` over the direct connection (`DATABASE_URL_UNPOOLED`) when `VERCEL_ENV` is `production`, and then `next build`. If a migration fails, the build fails and the running version stays live, so code never goes live ahead of its schema.
+
+Preview deployments each get their own Neon branch (`preview/<git-branch>`, copied from production), set up by the Neon integration in Vercel (Storage, the database, Connect Project, Deployments Configuration, Preview). Preview builds print the database host and run `prisma migrate status`, so the host in the build log shows that a preview is not on the production database.
 
 Before merging a PR that adds a migration:
 - Create a restore point in Neon (a branch from the production branch). A bad migration is not undone by redeploying.
@@ -42,5 +44,3 @@ DATABASE_URL="<production direct connection string>" npx prisma migrate status
 ```
 
 The inline value wins over `.env.development.local`. Start the line with a space so the string stays out of your shell history (works when `HIST_IGNORE_SPACE` is on, which is the zsh option `setopt HIST_IGNORE_SPACE`). Never `export` it: the whole terminal session then talks to production, and a dev server started there does too.
-
-Vercel's `DATABASE_URL` and `DATABASE_URL_UNPOOLED` are set for all environments, so preview deployments also read and write the production database. Give previews their own Neon branch before using previews with real data.

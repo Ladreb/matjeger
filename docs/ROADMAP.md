@@ -27,7 +27,7 @@ Update checkboxes as work lands.
 - [ ] Magic link login by email as a second option next to Google (DECISIONS #5): email sender (e.g. Resend), verified sending domain, rate limit on link requests
 - [ ] Production Google OAuth client with production redirect URI (`/api/auth/callback/google`)
 - [ ] Vercel env vars: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`
-- [ ] Give preview deployments their own Neon branch (Vercel env vars are set for all environments today, so previews use the production database)
+- [x] Preview deployments get their own Neon branch (Neon integration, Deployments Configuration, Preview)
 - [ ] Check in the Vercel and Neon dashboards: functions run in `fra1` (set in `vercel.json`), and the Neon autosuspend delay is what you want (first search after a pause takes about 1.6 s)
 - [ ] Check after the first production deploy that migrations ran (see `docs/technology/environments.md`). Includes `pg_trgm` (search) and the product `description` column. Check on production that `SELECT lower('Å')` returns `å` (search lowercases in the database; dev uses `C.UTF-8`, which works)
 
