@@ -14,19 +14,23 @@ export function SearchBox({ initialQuery }: { initialQuery: string }) {
   const [value, setValue] = useState(initialQuery);
   const [isPending, startTransition] = useTransition();
   const debounceTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const [isFocused, setIsFocused] = useState(false);
+  const [lastSentTerm, setLastSentTerm] = useState(initialQuery);
   const [seenQuery, setSeenQuery] = useState(initialQuery);
 
   useEffect(() => () => clearTimeout(debounceTimer.current), []);
 
-  // The URL changed from outside (back button, the Søk tab). Not while typing, or a late answer would overwrite the user's text.
+  // A URL we did not send (back button, the Søk tab) replaces the text. Answers to our own searches never do, even late ones.
   if (seenQuery !== initialQuery) {
     setSeenQuery(initialQuery);
-    if (!isFocused) setValue(initialQuery);
+    if (initialQuery !== lastSentTerm) {
+      setValue(initialQuery);
+      setLastSentTerm(initialQuery);
+    }
   }
 
   function search(term: string) {
     const trimmed = term.trim();
+    setLastSentTerm(trimmed);
     startTransition(() => {
       router.replace(
         trimmed ? `/search?q=${encodeURIComponent(trimmed)}` : "/search",
@@ -60,8 +64,6 @@ export function SearchBox({ initialQuery }: { initialQuery: string }) {
       <Input
         name="q"
         type="search"
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
         value={value}
         onChange={handleChange}
         onCompositionEnd={(event) => scheduleSearch(event.currentTarget.value)}
