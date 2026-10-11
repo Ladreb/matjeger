@@ -30,7 +30,7 @@ Set `ENABLE_DEV_TOOLS=true` in `.env.development.local` to turn these on. Never 
 
 Production deploys apply pending migrations themselves. `vercel.json` runs `scripts/vercel-build.sh`, which runs `prisma migrate deploy` over the direct connection (`DATABASE_URL_UNPOOLED`) when `VERCEL_ENV` is `production`, and then `next build`. If a migration fails, the build fails and the running version stays live, so code never goes live ahead of its schema.
 
-Preview deployments each get their own Neon branch (`preview/<git-branch>`, copied from production), set up by the Neon integration in Vercel (Storage, the database, Connect Project, Deployments Configuration, Preview). Preview builds print the database host and run `prisma migrate status`, so the host in the build log shows that a preview is not on the production database.
+Preview deployments each get their own Neon branch (`preview/<git-branch>`, copied from production), set up by the Neon integration in Vercel (Storage, the database, Connect Project, Deployments Configuration, Preview). Preview builds print the database host and run `prisma migrate deploy` on that branch, so a preview always has the current schema. The host in the build log shows which database a preview used.
 
 Before merging a PR that adds a migration:
 - Create a restore point in Neon (a branch from the production branch). A bad migration is not undone by redeploying.

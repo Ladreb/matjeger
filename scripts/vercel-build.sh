@@ -10,7 +10,7 @@ case "$VERCEL_ENV" in
     ;;
   preview)
     echo "Preview database host: $(echo "$DATABASE_URL_UNPOOLED" | sed -E 's#.*@([^/:?]+).*#\1#')"
-    prisma migrate status || true
+    prisma migrate deploy
     ;;
 esac
 
