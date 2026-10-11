@@ -37,6 +37,8 @@ Update checkboxes as work lands.
 - [ ] Latest price per chain: Prisma `distinct` runs in memory and loads every report for the product and postal code; switch to `DISTINCT ON (store)` when reports grow
 - [ ] Sale price and per-kg in the report form
 - [ ] Search: split multi-word searches into words ("tine melk"), collapse double spaces in stored names ("Foo, bar" becomes "foo  bar" and misses the exact ranks), and add GIN trigram indexes on `Product` name, brand and description (the query scans every product today, which is fine for a curated catalogue); fold æ/ø/å so "ol" finds "øl"
+- [ ] Run Prisma migrations over the direct connection (`DATABASE_URL_UNPOOLED`) instead of the pooled one; this changes the production migration steps in `docs/technology/environments.md`
+- [ ] Session lookup runs two queries per page (`@auth/prisma-adapter`) and is the fixed cost of every request; look at it if requests need to get faster
 - [ ] Tests
 - [ ] Think about UPC-A: the scanner reads 12-digit UPC-A codes, but products are probably stored as 13-digit EAN, so a lookup can miss. Possible fix: pad to 13 digits before lookup. Not prioritized
 

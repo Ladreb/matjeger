@@ -14,8 +14,16 @@ export function SearchBox({ initialQuery }: { initialQuery: string }) {
   const [value, setValue] = useState(initialQuery);
   const [isPending, startTransition] = useTransition();
   const debounceTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const [isFocused, setIsFocused] = useState(false);
+  const [seenQuery, setSeenQuery] = useState(initialQuery);
 
   useEffect(() => () => clearTimeout(debounceTimer.current), []);
+
+  // The URL changed from outside (back button, the Søk tab). Not while typing, or a late answer would overwrite the user's text.
+  if (seenQuery !== initialQuery) {
+    setSeenQuery(initialQuery);
+    if (!isFocused) setValue(initialQuery);
+  }
 
   function search(term: string) {
     const trimmed = term.trim();
@@ -26,15 +34,19 @@ export function SearchBox({ initialQuery }: { initialQuery: string }) {
     });
   }
 
-  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const next = event.target.value;
-    setValue(next);
+  function scheduleSearch(next: string) {
     clearTimeout(debounceTimer.current);
 
     const length = next.trim().length;
     if (length === 0 || length >= MIN_TERM_LENGTH_WHILE_TYPING) {
       debounceTimer.current = setTimeout(() => search(next), DEBOUNCE_MS);
     }
+  }
+
+  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const next = event.target.value;
+    setValue(next);
+    if (!(event.nativeEvent as InputEvent).isComposing) scheduleSearch(next);
   }
 
   function handleSubmit(event: React.FormEvent) {
@@ -48,15 +60,17 @@ export function SearchBox({ initialQuery }: { initialQuery: string }) {
       <Input
         name="q"
         type="search"
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         value={value}
         onChange={handleChange}
+        onCompositionEnd={(event) => scheduleSearch(event.currentTarget.value)}
         placeholder="Søk etter navn eller merke"
         aria-label="Søk etter produkter"
         autoComplete="off"
       />
       <Button
         type="submit"
-        aria-busy={isPending}
         className={cn(
           "transition-opacity",
           isPending && "opacity-60 delay-300",
