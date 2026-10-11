@@ -17,6 +17,7 @@ export function ReportPriceForm({ productId }: { productId: string }) {
       <label className="flex flex-col gap-1.5 text-sm font-medium">
         Butikkjede
         <select
+          key={state?.ok === false ? state.values.store : ""}
           name="store"
           required
           defaultValue={state?.ok === false ? state.values.store : ""}

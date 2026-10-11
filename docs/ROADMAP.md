@@ -8,10 +8,13 @@ Update checkboxes as work lands.
 - [x] Landing page, Nordic theme, light/dark toggle
 - [x] App shell: header, bottom nav, auth guard
 - [x] Schema: Product, PriceReport, User roles
+- [x] Dev login and seed data for local testing (see `docs/technology/environments.md`)
 
 ## Next (in order)
 0. [x] **Test environment**: create Neon `dev` branch, point `.env.development.local` at it (see DECISIONS #4)
-1. [ ] **Location + schema**: schema and migration done on dev, NOT yet on production (needs `prisma migrate deploy`; fails if `PriceReport` has rows); "Where do you shop?" flow (see DECISIONS #3)
+1. [ ] **Location + schema**: done on dev, NOT yet on production
+   - [x] Schema and migration on dev, "Where do you shop?" flow (geolocation or 4 digits, see DECISIONS #3)
+   - [ ] `prisma migrate deploy` on production (fails if `PriceReport` has rows)
 2. [x] **Role guards**: `requireCatalogueEditor()` for pages and server actions
 3. [x] **Admin product create/edit**: `/admin/products` (list, create, edit; no delete, no image yet)
 4. [x] **Barcode scan**: ZXing camera scan on `/scan`, lookup, manual entry fallback
@@ -21,6 +24,7 @@ Update checkboxes as work lands.
 8. [ ] **PWA**: icons, manifest, service worker (branch `fix/pwa-serwist` is unmerged)
 
 ## Before first real deploy
+- [ ] Magic link login by email as a second option next to Google (DECISIONS #5): email sender (e.g. Resend), verified sending domain, rate limit on link requests
 - [ ] Production Google OAuth client with production redirect URI (`/api/auth/callback/google`)
 - [ ] Vercel env vars: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`
 - [ ] Run `prisma migrate deploy` on the production database (see `docs/technology/environments.md`)
@@ -35,5 +39,4 @@ Update checkboxes as work lands.
 - [ ] Think about UPC-A: the scanner reads 12-digit UPC-A codes, but products are probably stored as 13-digit EAN, so a lookup can miss. Possible fix: pad to 13 digits before lookup. Not prioritized
 
 ## Housekeeping
-- [ ] `package.json` name is still `fervent-johnson`
 - [ ] Stale worktrees (`.claude/worktrees/*`) and branches
