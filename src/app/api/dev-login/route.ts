@@ -4,29 +4,29 @@ import {
   createDevSession,
   DEV_LOGIN_ROLES,
   isDevLoginAllowed,
+  isDevLoginRole,
 } from "@/features/auth/lib/dev-login";
 
 export async function GET(request: Request) {
-  const url = new URL(request.url);
-  if (!isDevLoginAllowed(url.hostname)) {
+  if (!isDevLoginAllowed(request)) {
     return new NextResponse(null, { status: 404 });
   }
 
+  const url = new URL(request.url);
   const role = url.searchParams.get("role") ?? Role.USER;
-  if (!DEV_LOGIN_ROLES.includes(role)) {
+  if (!isDevLoginRole(role)) {
     return NextResponse.json(
       { error: `role must be one of ${DEV_LOGIN_ROLES.join(", ")}` },
       { status: 400 },
     );
   }
 
-  const next = url.searchParams.get("next") ?? "/";
-  const target = next.startsWith("/") && !next.startsWith("//") ? next : "/";
+  const requested = new URL(url.searchParams.get("next") ?? "/", url.origin);
+  const target =
+    requested.origin === url.origin ? requested : new URL("/", url.origin);
 
-  const { cookieName, sessionToken, expires } = await createDevSession(
-    role as Role,
-  );
-  const response = NextResponse.redirect(new URL(target, url));
+  const { cookieName, sessionToken, expires } = await createDevSession(role);
+  const response = NextResponse.redirect(target);
   response.cookies.set(cookieName, sessionToken, {
     httpOnly: true,
     sameSite: "lax",

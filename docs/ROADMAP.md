@@ -39,5 +39,4 @@ Update checkboxes as work lands.
 - [ ] Think about UPC-A: the scanner reads 12-digit UPC-A codes, but products are probably stored as 13-digit EAN, so a lookup can miss. Possible fix: pad to 13 digits before lookup. Not prioritized
 
 ## Housekeeping
-- [ ] `package.json` name is still `fervent-johnson`
 - [ ] Stale worktrees (`.claude/worktrees/*`) and branches
