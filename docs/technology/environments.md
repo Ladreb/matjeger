@@ -28,10 +28,19 @@ Set `ENABLE_DEV_TOOLS=true` in `.env.development.local` to turn these on. Never 
 
 ## Applying migrations to production
 
-Do this deliberately, and before the code that needs the migration goes live. Get the **direct** (unpooled) production connection string from Neon, then pass it for this one command only:
+Production deploys apply pending migrations themselves. `vercel.json` sets the build command to run `prisma migrate deploy` over the direct connection (`DATABASE_URL_UNPOOLED`) and then `next build`, only when `VERCEL_ENV` is `production`. Preview builds never migrate. If a migration fails, the build fails and the running version stays live, so code never goes live ahead of its schema.
+
+Before merging a PR that adds a migration:
+- Create a restore point in Neon (a branch from the production branch). A bad migration is not undone by redeploying.
+- Keep migrations additive (add a column or table). Renaming or dropping something needs two deploys: add the new thing first, remove the old thing later. The old code runs against the new schema for a short time during a deploy.
+- A migration that adds a required column fails if the table has rows and the column has no default (this is what blocks `add_postal_code` while `PriceReport` has rows).
+
+To look at production by hand (see what is pending, or apply migrations in an emergency), get the **direct** (unpooled) production connection string from Neon and pass it for one command only:
 
 ```bash
-DATABASE_URL="<production direct connection string>" npx prisma migrate deploy
+DATABASE_URL="<production direct connection string>" npx prisma migrate status
 ```
 
-The inline value wins over `.env.development.local`. Start the line with a space so the string stays out of your shell history (works when `HIST_IGNORE_SPACE` is on, which is the zsh option `setopt HIST_IGNORE_SPACE`). Run `npx prisma migrate status` the same way first to see what is pending. `migrate deploy` fails if `PriceReport` has rows and the migration adds a required column without a default.
+The inline value wins over `.env.development.local`. Start the line with a space so the string stays out of your shell history (works when `HIST_IGNORE_SPACE` is on, which is the zsh option `setopt HIST_IGNORE_SPACE`). Never `export` it: the whole terminal session then talks to production, and a dev server started there does too.
+
+Vercel's `DATABASE_URL` and `DATABASE_URL_UNPOOLED` are set for all environments, so preview deployments also read and write the production database. Give previews their own Neon branch before using previews with real data.
