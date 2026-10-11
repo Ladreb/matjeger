@@ -59,6 +59,7 @@ npm run lint         # Run ESLint
 npx prisma studio    # Open Prisma Studio (DB GUI)
 npx prisma migrate dev --name <name>   # Create and apply a migration
 npx prisma generate  # Regenerate Prisma client after schema changes
+npx prisma db seed   # Add test products and prices to the dev database (needs ENABLE_DEV_TOOLS=true)
 ```
 
 ## Project structure
