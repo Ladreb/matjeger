@@ -14,7 +14,7 @@ Update checkboxes as work lands.
 0. [x] **Test environment**: create Neon `dev` branch, point `.env.development.local` at it (see DECISIONS #4)
 1. [ ] **Location + schema**: done on dev, NOT yet on production
    - [x] Schema and migration on dev, "Where do you shop?" flow (geolocation or 4 digits, see DECISIONS #3)
-   - [ ] `prisma migrate deploy` on production (fails if `PriceReport` has rows)
+   - [ ] Applied on production by the first production deploy (needs `PriceReport` to be empty, and a Neon restore point first)
 2. [x] **Role guards**: `requireCatalogueEditor()` for pages and server actions
 3. [x] **Admin product create/edit**: `/admin/products` (list, create, edit; no delete, no image yet)
 4. [x] **Barcode scan**: ZXing camera scan on `/scan`, lookup, manual entry fallback
@@ -27,8 +27,9 @@ Update checkboxes as work lands.
 - [ ] Magic link login by email as a second option next to Google (DECISIONS #5): email sender (e.g. Resend), verified sending domain, rate limit on link requests
 - [ ] Production Google OAuth client with production redirect URI (`/api/auth/callback/google`)
 - [ ] Vercel env vars: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`
+- [x] Preview deployments get their own Neon branch (Neon integration, Deployments Configuration, Preview)
 - [ ] Check in the Vercel and Neon dashboards: functions run in `fra1` (set in `vercel.json`), and the Neon autosuspend delay is what you want (first search after a pause takes about 1.6 s)
-- [ ] Run `prisma migrate deploy` on the production database (see `docs/technology/environments.md`). Includes `pg_trgm` (search) and the product `description` column. Check on production that `SELECT lower('Å')` returns `å` (search lowercases in the database; dev uses `C.UTF-8`, which works)
+- [ ] Check after the first production deploy that migrations ran (see `docs/technology/environments.md`). Includes `pg_trgm` (search) and the product `description` column. Check on production that `SELECT lower('Å')` returns `å` (search lowercases in the database; dev uses `C.UTF-8`, which works)
 
 ## Later
 - [ ] Users propose unknown barcodes, admin review queue
@@ -37,7 +38,7 @@ Update checkboxes as work lands.
 - [ ] Latest price per chain: Prisma `distinct` runs in memory and loads every report for the product and postal code; switch to `DISTINCT ON (store)` when reports grow
 - [ ] Sale price and per-kg in the report form
 - [ ] Search: split multi-word searches into words ("tine melk"), collapse double spaces in stored names ("Foo, bar" becomes "foo  bar" and misses the exact ranks), and add GIN trigram indexes on `Product` name, brand and description (the query scans every product today, which is fine for a curated catalogue); fold æ/ø/å so "ol" finds "øl"
-- [ ] Run Prisma migrations over the direct connection (`DATABASE_URL_UNPOOLED`) instead of the pooled one; this changes the production migration steps in `docs/technology/environments.md`
+- [x] Run Prisma migrations over the direct connection (`DATABASE_URL_UNPOOLED`) instead of the pooled one (done in `vercel.json`)
 - [ ] Several shopping lists: names, an overview, a list picker, and `listId` passed to the actions instead of "the user's oldest list" (see `docs/domain/shopping-list.md`)
 - [ ] Session lookup runs two queries per page (`@auth/prisma-adapter`) and is the fixed cost of every request; look at it if requests need to get faster
 - [ ] More tests: Vitest runs with `npm test` and covers the plan ranking and staleness; actions, queries and components have none
