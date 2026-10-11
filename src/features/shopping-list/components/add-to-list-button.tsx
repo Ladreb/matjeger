@@ -26,7 +26,7 @@ export function AddToListButton({
   async function add() {
     setError(null);
     setOnList(true);
-    const result = await addToList(productId);
+    const result = await addToList(productId).catch(() => ({ ok: false }));
     if (!result.ok) {
       setOnList(false);
       setError("Kunne ikke legge til varen. Prøv igjen.");

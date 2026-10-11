@@ -14,7 +14,7 @@ import {
   type ListActionResult,
 } from "../lib/actions";
 import { computePlans, type StorePrice } from "../lib/plans";
-import { clampQuantity } from "../lib/quantity";
+import { clampQuantity, countItems } from "../lib/quantity";
 import type { ListItemData } from "../types/shopping-list";
 import { PlanCard } from "./plan-card";
 import { ShoppingListItem } from "./shopping-list-item";
@@ -35,21 +35,18 @@ function byAddedOrder(a: ListItemData, b: ListItemData) {
   return a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id);
 }
 
-function countText(count: number) {
-  return count === 1 ? "1 vare" : `${count} varer`;
-}
-
 export function ShoppingListView({ initialItems, prices, postalCode, now }: Props) {
   const [items, setItems] = useState(initialItems);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [clearFailed, setClearFailed] = useState(false);
-  const confirmed = useRef(
-    new Map<string, SavedValues>(
-      initialItems.map((item) => [
-        item.id,
-        { quantity: item.quantity, checked: item.checked },
-      ]),
-    ),
+  const [confirmed] = useState(
+    () =>
+      new Map<string, SavedValues>(
+        initialItems.map((item) => [
+          item.id,
+          { quantity: item.quantity, checked: item.checked },
+        ]),
+      ),
   );
   const unfinishedSaves = useRef(new Map<string, number>());
   const heading = useRef<HTMLHeadingElement>(null);
@@ -111,9 +108,10 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
 
     const remaining = (unfinishedSaves.current.get(key) ?? 1) - 1;
     unfinishedSaves.current.set(key, remaining);
-    const saved = confirmed.current.get(id);
+    const saved = confirmed.get(id);
     if (result.ok) {
       if (saved) saved[field] = value;
+      if (remaining === 0) setError(id, null);
       return;
     }
     setError(id, SAVE_FAILED);
@@ -177,7 +175,7 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
         <h1 ref={heading} tabIndex={-1} className="text-xl font-semibold">
           Handlelisten
         </h1>
-        <p className="text-sm text-muted-foreground">{countText(items.length)}</p>
+        <p className="text-sm text-muted-foreground">{countItems(items.length)}</p>
       </div>
 
       {postalCode && cheapest && (

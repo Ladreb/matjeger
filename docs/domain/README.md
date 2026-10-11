@@ -8,7 +8,7 @@ What Matjeger does, by domain. Each domain maps to a folder in `src/features/<do
 | [Location](location.md) | Built (on test database) | The user's postal code |
 | [Products](products.md) | Admin create and edit done | Curated catalogue of groceries |
 | [Pricing](pricing.md) | Schema only | Price reports per chain and postal code |
-| Shopping list | Not started | Cheapest chain for a list near the user |
+| [Shopping list](shopping-list.md) | Built (on test database) | Cheapest chain for a list near the user |
 
 ## Glossary
 

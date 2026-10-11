@@ -17,7 +17,7 @@ Code: `src/features/shopping-list/lib/plans.ts` (pure, unit tested). The client 
 4. Sort by fewest items without a price in the plan, then total, then stops, then chain name. Complete plans always come before partial ones. Only a complete first plan is called "Billigst".
 5. Only `PER_UNIT` prices are used. The latest report per product and chain at the user's postal code wins (DECISIONS #2).
 
-Accepted on purpose: base items are bought at the base chain even if another is cheaper, and with 2 stops a plan can be partial although other chains have the price.
+Accepted on purpose: the plans use only `PER_UNIT` prices while the product page does not filter on `priceUnit` yet (the form only writes `PER_UNIT`), the plan cards show every chain with prices (up to 9, revisit if the list feels long), the "Handle hos" lines have no ticks of their own, base items are bought at the base chain even if another is cheaper, and with 2 stops a plan can be partial although other chains have the price.
 
 ## Data
 - `ShoppingList` (user) and `ShoppingListItem` (list, product, quantity, checked), unique per list and product. Deleting a user, list or product removes the items.

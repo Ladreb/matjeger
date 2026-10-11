@@ -31,20 +31,20 @@ enum PriceUnit {
 }
 
 model Product {
-  id           String        @id @default(cuid())
-  barcode      String?       @unique
-  pluCode      String?       @unique
-  name         String
-  brand        String?
-  description  String?       // free text for search, e.g. "iskrem, dessert, vanilje"
-  imageUrl     String?
-  weightG      Int?          // weight in grams, e.g. 400 for a 400g product
-  volumeMl     Int?          // volume in millilitres, e.g. 1000 for 1l product
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  createdById  String?
-  createdBy    User?         @relation(fields: [createdById], references: [id])
-  priceReports PriceReport[]
+  id                String            @id @default(cuid())
+  barcode           String?           @unique
+  pluCode           String?           @unique
+  name              String
+  brand             String?
+  description       String?           // free text for search, e.g. "iskrem, dessert, vanilje"
+  imageUrl          String?
+  weightG           Int?              // weight in grams, e.g. 400 for a 400g product
+  volumeMl          Int?              // volume in millilitres, e.g. 1000 for 1l product
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  createdById       String?
+  createdBy         User?             @relation(fields: [createdById], references: [id])
+  priceReports      PriceReport[]
   shoppingListItems ShoppingListItem[]
 }
 

@@ -171,6 +171,69 @@ describe("computePlans", () => {
     ]);
   });
 
+  it("ranks a one-stop plan before a two-stop plan with the same total, even if its name sorts later", () => {
+    const { plans } = compute(
+      [item("a"), item("b")],
+      [
+        price("a", "SPAR", 250),
+        price("b", "SPAR", 250),
+        price("a", "KIWI", 250),
+        price("b", "MENY", 250),
+      ],
+    );
+    expect(plans.map((p) => p.stops.map((s) => s.store))).toEqual([
+      ["SPAR"],
+      ["KIWI", "MENY"],
+    ]);
+  });
+
+  it("ranks fewer uncovered items before a lower total", () => {
+    const { plans } = compute(
+      [item("a"), item("b"), item("c"), item("d")],
+      [
+        price("a", "KIWI", 1000),
+        price("b", "KIWI", 1000),
+        price("c", "REMA_1000", 1),
+        price("d", "SPAR", 1),
+        price("a", "MENY", 1),
+      ],
+    );
+    const first = plans[0];
+    const last = plans[plans.length - 1];
+    expect(first.uncoveredProductIds).toHaveLength(1);
+    expect(last.uncoveredProductIds).toHaveLength(2);
+    expect(last.total).toBeLessThan(first.total);
+  });
+
+  it("picks the extra chain that covers more gaps even when another is cheaper", () => {
+    const kiwi = compute(
+      [item("a"), item("b"), item("c")],
+      [
+        price("a", "KIWI", 100),
+        price("b", "MENY", 1000),
+        price("c", "MENY", 1000),
+        price("b", "SPAR", 1),
+      ],
+    ).plans.find((p) => p.stops[0].store === "KIWI")!;
+    expect(kiwi.stops[1].store).toBe("MENY");
+  });
+
+  it("ignores prices for products that are no longer on the list", () => {
+    const { plans } = compute(
+      [item("a")],
+      [price("a", "KIWI", 100), price("removed", "SPAR", 50)],
+    );
+    expect(plans.map((p) => p.stops.map((s) => s.store))).toEqual([["KIWI"]]);
+  });
+
+  it("counts a stale price in the extra stop", () => {
+    const { plans } = compute(
+      [item("a"), item("b")],
+      [price("a", "KIWI", 100), price("b", "SPAR", 100, OLD)],
+    );
+    expect(plans[0].staleLineCount).toBe(1);
+  });
+
   it("counts two plans with the same chains and items as one trip", () => {
     const { plans } = compute(
       [item("a"), item("b")],

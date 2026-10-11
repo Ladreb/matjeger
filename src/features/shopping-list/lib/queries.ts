@@ -25,14 +25,14 @@ export async function findLatestListPrices(
   postalCode: string,
 ): Promise<StorePrice[]> {
   const rows = await db.$queryRaw<PriceRow[]>(Prisma.sql`
-    SELECT DISTINCT ON ("productId", store) "productId", store::text AS store, price, "reportedAt"
+    SELECT DISTINCT ON ("productId", "PriceReport".store) "productId", "PriceReport".store::text AS store, price, "reportedAt"
     FROM "PriceReport"
     WHERE "postalCode" = ${postalCode}
       AND "priceUnit" = 'PER_UNIT'
       AND "productId" IN (
         SELECT "productId" FROM "ShoppingListItem" WHERE "listId" = ${currentListIdSql(userId)}
       )
-    ORDER BY "productId", store, "reportedAt" DESC, id DESC
+    ORDER BY "productId", "PriceReport".store, "reportedAt" DESC, id DESC
   `);
   return rows.map((row) => ({ ...row, store: row.store as Store }));
 }

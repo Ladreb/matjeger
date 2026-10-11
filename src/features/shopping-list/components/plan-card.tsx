@@ -3,6 +3,7 @@ import { STORE_LABELS } from "@/features/pricing/lib/stores";
 import { formatStaleAge } from "@/features/pricing/lib/staleness";
 import { cn, formatPrice } from "@/lib/utils";
 import type { Plan } from "../lib/plans";
+import { countItems } from "../lib/quantity";
 
 type Props = {
   plan: Plan;
@@ -12,10 +13,6 @@ type Props = {
   now: Date;
   itemsByProductId: Map<string, { name: string; quantity: number; checked: boolean }>;
 };
-
-function pluralVarer(count: number) {
-  return count === 1 ? "1 vare" : `${count} varer`;
-}
 
 export function PlanCard({
   plan,
@@ -75,7 +72,7 @@ export function PlanCard({
         {isPartial && (
           <span className="col-start-2 col-end-5 flex items-start gap-1 text-sm text-amber-700 dark:text-amber-400">
             <TriangleAlert aria-hidden className="mt-0.5 size-4 shrink-0" />
-            Mangler pris for {pluralVarer(plan.uncoveredProductIds.length)}, totalen
+            Mangler pris for {countItems(plan.uncoveredProductIds.length)}, totalen
             er minst {formatPrice(plan.total)}
           </span>
         )}
@@ -94,19 +91,21 @@ export function PlanCard({
                 return (
                   <li
                     key={line.productId}
-                    className={cn(
-                      "flex flex-col text-sm",
-                      item?.checked && "text-muted-foreground line-through",
-                    )}
+                    className="flex flex-col text-sm"
                   >
-                    <div className="flex justify-between gap-2">
+                    <div
+                      className={cn(
+                        "flex justify-between gap-2",
+                        item?.checked && "text-muted-foreground line-through",
+                      )}
+                    >
                       <span>
                         {line.quantity} × {item?.name}
                       </span>
                       <span>{formatPrice(line.lineTotal)}</span>
                     </div>
                     {line.isStale && (
-                      <span className="text-amber-700 no-underline dark:text-amber-400">
+                      <span className="text-amber-700 dark:text-amber-400">
                         {formatStaleAge(line.reportedAt, now)}
                       </span>
                     )}

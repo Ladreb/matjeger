@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 import { authOptions } from "@/features/auth/lib/auth";
 import { ShoppingListView } from "@/features/shopping-list/components/shopping-list-view";
 import {
@@ -8,8 +9,9 @@ import {
 
 export default async function ShoppingListPage() {
   const session = await getServerSession(authOptions);
-  const userId = session!.user.id;
-  const postalCode = session!.user.postalCode;
+  if (!session) redirect("/login");
+  const userId = session.user.id;
+  const postalCode = session.user.postalCode;
 
   const [items, prices] = await Promise.all([
     findListItems(userId),
