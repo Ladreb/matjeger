@@ -12,18 +12,22 @@ export function isDevLoginRole(value: string): value is Role {
 
 export const DEV_LOGIN_ROLES = Object.values(Role);
 
+const LOOPBACK_HOST = /^(localhost|127\.0\.0\.1)(:\d+)?$/;
+const TRUSTED_FETCH_SITES = [null, "none", "same-origin"];
+
 // Vercel builds always run with NODE_ENV=production and the flag lives only in
-// .env.development.local. The Host header can be faked, so the real protection is that
-// `npm run dev` binds to 127.0.0.1. Next adds x-forwarded-* itself in dev, so those headers cannot be used to spot a tunnel.
+// .env.development.local. Next builds request.url from its own config, so only the Host
+// header shows what the browser asked for. A browser cannot fake it, which stops DNS
+// rebinding. `npm run dev` also binds to 127.0.0.1 so other machines cannot connect.
 export function isDevLoginAllowed(request: Request): boolean {
-  const { hostname } = new URL(request.url);
-  const crossSite = request.headers.get("sec-fetch-site") === "cross-site";
+  const host = request.headers.get("host") ?? "";
+  const fetchSite = request.headers.get("sec-fetch-site");
 
   return (
     process.env.NODE_ENV !== "production" &&
     process.env.ENABLE_DEV_TOOLS === "true" &&
-    hostname === "localhost" &&
-    !crossSite
+    LOOPBACK_HOST.test(host) &&
+    TRUSTED_FETCH_SITES.includes(fetchSite)
   );
 }
 

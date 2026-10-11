@@ -11,16 +11,16 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 
 // 200 is the GS1 prefix for in-store numbers, which are never assigned to real products.
 const products = [
-  { barcode: "2000000000011", name: "Lettmelk 1 l", brand: "Tine", volumeMl: 1000 },
-  { barcode: "2000000000028", name: "Kaffe filtermalt 250 g", brand: "Friele", weightG: 250 },
-  { barcode: "2000000000035", name: "Havregryn 750 g", brand: "Axa", weightG: 750 },
-  { barcode: "2000000000042", name: "Brød grovt 750 g", brand: "Bakeriet", weightG: 750 },
-  { barcode: "2000000000059", name: "Egg 12 stk", brand: "Prior", weightG: 660 },
-  { barcode: "2000000000066", name: "Smør 250 g", brand: "Meierismør", weightG: 250 },
-  { barcode: "2000000000073", name: "Pasta penne 500 g", brand: "Barilla", weightG: 500 },
-  { barcode: "2000000000080", name: "Eplejuice 1 l", brand: "Sunniva", volumeMl: 1000 },
-  { barcode: "2000000000097", name: "Ost norvegia 1 kg", brand: "Tine", weightG: 1000 },
-  { barcode: "2000000000103", name: "Produkt uten pris", brand: "Testmerke" },
+  { barcode: "2000000000015", name: "Lettmelk 1 l", brand: "Tine", volumeMl: 1000 },
+  { barcode: "2000000000022", name: "Kaffe filtermalt 250 g", brand: "Friele", weightG: 250 },
+  { barcode: "2000000000039", name: "Havregryn 750 g", brand: "Axa", weightG: 750 },
+  { barcode: "2000000000046", name: "Brød grovt 750 g", brand: "Bakeriet", weightG: 750 },
+  { barcode: "2000000000053", name: "Egg 12 stk", brand: "Prior", weightG: 660 },
+  { barcode: "2000000000060", name: "Smør 250 g", brand: "Meierismør", weightG: 250 },
+  { barcode: "2000000000077", name: "Pasta penne 500 g", brand: "Barilla", weightG: 500 },
+  { barcode: "2000000000084", name: "Eplejuice 1 l", brand: "Sunniva", volumeMl: 1000 },
+  { barcode: "2000000000091", name: "Ost norvegia 1 kg", brand: "Tine", weightG: 1000 },
+  { barcode: "2000000000107", name: "Produkt uten pris", brand: "Testmerke" },
 ];
 
 // [product index, store, price in øre, age in days]
