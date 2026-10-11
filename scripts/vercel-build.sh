@@ -9,7 +9,14 @@ case "$VERCEL_ENV" in
     prisma migrate deploy
     ;;
   preview)
-    echo "Preview database host: $(echo "$DATABASE_URL_UNPOOLED" | sed -E 's#.*@([^/:?]+).*#\1#')"
+    host=$(echo "$DATABASE_URL_UNPOOLED" | sed -E 's#.*@([^/:?]+).*#\1#')
+    # Vercel hides the host in build logs, so check it here: a preview must never run migrations on production.
+    case "$host" in
+      ep-long-bird*)
+        echo "Preview build stopped: it points at the production database."
+        exit 1
+        ;;
+    esac
     prisma migrate deploy
     ;;
 esac
