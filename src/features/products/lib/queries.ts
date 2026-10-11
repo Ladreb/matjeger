@@ -31,8 +31,8 @@ export function searchProducts(term: string): Promise<SearchResult[]> {
     .toLowerCase()
     .replace(/[,.\-/()]/g, " ")
     .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, MAX_SEARCH_TERM_LENGTH);
+    .slice(0, MAX_SEARCH_TERM_LENGTH)
+    .trim();
   if (!lowered) return Promise.resolve([]);
   const pattern = lowered.replace(/[\\%_]/g, "\\$&");
 
