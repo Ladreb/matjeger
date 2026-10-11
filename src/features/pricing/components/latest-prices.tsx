@@ -34,7 +34,7 @@ export function LatestPrices({
             {describeAge(report.reportedAt)}
           </p>
           {isStale(report.reportedAt) && (
-            <p className="text-sm text-amber-600 dark:text-amber-400">
+            <p className="text-sm text-amber-700 dark:text-amber-400">
               Eldre enn {STALE_AFTER_DAYS} dager, prisen kan ha endret seg.
             </p>
           )}

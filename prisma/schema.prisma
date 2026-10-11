@@ -31,20 +31,21 @@ enum PriceUnit {
 }
 
 model Product {
-  id           String        @id @default(cuid())
-  barcode      String?       @unique
-  pluCode      String?       @unique
-  name         String
-  brand        String?
-  description  String?       // free text for search, e.g. "iskrem, dessert, vanilje"
-  imageUrl     String?
-  weightG      Int?          // weight in grams, e.g. 400 for a 400g product
-  volumeMl     Int?          // volume in millilitres, e.g. 1000 for 1l product
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  createdById  String?
-  createdBy    User?         @relation(fields: [createdById], references: [id])
-  priceReports PriceReport[]
+  id                String            @id @default(cuid())
+  barcode           String?           @unique
+  pluCode           String?           @unique
+  name              String
+  brand             String?
+  description       String?           // free text for search, e.g. "iskrem, dessert, vanilje"
+  imageUrl          String?
+  weightG           Int?              // weight in grams, e.g. 400 for a 400g product
+  volumeMl          Int?              // volume in millilitres, e.g. 1000 for 1l product
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  createdById       String?
+  createdBy         User?             @relation(fields: [createdById], references: [id])
+  priceReports      PriceReport[]
+  shoppingListItems ShoppingListItem[]
 }
 
 model PriceReport {
@@ -64,6 +65,30 @@ model PriceReport {
   @@index([productId, store, postalCode, reportedAt])
 }
 
+model ShoppingList {
+  id        String             @id @default(cuid())
+  userId    String
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime           @default(now())
+  items     ShoppingListItem[]
+
+  @@index([userId])
+}
+
+model ShoppingListItem {
+  id        String       @id @default(cuid())
+  listId    String
+  list      ShoppingList @relation(fields: [listId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int          @default(1)
+  checked   Boolean      @default(false)
+  createdAt DateTime     @default(now())
+
+  @@unique([listId, productId])
+  @@index([productId])
+}
+
 // NextAuth models
 model User {
   id            String        @id @default(cuid())
@@ -77,6 +102,7 @@ model User {
   sessions      Session[]
   priceReports  PriceReport[]
   products      Product[]
+  shoppingLists ShoppingList[]
   createdAt     DateTime      @default(now())
 }
 
