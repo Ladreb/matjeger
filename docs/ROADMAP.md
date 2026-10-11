@@ -19,7 +19,7 @@ Update checkboxes as work lands.
 3. [x] **Admin product create/edit**: `/admin/products` (list, create, edit; no delete, no image yet)
 4. [x] **Barcode scan**: ZXing camera scan on `/scan`, lookup, manual entry fallback
 5. [x] **Price reporting**: chain + price form, latest price per chain on product page, staleness warning
-6. [x] **Search**: product search by name/brand on `/search`
+6. [x] **Search**: product search by name/brand on `/search`, fuzzy, as you type, loading skeleton on the product page (measurements in `docs/technology/performance.md`)
 7. [ ] **Shopping list**: lists per user, cheapest chain for a list near the user's postal code
 8. [ ] **PWA**: icons, manifest, service worker (branch `fix/pwa-serwist` is unmerged)
 
@@ -27,6 +27,7 @@ Update checkboxes as work lands.
 - [ ] Magic link login by email as a second option next to Google (DECISIONS #5): email sender (e.g. Resend), verified sending domain, rate limit on link requests
 - [ ] Production Google OAuth client with production redirect URI (`/api/auth/callback/google`)
 - [ ] Vercel env vars: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`
+- [ ] Check in the Vercel and Neon dashboards: functions run in `fra1` (set in `vercel.json`), and the Neon autosuspend delay is what you want (first search after a pause takes about 1.6 s)
 - [ ] Run `prisma migrate deploy` on the production database (see `docs/technology/environments.md`). Includes `pg_trgm` (search) and the product `description` column. Check on production that `SELECT lower('Å')` returns `å` (search lowercases in the database; dev uses `C.UTF-8`, which works)
 
 ## Later

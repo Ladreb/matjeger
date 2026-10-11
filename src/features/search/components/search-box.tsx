@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 const DEBOUNCE_MS = 200;
 const MIN_TERM_LENGTH_WHILE_TYPING = 2;
@@ -53,8 +54,15 @@ export function SearchBox({ initialQuery }: { initialQuery: string }) {
         aria-label="Søk etter produkter"
         autoComplete="off"
       />
-      <Button type="submit" disabled={isPending}>
-        {isPending ? "Søker…" : "Søk"}
+      <Button
+        type="submit"
+        aria-busy={isPending}
+        className={cn(
+          "transition-opacity",
+          isPending && "opacity-60 delay-300",
+        )}
+      >
+        Søk
       </Button>
     </form>
   );
