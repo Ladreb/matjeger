@@ -5,7 +5,7 @@ Two environments, each with its own Neon database branch.
 | | Test (local) | Production |
 | --- | --- | --- |
 | Database | Neon `dev` branch | Neon main branch |
-| Config | `.env.development.local` | Vercel environment variables, `.env` locally |
+| Config | `.env.development.local` | Vercel environment variables only |
 | Used by | `npm run dev`, Prisma CLI | Vercel deployments |
 
 ## Dev tools (test environment only)
@@ -19,8 +19,19 @@ Set `ENABLE_DEV_TOOLS=true` in `.env.development.local` to turn these on. Never 
 
 ## Rules
 
-- `prisma.config.ts` loads `.env.development.local` before `.env`, so Prisma commands hit the test branch.
-- `.env.development.local` holds only `DATABASE_URL` (pooled), `DATABASE_URL_UNPOOLED` (direct), the Google and NextAuth variables. Do not run `vercel env pull` over it: that fills it with production values.
+- **Production secrets never live in a file in the repo folder.** They live in Vercel's environment variables and in Neon. There is no `.env` with a database URL, because Next.js loads `.env` as a fallback and Prisma would too.
+- `.env.development.local` is the only env file. It holds `DATABASE_URL` (pooled), `DATABASE_URL_UNPOOLED` (direct), the Google and NextAuth variables, and `ENABLE_DEV_TOOLS`. It is gitignored. Do not run `vercel env pull` over it: that fills it with production values.
+- `prisma.config.ts` reads only `.env.development.local`. If the file is missing, Prisma commands fail with "Environment variable not found" instead of reaching production.
+- A git worktree has no env file, since it is gitignored. Link it before running anything there: `ln -s <main checkout>/.env.development.local .env.development.local`.
 - Create migrations with `npx prisma migrate dev --name <name>` (test branch).
-- Apply to production deliberately with `npx prisma migrate deploy`, and before the code that needs the migration goes live.
 - Never run `migrate dev` or `migrate reset` unless `.env.development.local` points at the test branch.
+
+## Applying migrations to production
+
+Do this deliberately, and before the code that needs the migration goes live. Get the **direct** (unpooled) production connection string from Neon, then pass it for this one command only:
+
+```bash
+DATABASE_URL="<production direct connection string>" npx prisma migrate deploy
+```
+
+The inline value wins over `.env.development.local`. Start the line with a space so the string stays out of your shell history (works when `HIST_IGNORE_SPACE` is on, which is the zsh option `setopt HIST_IGNORE_SPACE`). Run `npx prisma migrate status` the same way first to see what is pending. `migrate deploy` fails if `PriceReport` has rows and the migration adds a required column without a default.

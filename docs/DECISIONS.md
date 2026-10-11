@@ -20,8 +20,9 @@ Open: how "nearest area" is computed (needs a postal code → coordinates datase
 ## 4. Two environments: local/test and production (decided, 2026-10-10)
 Before this, `.env` and `.env.development.local` pointed at the same Neon database, so local work changed production.
 - **Production:** the main Neon branch. Used by Vercel. Migrations are applied deliberately with `prisma migrate deploy`.
-- **Local/test:** a separate Neon branch (e.g. `dev`). Its connection strings go in `.env.development.local`. `prisma.config.ts` reads that file first, so `prisma migrate dev` hits the dev branch.
+- **Local/test:** a separate Neon branch (e.g. `dev`). Its connection strings go in `.env.development.local`. `prisma.config.ts` reads only that file, so `prisma migrate dev` hits the dev branch.
 - Never run `prisma migrate dev` while `.env.development.local` is missing or points at production.
+- Updated 2026-10-11: the production URL no longer lives in a local `.env` (Next.js and Prisma both treated it as a fallback). Production values live in Vercel and Neon. Production migrations pass the URL inline for one command (see `docs/technology/environments.md`).
 
 ## 5. Login: Google now, magic link later, no passwords (decided, 2026-10-11)
 Reason for a second login: not everyone wants Google. Passwords were rejected: the Credentials provider forces JWT sessions (the app uses database sessions), and we would own hashing, verification, reset and rate limiting. Email magic link uses the existing `VerificationToken` model and links to the Google account by verified email. It needs an email sender and a domain, so it is planned together with the first production deploy. Testing without a real account uses the dev login (see `docs/technology/environments.md`), which is switched off outside local development.
