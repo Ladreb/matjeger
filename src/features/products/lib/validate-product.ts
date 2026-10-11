@@ -6,6 +6,7 @@ export type ProductData = {
   pluCode: string | null;
   name: string;
   brand: string | null;
+  description: string | null;
   weightG: number | null;
   volumeMl: number | null;
 };
@@ -43,6 +44,7 @@ export function validateProduct(values: ProductFormValues): Validation {
       pluCode: values.pluCode || null,
       name: values.name,
       brand: values.brand || null,
+      description: values.description || null,
       weightG,
       volumeMl,
     },

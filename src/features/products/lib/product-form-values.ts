@@ -5,6 +5,7 @@ export type ProductFormValues = {
   pluCode: string;
   name: string;
   brand: string;
+  description: string;
   weightG: string;
   volumeMl: string;
 };
@@ -16,6 +17,7 @@ export const emptyProductFormValues: ProductFormValues = {
   pluCode: "",
   name: "",
   brand: "",
+  description: "",
   weightG: "",
   volumeMl: "",
 };
@@ -26,6 +28,7 @@ export function productToFormValues(product: Product): ProductFormValues {
     pluCode: product.pluCode ?? "",
     name: product.name,
     brand: product.brand ?? "",
+    description: product.description ?? "",
     weightG: product.weightG?.toString() ?? "",
     volumeMl: product.volumeMl?.toString() ?? "",
   };
@@ -40,6 +43,7 @@ export function readProductFormValues(formData: FormData): ProductFormValues {
     pluCode: read("pluCode"),
     name: read("name"),
     brand: read("brand"),
+    description: read("description"),
     weightG: read("weightG"),
     volumeMl: read("volumeMl"),
   };

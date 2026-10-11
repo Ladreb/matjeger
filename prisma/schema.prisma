@@ -36,6 +36,7 @@ model Product {
   pluCode      String?       @unique
   name         String
   brand        String?
+  description  String?       // free text for search, e.g. "iskrem, dessert, vanilje"
   imageUrl     String?
   weightG      Int?          // weight in grams, e.g. 400 for a 400g product
   volumeMl     Int?          // volume in millilitres, e.g. 1000 for 1l product

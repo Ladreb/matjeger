@@ -8,6 +8,10 @@ Built: admins manage products at `/admin/products` (list, create, edit). The pro
 
 Scanning: `/scan` opens the camera (ZXing, EAN-13/EAN-8/UPC-A/UPC-E), looks the barcode up and shows the product name and brand, or a "not found" message. If the camera is unavailable or denied, the user types the barcode instead. The result does not link to a product page yet (comes with price reporting). Code: `src/features/scan`.
 
-Not built: delete, image, search, proposals from users.
+Search: `/search` has a text field that runs on submit (a plain GET form with `?q=`, no JavaScript). Matching is case-insensitive (works for æ, ø, å) and typo tolerant, using Postgres `pg_trgm`. Results are ranked from best to worst: whole word in name or brand, start of a word, inside a word, description, fuzzy match (a misspelling such as "lettmlek" or "havergryn"). At most 50 results, each linking to `/products/[id]`. When nothing matches, the page says so. Short terms are strict: under 3 letters (is, te, øl) match only whole words and word starts, and fuzzy matching needs 4 or more letters, because shorter words have too few trigrams to tell a typo from noise. Fuzzy results are ordered by how close they are. The search term is lowercased, punctuation (`, . - / ( )`) is treated as a space, and it is cut at 100 characters. A search with several words matches them as one phrase ("tine melk" does not find "Lettmelk" by Tine, except through the fuzzy match). Not handled: spelling without æ, ø, å is not reliably found ("smor" for "smør" only just reaches the fuzzy threshold, and "ol" for "øl" does not). Code: `src/features/search`, query `searchProducts` in `src/features/products/lib/queries.ts`.
+
+Description: an optional free-text field on each product, edited in the admin form, used by search (for example "iskrem, dessert" on an ice cream product). It is not shown to regular users yet.
+
+Not built: delete, image, proposals from users.
 
 Code: `src/features/products`. Schema: `Product` in `prisma/schema.prisma`.

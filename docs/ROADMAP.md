@@ -19,7 +19,7 @@ Update checkboxes as work lands.
 3. [x] **Admin product create/edit**: `/admin/products` (list, create, edit; no delete, no image yet)
 4. [x] **Barcode scan**: ZXing camera scan on `/scan`, lookup, manual entry fallback
 5. [x] **Price reporting**: chain + price form, latest price per chain on product page, staleness warning
-6. [ ] **Search**: product search by name/brand on `/search`
+6. [x] **Search**: product search by name/brand on `/search`
 7. [ ] **Shopping list**: lists per user, cheapest chain for a list near the user's postal code
 8. [ ] **PWA**: icons, manifest, service worker (branch `fix/pwa-serwist` is unmerged)
 
@@ -27,7 +27,7 @@ Update checkboxes as work lands.
 - [ ] Magic link login by email as a second option next to Google (DECISIONS #5): email sender (e.g. Resend), verified sending domain, rate limit on link requests
 - [ ] Production Google OAuth client with production redirect URI (`/api/auth/callback/google`)
 - [ ] Vercel env vars: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`
-- [ ] Run `prisma migrate deploy` on the production database (see `docs/technology/environments.md`)
+- [ ] Run `prisma migrate deploy` on the production database (see `docs/technology/environments.md`). Includes `pg_trgm` (search) and the product `description` column. Check on production that `SELECT lower('Å')` returns `å` (search lowercases in the database; dev uses `C.UTF-8`, which works)
 
 ## Later
 - [ ] Users propose unknown barcodes, admin review queue
@@ -35,6 +35,7 @@ Update checkboxes as work lands.
 - [ ] Price accuracy: when users report different prices, show a range or a consensus instead of only the latest (see `docs/domain/pricing.md`)
 - [ ] Latest price per chain: Prisma `distinct` runs in memory and loads every report for the product and postal code; switch to `DISTINCT ON (store)` when reports grow
 - [ ] Sale price and per-kg in the report form
+- [ ] Search: split multi-word searches into words ("tine melk"), collapse double spaces in stored names ("Foo, bar" becomes "foo  bar" and misses the exact ranks), and add GIN trigram indexes on `Product` name, brand and description (the query scans every product today, which is fine for a curated catalogue); fold æ/ø/å so "ol" finds "øl"
 - [ ] Tests
 - [ ] Think about UPC-A: the scanner reads 12-digit UPC-A codes, but products are probably stored as 13-digit EAN, so a lookup can miss. Possible fix: pad to 13 digits before lookup. Not prioritized
 
