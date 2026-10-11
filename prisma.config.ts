@@ -3,10 +3,9 @@
 // npm install --save-dev prisma dotenv
 import { config } from "dotenv";
 
-// Only the local test file is read. There is deliberately no fallback to .env: a missing
-// file must fail, not silently reach production. dotenv never overrides values that are
-// already set, so an inline DATABASE_URL (production migrations) and Vercel's own
-// environment variables win.
+// Only the local test file is read, so a missing file fails instead of reaching production.
+// dotenv never overrides values that are already set, so an inline DATABASE_URL
+// (production migrations) and Vercel's own environment variables win.
 config({ path: ".env.development.local" });
 import { defineConfig, env } from "prisma/config";
 

@@ -19,7 +19,7 @@ Set `ENABLE_DEV_TOOLS=true` in `.env.development.local` to turn these on. Never 
 
 ## Rules
 
-- **Production secrets never live in a file in the repo folder.** They live in Vercel's environment variables and in Neon. There is no `.env` with a database URL, because Next.js loads `.env` as a fallback and Prisma would too.
+- **Production secrets never live in a file in the repo folder.** They live in Vercel's environment variables and in Neon.
 - `.env.development.local` is the only env file. It holds `DATABASE_URL` (pooled), `DATABASE_URL_UNPOOLED` (direct), the Google and NextAuth variables, and `ENABLE_DEV_TOOLS`. It is gitignored. Do not run `vercel env pull` over it: that fills it with production values.
 - `prisma.config.ts` reads only `.env.development.local`. If the file is missing, Prisma commands fail with "Environment variable not found" instead of reaching production.
 - A git worktree has no env file, since it is gitignored. Link it before running anything there: `ln -s <main checkout>/.env.development.local .env.development.local`.
