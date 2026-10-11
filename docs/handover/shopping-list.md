@@ -1,14 +1,16 @@
 # Handover: Shopping list (roadmap step 7)
 
-**Temporary file. From the designer to the developer. Delete it, and `shopping-list-mockup.html` next to it, in the PR that finishes step 7, after moving what is listed below.**
+**Temporary file. From the designer to the developer. Use it as reference input while building step 7. Delete it, and `shopping-list-mockup.html` next to it, once the reviewer says it can be deleted.**
 
 Open `docs/handover/shopping-list-mockup.html` in a browser. The "velg tilstand" menu at the top switches screens and states (verified at 375 px, light and dark). It is a reference for layout and copy, not code to copy. Where this file and the mockup differ, this file wins.
 
 Agreed with the product owner on 2026-10-11.
 
-## Move to
+## Permanent docs
 
-| What | Where it goes when built |
+Update these only if necessary, meaning the built behaviour or a decision is not already recorded elsewhere. Suggestions:
+
+| What | Where it could go |
 | --- | --- |
 | Decisions table | One short entry in `docs/DECISIONS.md` |
 | Ranking rule, states, what the user sees | `docs/domain/shopping-list.md` |

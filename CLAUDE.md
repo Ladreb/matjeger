@@ -10,9 +10,9 @@ A Norwegian grocery price comparison PWA. Users scan product barcodes and report
 - `docs/technology/` — architecture patterns and environments (test vs production)
 
 - `docs/handover/` — temporary hand-over files between roles (for example designer to developer). The developer:
-  1. builds the feature from the file,
-  2. copies the lasting parts (decisions, behaviour) into the permanent docs, as the file's "Move to" table says,
-  3. deletes the handover file in the same PR as the code.
+  1. uses the file as reference input while building,
+  2. updates the permanent docs only if necessary (see the file's "Permanent docs" table for suggestions),
+  3. deletes the handover file once the reviewer says it can be deleted.
 
 Update the matching domain or technology doc when you change behaviour.
 
