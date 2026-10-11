@@ -3,11 +3,10 @@
 // npm install --save-dev prisma dotenv
 import { config } from "dotenv";
 
-// Load the local (test) database first. dotenv never overrides values that are
-// already set, so .env (production) is only used when the local file is missing,
-// e.g. on Vercel.
+// Only the local test file is read, so a missing file fails instead of reaching production.
+// dotenv never overrides values that are already set, so an inline DATABASE_URL
+// (production migrations) and Vercel's own environment variables win.
 config({ path: ".env.development.local" });
-config({ path: ".env" });
 import { defineConfig, env } from "prisma/config";
 
 export default defineConfig({
