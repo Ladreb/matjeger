@@ -14,7 +14,8 @@ import {
   type ListActionResult,
 } from "../lib/actions";
 import { computePlans, type StorePrice } from "../lib/plans";
-import { clampQuantity, countItems } from "../lib/quantity";
+import { clampQuantity } from "../lib/quantity";
+import { countItems, describeStalePrices } from "../lib/wording";
 import type { ListItemData } from "../types/shopping-list";
 import { PlanCard } from "./plan-card";
 import { ShoppingListItem } from "./shopping-list-item";
@@ -35,19 +36,31 @@ function byAddedOrder(a: ListItemData, b: ListItemData) {
   return a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id);
 }
 
+function confirmedValues(items: ListItemData[]) {
+  return new Map<string, SavedValues>(
+    items.map((item) => [
+      item.id,
+      { quantity: item.quantity, checked: item.checked },
+    ]),
+  );
+}
+
 export function ShoppingListView({ initialItems, prices, postalCode, now }: Props) {
   const [items, setItems] = useState(initialItems);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [clearFailed, setClearFailed] = useState(false);
-  const [confirmed] = useState(
-    () =>
-      new Map<string, SavedValues>(
-        initialItems.map((item) => [
-          item.id,
-          { quantity: item.quantity, checked: item.checked },
-        ]),
-      ),
-  );
+  const [confirmed, setConfirmed] = useState(() => confirmedValues(initialItems));
+  const [unfinishedChanges, setUnfinishedChanges] = useState(0);
+  const [seenInitialItems, setSeenInitialItems] = useState(initialItems);
+
+  // Fresh server data (an add from another page, or a late refresh) replaces the screen, unless a change of ours is still saving, since the server has not seen it yet.
+  if (seenInitialItems !== initialItems) {
+    setSeenInitialItems(initialItems);
+    if (unfinishedChanges === 0) {
+      setItems(initialItems);
+      setConfirmed(confirmedValues(initialItems));
+    }
+  }
   const unfinishedSaves = useRef(new Map<string, number>());
   const heading = useRef<HTMLHeadingElement>(null);
   const focusHeadingAfterRender = useRef(false);
@@ -100,11 +113,13 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
     send: () => Promise<ListActionResult>,
   ) {
     const key = `${id}:${field}`;
+    setUnfinishedChanges((count) => count + 1);
     updateItem(id, { [field]: value });
     setError(id, null);
     unfinishedSaves.current.set(key, (unfinishedSaves.current.get(key) ?? 0) + 1);
 
     const result = await send().catch(() => FAILED);
+    setUnfinishedChanges((count) => count - 1);
 
     const remaining = (unfinishedSaves.current.get(key) ?? 1) - 1;
     unfinishedSaves.current.set(key, remaining);
@@ -125,7 +140,9 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
   async function remove(item: ListItemData) {
     setItems((current) => current.filter((other) => other.id !== item.id));
     focusHeadingAfterRender.current = true;
+    setUnfinishedChanges((count) => count + 1);
     const result = await removeItem(item.id).catch(() => FAILED);
+    setUnfinishedChanges((count) => count - 1);
     if (!result.ok) {
       restore([item]);
       setError(item.id, SAVE_FAILED);
@@ -137,7 +154,9 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
     setItems((current) => current.filter((item) => !item.checked));
     focusHeadingAfterRender.current = true;
     setClearFailed(false);
+    setUnfinishedChanges((count) => count + 1);
     const result = await clearCheckedItems().catch(() => FAILED);
+    setUnfinishedChanges((count) => count - 1);
     if (!result.ok) {
       restore(removed);
       setClearFailed(true);
@@ -190,7 +209,15 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
               {!cheapestIsComplete && "fra "}
               {formatPrice(cheapest.total)}
             </span>
-            <span className="text-muted-foreground">Se sammenligning</span>
+            <span className="text-muted-foreground">
+              Se sammenligning
+              {cheapest.stops.length > 1 && ` · ${cheapest.stops.length} stopp`}
+            </span>
+            {cheapest.staleLineCount > 0 && (
+              <span className="text-amber-700 dark:text-amber-400">
+                {describeStalePrices(cheapest.staleLineCount)}
+              </span>
+            )}
           </span>
           <ChevronRight aria-hidden className="size-4" />
         </a>

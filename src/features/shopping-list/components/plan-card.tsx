@@ -3,7 +3,7 @@ import { STORE_LABELS } from "@/features/pricing/lib/stores";
 import { formatStaleAge } from "@/features/pricing/lib/staleness";
 import { cn, formatPrice } from "@/lib/utils";
 import type { Plan } from "../lib/plans";
-import { countItems } from "../lib/quantity";
+import { countItems, describeStalePrices } from "../lib/wording";
 
 type Props = {
   plan: Plan;
@@ -64,9 +64,7 @@ export function PlanCard({
         </span>
         {plan.staleLineCount > 0 && (
           <span className="col-start-2 col-end-5 text-sm text-amber-700 dark:text-amber-400">
-            {plan.staleLineCount === 1
-              ? "Inkluderer 1 gammel pris"
-              : `Inkluderer ${plan.staleLineCount} gamle priser`}
+            {describeStalePrices(plan.staleLineCount)}
           </span>
         )}
         {isPartial && (
