@@ -26,6 +26,12 @@ export function ProductForm({ action, initialValues }: ProductFormProps) {
       <Field label="Navn" name="name" defaultValue={values.name} />
       <Field label="Merke (valgfritt)" name="brand" defaultValue={values.brand} />
       <Field
+        label="Beskrivelse (valgfritt, brukes i søk)"
+        name="description"
+        placeholder="For eksempel: iskrem, dessert, vanilje"
+        defaultValue={values.description}
+      />
+      <Field
         label="Strekkode"
         name="barcode"
         inputMode="numeric"

@@ -11,7 +11,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 
 // 200 is the GS1 prefix for in-store numbers, which are never assigned to real products.
 const products = [
-  { barcode: "2000000000015", name: "Lettmelk 1 l", brand: "Tine", volumeMl: 1000 },
+  { barcode: "2000000000015", name: "Lettmelk 1 l", brand: "Tine", volumeMl: 1000, description: "meieri, drikke" },
   { barcode: "2000000000022", name: "Kaffe filtermalt 250 g", brand: "Friele", weightG: 250 },
   { barcode: "2000000000039", name: "Havregryn 750 g", brand: "Axa", weightG: 750 },
   { barcode: "2000000000046", name: "Brød grovt 750 g", brand: "Bakeriet", weightG: 750 },
@@ -21,6 +21,16 @@ const products = [
   { barcode: "2000000000084", name: "Eplejuice 1 l", brand: "Sunniva", volumeMl: 1000 },
   { barcode: "2000000000091", name: "Ost norvegia 1 kg", brand: "Tine", weightG: 1000 },
   { barcode: "2000000000107", name: "Produkt uten pris", brand: "Testmerke" },
+  { barcode: "2000000000114", name: "Is vanilje 1 l", brand: "Hennig-Olsen", volumeMl: 1000, description: "iskrem, dessert" },
+  { barcode: "2000000000121", name: "Ål røkt 300 g", brand: "Fjordfisk", weightG: 300, description: "fisk" },
+  { barcode: "2000000000138", name: "Te earl grey 25 poser", brand: "Twinings", weightG: 50 },
+  { barcode: "2000000000145", name: "Øl pils 0,5 l", brand: "Ringnes", volumeMl: 500, description: "drikke, alkohol" },
+  { barcode: "2000000000152", name: "Løk gul 1 kg", brand: "Gartnerhallen", weightG: 1000 },
+  { barcode: "2000000000169", name: "Kål hvit 1 stk", brand: "Gartnerhallen", weightG: 1200 },
+  { barcode: "2000000000176", name: "Mel hvete 2 kg", brand: "Regal", weightG: 2000 },
+  { barcode: "2000000000183", name: "Ris jasmin 1 kg", brand: "Tilda", weightG: 1000, description: "korn, gryn" },
+  { barcode: "2000000000190", name: "Andebryst 400 g", brand: "Gilde", weightG: 400 },
+  { barcode: "2000000000206", name: "Kavring 500 g", brand: "Brandt", weightG: 500 },
 ];
 
 // [product index, store, price in øre, age in days]
@@ -48,7 +58,7 @@ for (const product of products) {
   saved.push(
     await db.product.upsert({
       where: { barcode: product.barcode },
-      update: {},
+      update: { description: product.description },
       create: product,
     }),
   );
