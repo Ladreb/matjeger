@@ -1,11 +1,17 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import type { Store } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { reportPrice, type ReportPriceResult } from "../lib/actions";
-import { STORES, STORE_LABELS } from "../lib/stores";
+import {
+  loadStorePreferences,
+  reportPrice,
+  type ReportPriceResult,
+} from "../lib/actions";
+import { STORES } from "../lib/stores";
+import type { StorePreferences } from "../lib/store-preferences";
+import { StoreChipList } from "./store-chip-list";
 
 export function ReportPriceForm({
   productId,
@@ -18,8 +24,21 @@ export function ReportPriceForm({
 }) {
   const [store, setStore] = useState("");
   const [price, setPrice] = useState("");
+  const [preferencesSettled, setPreferencesSettled] = useState(false);
+  const [preferences, setPreferences] = useState<StorePreferences | null>(null);
   const [result, setResult] = useState<ReportPriceResult | null>(null);
   const [pending, startTransition] = useTransition();
+
+  useEffect(() => {
+    loadStorePreferences()
+      .then((loaded) => {
+        if (!loaded) return;
+        setPreferences(loaded);
+        setStore((current) => current || loaded.lastUsedStore || "");
+      })
+      .catch(() => {})
+      .finally(() => setPreferencesSettled(true));
+  }, []);
 
   function submit(confirmed: boolean) {
     setResult(null);
@@ -27,7 +46,6 @@ export function ReportPriceForm({
       const outcome = await reportPrice(productId, { store, price, confirmed });
       setResult(outcome);
       if (outcome.status === "saved") {
-        setStore("");
         setPrice("");
         onReported?.(outcome.store, outcome.price);
       }
@@ -44,28 +62,20 @@ export function ReportPriceForm({
       }}
       className="flex flex-col gap-3"
     >
-      <label className="flex flex-col gap-1.5 text-sm font-medium">
-        Butikkjede
-        <select
-          name="store"
-          required
-          value={store}
-          onChange={(event) => {
-            setStore(event.target.value);
+      <div className="flex flex-col gap-1.5">
+        <span id="report-store-label" className="text-sm font-medium">Butikkjede</span>
+        <StoreChipList
+          labelledBy="report-store-label"
+          loading={!preferencesSettled}
+          stores={preferences?.orderedStores ?? STORES}
+          selected={(option) => option === store}
+          favourites={preferences?.favouriteStores}
+          onSelect={(option) => {
+            setStore(option);
             setResult(null);
           }}
-          className="h-9 rounded-md border border-input bg-background px-3 text-sm"
-        >
-          <option value="" disabled>
-            Velg butikkjede
-          </option>
-          {STORES.map((option) => (
-            <option key={option} value={option}>
-              {STORE_LABELS[option]}
-            </option>
-          ))}
-        </select>
-      </label>
+        />
+      </div>
       <label className="flex flex-col gap-1.5 text-sm font-medium">
         Pris i kroner
         <Input

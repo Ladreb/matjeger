@@ -9,7 +9,8 @@ import { db } from "@/lib/db";
 import { formatPrice } from "@/lib/utils";
 import { parsePriceToOre } from "./parse-price";
 import { isImplausiblePrice, medianPrice } from "./plausibility";
-import { findLatestPricesPerStore } from "./queries";
+import { findLatestPricesPerStore, findStorePreferences } from "./queries";
+import type { StorePreferences } from "./store-preferences";
 import { isStore } from "./stores";
 
 export type ReportPriceInput = {
@@ -120,4 +121,29 @@ function revalidateReportViews(productId: string) {
   revalidatePath("/admin/products");
   revalidatePath("/shopping-list");
   revalidatePath("/search");
+}
+
+export async function loadStorePreferences(): Promise<StorePreferences | null> {
+  const session = await getServerSession(authOptions);
+  if (!session) return null;
+  return findStorePreferences(session.user.id);
+}
+
+export async function toggleFavouriteStore(store: string): Promise<Store[] | null> {
+  const session = await getServerSession(authOptions);
+  if (!session || !isStore(store)) return null;
+
+  const user = await db.user.findUnique({
+    where: { id: session.user.id },
+    select: { favouriteStores: true },
+  });
+  const current = user?.favouriteStores ?? [];
+  const favouriteStores = current.includes(store)
+    ? current.filter((s) => s !== store)
+    : [...current, store];
+  await db.user.update({
+    where: { id: session.user.id },
+    data: { favouriteStores },
+  });
+  return favouriteStores;
 }
