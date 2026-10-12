@@ -78,7 +78,7 @@ export function ShoppingListItem({
         <Button
           type="button"
           variant="ghost"
-          className="size-11"
+          className="ml-3 size-11"
           aria-label={`Fjern ${label} fra listen`}
           onClick={onRemove}
         >
