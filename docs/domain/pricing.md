@@ -23,6 +23,7 @@
 - Code: `lib/store-preferences.ts` (ordering, tested), `components/store-chip-list.tsx`, `components/favourite-stores-form.tsx`.
 
 ## Accuracy across reports
+- Product page: the cheapest row has a "Billigst" tag when there are two or more prices, the heading has an "Endre" link to `/profile` (postal code), and a line names chains without a price (`describeMissingStores`) and invites a report. A "Til søk" back link sits above the title.
 - The price shown is still the latest visible report (DECISIONS #8). Below it the product page says "Samme pris rapportert av N brukere de siste 30 dagene" when N is 2 or more.
 - N is the number of distinct reporters whose latest visible report in the last 30 days (`STALE_AFTER_DAYS`) has the same chain, postal code and price as the shown price (`countAgreeingReporters`, `findRecentVisibleReports`). Hidden reports are excluded. Reports without a reporter count one each.
 - Only the product page shows it. Search, shopping list and the dashboard are unchanged. No migration.

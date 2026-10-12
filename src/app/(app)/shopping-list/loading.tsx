@@ -4,7 +4,7 @@ export default function ShoppingListLoading() {
   return (
     <PageColumn
       width="default"
-      className="flex animate-pulse flex-col gap-4 p-4"
+      className="flex animate-pulse flex-col gap-4"
     >
       <p role="status" className="sr-only">
         Laster…

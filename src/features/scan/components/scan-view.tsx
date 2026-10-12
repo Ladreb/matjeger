@@ -42,7 +42,7 @@ export function ScanView({ canCreateProducts }: { canCreateProducts: boolean }) 
   const showScanner = cameraAvailable && !outcome && !pending;
 
   return (
-    <PageColumn width="narrow" className="flex flex-1 flex-col gap-4 p-4">
+    <PageColumn width="narrow" className="flex flex-1 flex-col gap-4">
       {showScanner && (
         <BarcodeScanner
           onScan={lookup}

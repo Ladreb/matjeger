@@ -11,7 +11,7 @@
 
 The phone layout is the product; wide screens centre it.
 
-- `PageColumn` (`src/components/page-column.tsx`) centres a page with a max width and adds no padding. `narrow` 576 px (profile, scan, admin forms), `default` 672 px (search, product, shopping list), `wide` 1024 px (admin dashboard).
+- `PageColumn` (`src/components/page-column.tsx`) centres a page with a max width and gives it the one side padding of the app (16 px, `p-4`). Pages must not add their own page padding. `narrow` 576 px (profile, scan, admin forms), `default` 672 px (search, product, shopping list), `wide` 1024 px (admin dashboard).
 - Buttons that are direct children of a `flex-col` get `sm:w-fit`, otherwise the column stretches them. Do not change `button.tsx`.
 - From `lg` (1024 px) the links move into the header (`TopNav`) and the bottom nav is hidden. Below that, phones and tablets keep the bottom nav.
 

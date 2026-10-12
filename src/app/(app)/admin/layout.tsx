@@ -6,5 +6,5 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   await requireCatalogueEditor();
-  return <div className="flex flex-col gap-6 p-6">{children}</div>;
+  return children;
 }

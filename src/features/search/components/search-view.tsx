@@ -19,7 +19,7 @@ export async function SearchView({ query }: { query: string }) {
   const areaLabel = postalCode ? priceAreaOf(postalCode).label : null;
 
   return (
-    <PageColumn width="default" className="flex flex-col gap-4 p-4">
+    <PageColumn width="default" className="flex flex-col gap-4">
       <SearchBox
         initialQuery={query}
         path="/search"

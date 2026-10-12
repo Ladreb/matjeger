@@ -237,7 +237,7 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
     return (
       <PageColumn
         width="default"
-        className="flex flex-col items-center gap-3 px-4 py-12 text-center"
+        className="flex flex-col items-center gap-3 py-12 text-center"
       >
         <ShoppingCart aria-hidden className="size-10 text-muted-foreground" />
         <h1 ref={heading} tabIndex={-1} className="text-xl font-semibold">
@@ -265,7 +265,7 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
   const shownPlans = showAllPlans ? plans : plans.slice(0, VISIBLE_PLAN_COUNT);
 
   return (
-    <PageColumn width="default" className="flex flex-col gap-4 p-4">
+    <PageColumn width="default" className="flex flex-col gap-4">
       <div>
         <h1 ref={heading} tabIndex={-1} className="text-xl font-semibold">
           Handlelisten
@@ -285,7 +285,7 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
               {!cheapestIsComplete && "fra "}
               {formatPrice(cheapest.total)}
             </span>
-            <span className="text-muted-foreground">
+            <span className="text-base font-semibold text-primary">
               Se sammenligning
               {cheapest.stops.length > 1 && ` · ${cheapest.stops.length} stopp`}
             </span>

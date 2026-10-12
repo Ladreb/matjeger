@@ -3,6 +3,12 @@ import { Button } from "@/components/ui/button";
 import { ScanBarcode, ShoppingCart, TrendingDown, Users, BarChart2, BadgeCheck } from "lucide-react";
 import { AnimatedSection } from "@/components/animated-section";
 
+const EXAMPLE_PRICES = [
+  { store: "Rema 1000", price: "20,90 kr" },
+  { store: "Kiwi", price: "21,50 kr" },
+  { store: "Meny", price: "23,90 kr" },
+];
+
 export default function LandingPage() {
   return (
     <main className="flex flex-col snap-y snap-mandatory overflow-y-scroll h-[calc(100svh-3.5rem)]">
@@ -49,6 +55,37 @@ export default function LandingPage() {
           </p>
           <p className="mt-4 text-muted-foreground">
             Se hva ting faktisk koster og finn butikken som lønner seg for deg.
+          </p>
+        </AnimatedSection>
+      </section>
+
+      {/* Example */}
+      <section className="snap-start flex min-h-[calc(100svh-3.5rem)] flex-col items-center justify-center gap-6 border-t px-6 text-center">
+        <AnimatedSection className="flex w-full max-w-sm flex-col items-center gap-6">
+          <p className="text-2xl font-bold tracking-tight sm:text-3xl">
+            Se prisene side om side
+          </p>
+          <div className="w-full rounded-lg border bg-card p-4 text-left shadow-sm">
+            <p className="font-semibold">Lettmelk 1 l</p>
+            <p className="text-sm text-muted-foreground">Tine</p>
+            <ul className="mt-3 flex flex-col divide-y rounded-lg border">
+              {EXAMPLE_PRICES.map((row, index) => (
+                <li key={row.store} className="flex items-center justify-between p-3">
+                  <span className="flex items-center gap-2 font-medium">
+                    {row.store}
+                    {index === 0 && (
+                      <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground">
+                        Billigst
+                      </span>
+                    )}
+                  </span>
+                  <span className="font-semibold">{row.price}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Eksempel. Prisene i appen kommer fra brukerne.
           </p>
         </AnimatedSection>
       </section>

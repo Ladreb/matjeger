@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
 import { PageColumn } from "@/components/page-column";
 import { Button } from "@/components/ui/button";
 import { authOptions } from "@/features/auth/lib/auth";
@@ -34,7 +35,14 @@ export default async function ProductPage({
   ]);
 
   return (
-    <PageColumn width="default" className="flex flex-col gap-6 p-4">
+    <PageColumn width="default" className="flex flex-col gap-6">
+      <Link
+        href="/search"
+        className="-mb-3 flex min-h-11 w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ChevronLeft aria-hidden className="size-4" /> Til søk
+      </Link>
+
       <div>
         <h1 className="text-xl font-semibold">{product.name}</h1>
         {product.brand && (
