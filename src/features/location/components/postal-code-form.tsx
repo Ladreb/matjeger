@@ -6,7 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { postalCodeFromPosition, savePostalCode } from "../lib/actions";
 
-export function PostalCodeForm({ initial }: { initial?: string | null }) {
+export function PostalCodeForm({
+  initial,
+  onSaved,
+}: {
+  initial?: string | null;
+  onSaved?: () => void;
+}) {
   const [value, setValue] = useState(initial ?? "");
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -17,8 +23,10 @@ export function PostalCodeForm({ initial }: { initial?: string | null }) {
     setSaved(false);
     startTransition(async () => {
       const result = await savePostalCode(value);
-      if (result.ok) setSaved(true);
-      else setError(result.error);
+      if (result.ok) {
+        setSaved(true);
+        onSaved?.();
+      } else setError(result.error);
     });
   }
 
@@ -39,6 +47,7 @@ export function PostalCodeForm({ initial }: { initial?: string | null }) {
           if (result.ok) {
             setValue(result.postalCode);
             setSaved(true);
+            onSaved?.();
           } else setError(result.error);
         }),
       () => setError("Fikk ikke tilgang til posisjonen din"),
