@@ -33,3 +33,6 @@ Reason for a second login: not everyone wants Google. Passwords were rejected: t
 
 ## 7. Hide, not delete, a bad price report (decided, 2026-10-12)
 An admin hides a report (`PriceReport.hiddenAt`, `hiddenById`); nothing is deleted. Reason: a mistake is reversible, history is kept for the later accuracy work, and "latest wins" (#2) then falls back to the previous visible report. Both `PRODUCT_ADMIN` and `ADMIN` can hide. Admins see the reporter's name on the edit page.
+
+## 8. Accuracy: show how many agree, keep latest wins (decided, 2026-10-12)
+The shown price stays the latest visible report (#2). Next to it the product page shows how many distinct users reported the same price for that chain in the last 30 days. Reason: it needs no change to which price wins, so search, shopping list and the dashboard stay consistent, and it still tells the user how much to trust the price. A median was rejected for now because a median across few reports can hide a real price change that the latest report shows.

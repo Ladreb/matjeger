@@ -6,15 +6,23 @@ import { LatestPrices } from "./latest-prices";
 import { ReportPriceForm } from "./report-price-form";
 
 type LatestPrice = { id: string; store: Store; price: number; reportedAt: Date };
+type RecentReport = {
+  id: string;
+  store: Store;
+  price: number;
+  reportedById: string | null;
+};
 
 export function ProductPrices({
   productId,
   postalCode,
   prices,
+  recentReports,
 }: {
   productId: string;
   postalCode: string;
   prices: LatestPrice[];
+  recentReports: RecentReport[];
 }) {
   const [updatedStore, setUpdatedStore] = useState<Store | null>(null);
 
@@ -24,6 +32,7 @@ export function ProductPrices({
         <h2 className="font-medium">Priser i {postalCode}</h2>
         <LatestPrices
           prices={prices}
+          recentReports={recentReports}
           postalCode={postalCode}
           highlightedStore={updatedStore}
         />

@@ -6,7 +6,10 @@ import { Button } from "@/components/ui/button";
 import { authOptions } from "@/features/auth/lib/auth";
 import { canEditCatalogue } from "@/features/auth/lib/roles";
 import { ProductPrices } from "@/features/pricing/components/product-prices";
-import { findLatestPricesPerStore } from "@/features/pricing/lib/queries";
+import {
+  findLatestPricesPerStore,
+  findRecentVisibleReports,
+} from "@/features/pricing/lib/queries";
 import { findProduct } from "@/features/products/lib/queries";
 import { AddToListButton } from "@/features/shopping-list/components/add-to-list-button";
 import { isOnList } from "@/features/shopping-list/lib/queries";
@@ -24,8 +27,9 @@ export default async function ProductPage({
   if (!product) notFound();
 
   const postalCode = session?.user.postalCode;
-  const [prices, onList] = await Promise.all([
+  const [prices, recentReports, onList] = await Promise.all([
     postalCode ? findLatestPricesPerStore(id, postalCode) : [],
+    postalCode ? findRecentVisibleReports(id, postalCode) : [],
     session ? isOnList(session.user.id, id) : false,
   ]);
 
@@ -56,6 +60,7 @@ export default async function ProductPage({
           productId={product.id}
           postalCode={postalCode}
           prices={prices}
+          recentReports={recentReports}
         />
       )}
     </PageColumn>
