@@ -25,6 +25,7 @@ Update checkboxes as work lands.
    - [ ] Still open from `docs/handover/admin-dashboard.md`: sortable table columns, loading skeleton for the dashboard. Delete the handover file when these are built or dropped
 4. [x] **Barcode scan**: ZXing camera scan on `/scan`, lookup, manual entry fallback, result card with cheapest price, add to list and report price, "Søk etter navn" for unknown barcodes
 5. [x] **Price reporting**: chain + price form, latest price per chain on product page, staleness warning
+   - [x] Chain buttons, last used chain preselected, favourite chains on `/profile` (`User.favouriteStores`, migration `favourite_stores`)
 6. [x] **Search**: product search by name/brand on `/search`, fuzzy, as you type, cheapest price on each result, "Lignende treff" for fuzzy matches, loading skeleton on the product page (measurements in `docs/technology/performance.md`)
 7. [x] **Shopping list**: one list per user (schema allows several), add from search and product page, plan cards with the cheapest chain and at most 2 stops (see `docs/domain/shopping-list.md`)
 8. [ ] **PWA**: icons, manifest, service worker (branch `fix/pwa-serwist` is unmerged)

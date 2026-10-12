@@ -14,6 +14,14 @@
 - Without a saved postal code the form and prices are hidden; the app layout shows the "Hvor handler du?" card. With no reports for the postal code it says so.
 - Code: `src/features/pricing` (`lib/parse-price.ts`, `lib/plausibility.ts`, `lib/staleness.ts`, `lib/queries.ts`, `lib/actions.ts`, `components/`).
 
+## Chain buttons, last used and favourites
+- The report form shows the chains as buttons instead of a select. Order: the user's favourite chains first, then the chains the user has reported most, then the default order. The chain of the user's newest report is preselected, and the chain stays selected after a report is saved.
+- Last used and most used are read from the user's own `PriceReport` rows (`findStorePreferences`), so they are stored nowhere else and follow the user across devices.
+- Favourites are `User.favouriteStores` (`Store[]`, default empty). The user pins them under "Favorittbutikker" on `/profile` (`toggleFavouriteStore`). Pinned chains show a star in the form.
+- The form loads the preferences itself with the `loadStorePreferences` server action, so the product page and the scan card need no extra props. Until it answers, the buttons show in default order.
+- On the scan card the form opens when the user taps "Rapporter pris", and the price field is focused then (`autoFocusPrice`).
+- Code: `lib/store-preferences.ts` (ordering, tested), `components/store-chip-list.tsx`, `components/favourite-stores-form.tsx`.
+
 ## Hiding reports (admins)
 - The edit page `/admin/products/[id]` has a "Prisrapporter" section (anchor `#prisrapporter`, linked from the "Billigst" cell on the dashboard): the newest 20 reports with price, chain, postal code, reporter name (or "ukjent") and age. "Skjul" asks for confirmation; a hidden report stays in the list, struck through, with "Vis igjen".
 - `hideReport` and `restoreReport` in `lib/actions.ts` call `requireCatalogueEditor()`; both admin roles can use them.

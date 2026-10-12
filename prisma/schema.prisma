@@ -119,6 +119,7 @@ model User {
   image         String?
   role          Role          @default(USER)
   postalCode    String?       // where the user shops, 4 digits
+  favouriteStores Store[]     @default([])
   accounts      Account[]
   sessions      Session[]
   priceReports  PriceReport[] @relation("ReportedBy")
