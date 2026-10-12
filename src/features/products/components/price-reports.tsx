@@ -39,23 +39,26 @@ export function PriceReports({ reports }: { reports: AdminPriceReport[] }) {
               key={report.id}
               className="flex items-center justify-between gap-3 px-4 py-3"
             >
-              <div
-                className={
-                  report.hidden
-                    ? "flex min-w-0 flex-col text-muted-foreground line-through"
-                    : "flex min-w-0 flex-col"
-                }
-              >
-                <span className="font-medium">
-                  {formatPrice(report.price)}
-                  {report.perKg && " per kg"}, {STORE_LABELS[report.store]}
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  {report.postalCode} · {report.reporterName ?? "ukjent"} ·{" "}
-                  {formatReportAge(report.ageDays)}
-                </span>
+              <div className="flex min-w-0 flex-col">
+                <div
+                  className={
+                    report.hidden
+                      ? "flex flex-col text-muted-foreground line-through"
+                      : "flex flex-col"
+                  }
+                >
+                  {report.hidden && <span className="sr-only">Skjult</span>}
+                  <span className="font-medium">
+                    {formatPrice(report.price)}
+                    {report.perKg && " per kg"}, {STORE_LABELS[report.store]}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    {report.postalCode} · {report.reporterName ?? "ukjent"} ·{" "}
+                    {formatReportAge(report.ageDays)}
+                  </span>
+                </div>
                 {failedId === report.id && (
-                  <span role="alert" className="text-sm text-destructive no-underline">
+                  <span role="alert" className="text-sm text-destructive">
                     Kunne ikke lagre. Prøv igjen.
                   </span>
                 )}
@@ -64,7 +67,10 @@ export function PriceReports({ reports }: { reports: AdminPriceReport[] }) {
                 type="button"
                 variant="ghost"
                 disabled={pendingId === report.id}
-                className={report.hidden ? undefined : "text-destructive"}
+                aria-label={`${report.hidden ? "Vis igjen" : "Skjul"} ${formatPrice(report.price)} hos ${STORE_LABELS[report.store]}`}
+                className={
+                  report.hidden ? "h-11 min-w-11" : "h-11 min-w-11 text-destructive"
+                }
                 onClick={() => change(report)}
               >
                 {report.hidden ? "Vis igjen" : "Skjul"}

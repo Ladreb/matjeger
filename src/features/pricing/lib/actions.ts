@@ -118,4 +118,6 @@ function revalidateReportViews(productId: string) {
   revalidatePath(`/admin/products/${productId}`);
   revalidatePath(`/products/${productId}`);
   revalidatePath("/admin/products");
+  revalidatePath("/shopping-list");
+  revalidatePath("/search");
 }
