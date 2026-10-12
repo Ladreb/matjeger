@@ -20,7 +20,7 @@ Update checkboxes as work lands.
 3. [x] **Admin product create/edit**: `/admin/products` (list, create, edit; no delete, no image yet)
 4. [x] **Barcode scan**: ZXing camera scan on `/scan`, lookup, manual entry fallback
 5. [x] **Price reporting**: chain + price form, latest price per chain on product page, staleness warning
-6. [x] **Search**: product search by name/brand on `/search`, fuzzy, as you type, loading skeleton on the product page (measurements in `docs/technology/performance.md`)
+6. [x] **Search**: product search by name/brand on `/search`, fuzzy, as you type, cheapest price on each result, "Lignende treff" for fuzzy matches, loading skeleton on the product page (measurements in `docs/technology/performance.md`)
 7. [x] **Shopping list**: one list per user (schema allows several), add from search and product page, plan cards with the cheapest chain and at most 2 stops (see `docs/domain/shopping-list.md`)
 8. [ ] **PWA**: icons, manifest, service worker (branch `fix/pwa-serwist` is unmerged)
 
