@@ -19,6 +19,7 @@ Update checkboxes as work lands.
 2. [x] **Role guards**: `requireCatalogueEditor()` for pages and server actions
 3. [x] **Admin product create/edit**: `/admin/products` (create, edit; no delete, no image yet)
    - [x] Admin dashboard: products with prices, filters, search, unknown barcodes tab with "Opprett produkt" and "Ignorer"
+   - [ ] "Vis ignorerte" list: a dismissed barcode can only be restored with "Angre" before the page is left, not after a reload
    - [ ] Scan to fill the barcode field, hiding bad price reports (see `docs/handover/admin-dashboard.md`)
 4. [x] **Barcode scan**: ZXing camera scan on `/scan`, lookup, manual entry fallback, result card with cheapest price, add to list and report price, "Søk etter navn" for unknown barcodes
 5. [x] **Price reporting**: chain + price form, latest price per chain on product page, staleness warning

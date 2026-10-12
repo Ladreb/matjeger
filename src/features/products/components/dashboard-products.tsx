@@ -178,7 +178,7 @@ function ProductTable({ products }: { products: DashboardProduct[] }) {
                 {product.name}
               </Link>
               <span className="block truncate text-muted-foreground">
-                {product.brand ?? "Mangler merke"}
+                {product.brand?.trim() || "Mangler merke"}
               </span>
             </td>
             <td className="py-2 pr-4 font-mono text-muted-foreground">
@@ -226,7 +226,7 @@ function ProductCards({ products }: { products: DashboardProduct[] }) {
           >
             <span className="font-medium">{product.name}</span>
             <span className="text-sm text-muted-foreground">
-              {[product.brand ?? "Mangler merke", barcodeOrPlu(product)]
+              {[product.brand?.trim() || "Mangler merke", barcodeOrPlu(product)]
                 .filter(Boolean)
                 .join(" · ")}
             </span>
