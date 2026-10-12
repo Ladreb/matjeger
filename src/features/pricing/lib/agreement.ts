@@ -1,10 +1,11 @@
 import type { Store } from "@prisma/client";
 
-type RecentReport = {
+export type RecentReport = {
   id: string;
   store: Store;
   price: number;
   reportedById: string | null;
+  reportedAt: Date;
 };
 
 export function countAgreeingReporters(
@@ -12,10 +13,17 @@ export function countAgreeingReporters(
   price: number,
   recentReports: RecentReport[],
 ): number {
-  const reporters = new Set(
-    recentReports
-      .filter((report) => report.store === store && report.price === price)
-      .map((report) => report.reportedById ?? report.id),
+  const newestFirst = [...recentReports].sort(
+    (a, b) =>
+      b.reportedAt.getTime() - a.reportedAt.getTime() || b.id.localeCompare(a.id),
   );
-  return reporters.size;
+  const newestPriceByReporter = new Map<string, number>();
+  for (const report of newestFirst) {
+    if (report.store !== store) continue;
+    const reporter = report.reportedById ?? report.id;
+    if (!newestPriceByReporter.has(reporter)) {
+      newestPriceByReporter.set(reporter, report.price);
+    }
+  }
+  return [...newestPriceByReporter.values()].filter((p) => p === price).length;
 }

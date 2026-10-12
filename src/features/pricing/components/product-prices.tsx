@@ -2,16 +2,11 @@
 
 import { useState } from "react";
 import type { Store } from "@prisma/client";
+import type { RecentReport } from "../lib/agreement";
 import { LatestPrices } from "./latest-prices";
 import { ReportPriceForm } from "./report-price-form";
 
 type LatestPrice = { id: string; store: Store; price: number; reportedAt: Date };
-type RecentReport = {
-  id: string;
-  store: Store;
-  price: number;
-  reportedById: string | null;
-};
 
 export function ProductPrices({
   productId,

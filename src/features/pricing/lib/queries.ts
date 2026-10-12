@@ -22,7 +22,13 @@ export function findRecentVisibleReports(
   const since = new Date(now.getTime() - STALE_AFTER_DAYS * 24 * 60 * 60 * 1000);
   return db.priceReport.findMany({
     where: { productId, postalCode, hiddenAt: null, reportedAt: { gte: since } },
-    select: { id: true, store: true, price: true, reportedById: true },
+    select: {
+      id: true,
+      store: true,
+      price: true,
+      reportedById: true,
+      reportedAt: true,
+    },
   });
 }
 

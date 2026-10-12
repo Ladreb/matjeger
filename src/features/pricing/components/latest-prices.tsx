@@ -1,17 +1,11 @@
 import type { Store } from "@prisma/client";
 import Link from "next/link";
 import { cn, formatPrice } from "@/lib/utils";
-import { countAgreeingReporters } from "../lib/agreement";
+import { countAgreeingReporters, type RecentReport } from "../lib/agreement";
 import { daysSince, isStale, STALE_AFTER_DAYS } from "../lib/staleness";
 import { STORE_LABELS } from "../lib/stores";
 
 type LatestPrice = { id: string; store: Store; price: number; reportedAt: Date };
-type RecentReport = {
-  id: string;
-  store: Store;
-  price: number;
-  reportedById: string | null;
-};
 
 export function LatestPrices({
   prices,
@@ -80,7 +74,7 @@ function AgreementNote({ count }: { count: number }) {
   if (count < 2) return null;
   return (
     <p className="text-sm text-muted-foreground">
-      Samme pris rapportert av {count} brukere siste {STALE_AFTER_DAYS} dager
+      Samme pris rapportert av {count} brukere de siste {STALE_AFTER_DAYS} dagene
     </p>
   );
 }
