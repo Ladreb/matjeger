@@ -8,14 +8,28 @@ export function StoreChipList({
   selected,
   favourites = [],
   onSelect,
+  loading = false,
+  labelledBy,
 }: {
   stores: Store[];
   selected: (store: Store) => boolean;
   favourites?: Store[];
   onSelect: (store: Store) => void;
+  loading?: boolean;
+  labelledBy: string;
 }) {
+  if (loading) {
+    return (
+      <div className="flex flex-wrap gap-2" aria-busy="true">
+        {stores.map((store) => (
+          <div key={store} className="h-11 w-20 animate-pulse rounded-md bg-muted" />
+        ))}
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-wrap gap-2">
+    <div role="group" aria-labelledby={labelledBy} className="flex flex-wrap gap-2">
       {stores.map((store) => (
         <button
           key={store}
@@ -29,7 +43,12 @@ export function StoreChipList({
               : "border-input bg-background",
           )}
         >
-          {favourites.includes(store) && <Star className="size-3.5 fill-current" />}
+          {favourites.includes(store) && (
+            <>
+              <Star aria-hidden className="size-3.5 fill-current" />
+              <span className="sr-only">Favoritt</span>
+            </>
+          )}
           {STORE_LABELS[store]}
         </button>
       ))}

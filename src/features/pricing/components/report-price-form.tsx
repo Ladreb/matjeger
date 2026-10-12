@@ -24,16 +24,20 @@ export function ReportPriceForm({
 }) {
   const [store, setStore] = useState("");
   const [price, setPrice] = useState("");
+  const [preferencesSettled, setPreferencesSettled] = useState(false);
   const [preferences, setPreferences] = useState<StorePreferences | null>(null);
   const [result, setResult] = useState<ReportPriceResult | null>(null);
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
-    loadStorePreferences().then((loaded) => {
-      if (!loaded) return;
-      setPreferences(loaded);
-      setStore((current) => current || loaded.lastUsedStore || "");
-    });
+    loadStorePreferences()
+      .then((loaded) => {
+        if (!loaded) return;
+        setPreferences(loaded);
+        setStore((current) => current || loaded.lastUsedStore || "");
+      })
+      .catch(() => {})
+      .finally(() => setPreferencesSettled(true));
   }, []);
 
   function submit(confirmed: boolean) {
@@ -59,10 +63,10 @@ export function ReportPriceForm({
       className="flex flex-col gap-3"
     >
       <div className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium">
-          Butikkjede
-        </span>
+        <span id="report-store-label" className="text-sm font-medium">Butikkjede</span>
         <StoreChipList
+          labelledBy="report-store-label"
+          loading={!preferencesSettled}
           stores={preferences?.orderedStores ?? STORES}
           selected={(option) => option === store}
           favourites={preferences?.favouriteStores}

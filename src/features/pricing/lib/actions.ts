@@ -129,9 +129,9 @@ export async function loadStorePreferences(): Promise<StorePreferences | null> {
   return findStorePreferences(session.user.id);
 }
 
-export async function toggleFavouriteStore(store: string): Promise<Store[]> {
+export async function toggleFavouriteStore(store: string): Promise<Store[] | null> {
   const session = await getServerSession(authOptions);
-  if (!session || !isStore(store)) return [];
+  if (!session || !isStore(store)) return null;
 
   const user = await db.user.findUnique({
     where: { id: session.user.id },

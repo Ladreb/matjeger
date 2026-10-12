@@ -29,7 +29,9 @@ export default async function ProfilePage() {
         <PostalCodeForm initial={session?.user?.postalCode} />
       </div>
       <div className="flex flex-col gap-2">
-        <p className="text-sm font-medium">Favorittbutikker</p>
+        <p id="favourite-stores-label" className="text-sm font-medium">
+          Favorittbutikker
+        </p>
         <p className="text-sm text-muted-foreground">
           Vises først når du rapporterer en pris.
         </p>
