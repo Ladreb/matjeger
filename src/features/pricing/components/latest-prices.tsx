@@ -1,6 +1,7 @@
 import type { Store } from "@prisma/client";
 import Link from "next/link";
 import { cn, formatPrice } from "@/lib/utils";
+import { countAgreeingReporters, type RecentReport } from "../lib/agreement";
 import { daysSince, isStale, STALE_AFTER_DAYS } from "../lib/staleness";
 import { STORE_LABELS } from "../lib/stores";
 
@@ -8,10 +9,12 @@ type LatestPrice = { id: string; store: Store; price: number; reportedAt: Date }
 
 export function LatestPrices({
   prices,
+  recentReports,
   postalCode,
   highlightedStore,
 }: {
   prices: LatestPrice[];
+  recentReports: RecentReport[];
   postalCode: string;
   highlightedStore: Store | null;
 }) {
@@ -53,6 +56,9 @@ export function LatestPrices({
               ? "Oppdatert nå"
               : describeAge(report.reportedAt)}
           </p>
+          <AgreementNote
+            count={countAgreeingReporters(report.store, report.price, recentReports)}
+          />
           {isStale(report.reportedAt) && (
             <p className="text-sm text-amber-700 dark:text-amber-400">
               Eldre enn {STALE_AFTER_DAYS} dager, prisen kan ha endret seg.
@@ -61,6 +67,15 @@ export function LatestPrices({
         </li>
       ))}
     </ul>
+  );
+}
+
+function AgreementNote({ count }: { count: number }) {
+  if (count < 2) return null;
+  return (
+    <p className="text-sm text-muted-foreground">
+      Samme pris rapportert av {count} brukere de siste {STALE_AFTER_DAYS} dagene
+    </p>
   );
 }
 

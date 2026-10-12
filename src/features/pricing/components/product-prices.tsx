@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Store } from "@prisma/client";
+import type { RecentReport } from "../lib/agreement";
 import { LatestPrices } from "./latest-prices";
 import { ReportPriceForm } from "./report-price-form";
 
@@ -11,10 +12,12 @@ export function ProductPrices({
   productId,
   postalCode,
   prices,
+  recentReports,
 }: {
   productId: string;
   postalCode: string;
   prices: LatestPrice[];
+  recentReports: RecentReport[];
 }) {
   const [updatedStore, setUpdatedStore] = useState<Store | null>(null);
 
@@ -24,6 +27,7 @@ export function ProductPrices({
         <h2 className="font-medium">Priser i {postalCode}</h2>
         <LatestPrices
           prices={prices}
+          recentReports={recentReports}
           postalCode={postalCode}
           highlightedStore={updatedStore}
         />

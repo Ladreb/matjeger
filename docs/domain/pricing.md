@@ -22,6 +22,11 @@
 - On the scan card the form opens when the user taps "Rapporter pris", and the price field is focused then (`autoFocusPrice`).
 - Code: `lib/store-preferences.ts` (ordering, tested), `components/store-chip-list.tsx`, `components/favourite-stores-form.tsx`.
 
+## Accuracy across reports
+- The price shown is still the latest visible report (DECISIONS #8). Below it the product page says "Samme pris rapportert av N brukere de siste 30 dagene" when N is 2 or more.
+- N is the number of distinct reporters whose latest visible report in the last 30 days (`STALE_AFTER_DAYS`) has the same chain, postal code and price as the shown price (`countAgreeingReporters`, `findRecentVisibleReports`). Hidden reports are excluded. Reports without a reporter count one each.
+- Only the product page shows it. Search, shopping list and the dashboard are unchanged. No migration.
+
 ## Hiding reports (admins)
 - The edit page `/admin/products/[id]` has a "Prisrapporter" section (anchor `#prisrapporter`, linked from the "Billigst" cell on the dashboard): the newest 20 reports with price, chain, postal code, reporter name (or "ukjent") and age. "Skjul" asks for confirmation; a hidden report stays in the list, struck through, with "Vis igjen".
 - `hideReport` and `restoreReport` in `lib/actions.ts` call `requireCatalogueEditor()`; both admin roles can use them.
@@ -31,6 +36,6 @@
 - Sale price (`isOnSale`, `regularPrice`) and `PER_KG` in the form.
 - Prices from the nearest area when the user's postal code has none (see DECISIONS #3).
 - Postal code chip next to the chain in the report form, so the user can see and edit which postal code a report gets (DECISIONS #3).
-- Accuracy across reports (range or consensus when users disagree). Every report is stored, so this needs no migration.
+- A median or range when users disagree. Only the same-price count is built (see "Accuracy across reports").
 
 Schema: `PriceReport` in `prisma/schema.prisma`.

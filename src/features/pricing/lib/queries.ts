@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { STALE_AFTER_DAYS } from "./staleness";
 import { buildStorePreferences } from "./store-preferences";
 
 export function findLatestPricesPerStore(
@@ -10,6 +11,24 @@ export function findLatestPricesPerStore(
     orderBy: [{ reportedAt: "desc" }, { id: "desc" }],
     distinct: ["store"],
     select: { id: true, store: true, price: true, reportedAt: true },
+  });
+}
+
+export function findRecentVisibleReports(
+  productId: string,
+  postalCode: string,
+  now: Date = new Date(),
+) {
+  const since = new Date(now.getTime() - STALE_AFTER_DAYS * 24 * 60 * 60 * 1000);
+  return db.priceReport.findMany({
+    where: { productId, postalCode, hiddenAt: null, reportedAt: { gte: since } },
+    select: {
+      id: true,
+      store: true,
+      price: true,
+      reportedById: true,
+      reportedAt: true,
+    },
   });
 }
 
