@@ -284,7 +284,15 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
         {postalCode && plans.length === 0 && (
           <p className="text-sm text-muted-foreground">
             Ingen har rapportert priser for varene på listen i {postalCode} ennå.
-            Åpne en vare og rapporter prisen.
+            Åpne en vare og rapporter prisen,{" "}
+            <Link href="/search" className="underline">
+              søk etter andre varer
+            </Link>{" "}
+            eller{" "}
+            <Link href="/profile" className="underline">
+              endre postnummer
+            </Link>
+            .
           </p>
         )}
 
