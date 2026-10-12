@@ -4,12 +4,7 @@ import { cn, formatPrice } from "@/lib/utils";
 import { daysSince, isStale, STALE_AFTER_DAYS } from "../lib/staleness";
 import { STORE_LABELS } from "../lib/stores";
 
-type LatestPrice = {
-  id: string;
-  store: Store;
-  price: number;
-  reportedAt: Date;
-};
+type LatestPrice = { id: string; store: Store; price: number; reportedAt: Date };
 
 export function LatestPrices({
   prices,
@@ -26,7 +21,7 @@ export function LatestPrices({
         Ingen har rapportert pris for postnummer {postalCode} ennå. Rapporter
         prisen under,{" "}
         <Link href="/search" className="underline">
-          søke etter en annen vare
+          søk etter en annen vare
         </Link>{" "}
         eller{" "}
         <Link href="/profile" className="underline">

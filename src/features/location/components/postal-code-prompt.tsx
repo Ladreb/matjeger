@@ -12,6 +12,7 @@ export function PostalCodePrompt({
 }) {
   const pathname = usePathname();
   const [savedOnPath, setSavedOnPath] = useState<string | null>(null);
+  if (savedOnPath !== null && savedOnPath !== pathname) setSavedOnPath(null);
   const justSaved = savedOnPath === pathname;
 
   if (hasPostalCode && !justSaved) return null;

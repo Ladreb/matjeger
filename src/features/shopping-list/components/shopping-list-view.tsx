@@ -45,18 +45,11 @@ function confirmedValues(items: ListItemData[]) {
   );
 }
 
-export function ShoppingListView({
-  initialItems,
-  prices,
-  postalCode,
-  now,
-}: Props) {
+export function ShoppingListView({ initialItems, prices, postalCode, now }: Props) {
   const [items, setItems] = useState(initialItems);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [clearFailed, setClearFailed] = useState(false);
-  const [confirmed, setConfirmed] = useState(() =>
-    confirmedValues(initialItems),
-  );
+  const [confirmed, setConfirmed] = useState(() => confirmedValues(initialItems));
   const [unfinishedChanges, setUnfinishedChanges] = useState(0);
   const [seenInitialItems, setSeenInitialItems] = useState(initialItems);
 
@@ -123,10 +116,7 @@ export function ShoppingListView({
     setUnfinishedChanges((count) => count + 1);
     updateItem(id, { [field]: value });
     setError(id, null);
-    unfinishedSaves.current.set(
-      key,
-      (unfinishedSaves.current.get(key) ?? 0) + 1,
-    );
+    unfinishedSaves.current.set(key, (unfinishedSaves.current.get(key) ?? 0) + 1);
 
     const result = await send().catch(() => FAILED);
     setUnfinishedChanges((count) => count - 1);
@@ -204,9 +194,7 @@ export function ShoppingListView({
         <h1 ref={heading} tabIndex={-1} className="text-xl font-semibold">
           Handlelisten
         </h1>
-        <p className="text-sm text-muted-foreground">
-          {countItems(items.length)}
-        </p>
+        <p className="text-sm text-muted-foreground">{countItems(items.length)}</p>
       </div>
 
       {postalCode && cheapest && (
@@ -248,14 +236,10 @@ export function ShoppingListView({
             error={errors[item.id]}
             onQuantityChange={(quantity) => {
               const next = clampQuantity(quantity);
-              void save(item.id, "quantity", next, () =>
-                setQuantity(item.id, next),
-              );
+              void save(item.id, "quantity", next, () => setQuantity(item.id, next));
             }}
             onCheckedChange={(checked) =>
-              void save(item.id, "checked", checked, () =>
-                setChecked(item.id, checked),
-              )
+              void save(item.id, "checked", checked, () => setChecked(item.id, checked))
             }
             onRemove={() => void remove(item)}
           />
@@ -280,10 +264,7 @@ export function ShoppingListView({
         </div>
       )}
 
-      <section
-        id="billigste-butikk"
-        className="flex scroll-mt-16 flex-col gap-3"
-      >
+      <section id="billigste-butikk" className="flex scroll-mt-16 flex-col gap-3">
         <div>
           <h2 className="text-lg font-semibold">Billigste butikk</h2>
           {postalCode && (
@@ -302,8 +283,8 @@ export function ShoppingListView({
 
         {postalCode && plans.length === 0 && (
           <p className="text-sm text-muted-foreground">
-            Ingen har rapportert priser for varene på listen i {postalCode}{" "}
-            ennå. Åpne en vare og rapporter prisen,{" "}
+            Ingen har rapportert priser for varene på listen i {postalCode} ennå.
+            Åpne en vare og rapporter prisen,{" "}
             <Link href="/search" className="underline">
               søk etter andre varer
             </Link>{" "}
@@ -319,10 +300,7 @@ export function ShoppingListView({
           plans.map((plan, index) => (
             <PlanCard
               key={plan.stops
-                .map(
-                  (stop) =>
-                    `${stop.store}:${stop.lines.map((l) => l.productId)}`,
-                )
+                .map((stop) => `${stop.store}:${stop.lines.map((l) => l.productId)}`)
                 .join("|")}
               plan={plan}
               rank={index + 1}
