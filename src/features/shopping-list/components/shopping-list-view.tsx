@@ -205,22 +205,24 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
     setUndoable({ removed, message: `${countItems(removed.length)} er fjernet` });
   }
 
-  const undoBar = undoable && (
-    <div className="pointer-events-none fixed inset-x-0 bottom-20 z-40 flex justify-center px-4 lg:bottom-6">
-      <div
-        role="status"
-        className="pointer-events-auto flex w-full max-w-md items-center justify-between gap-2 rounded-lg bg-foreground py-1 pl-4 pr-1 text-sm text-background shadow-lg"
-      >
-        <span>{undoable.message}</span>
-        <Button
-          type="button"
-          variant="ghost"
-          className="h-11 px-4 text-background hover:bg-background/15 hover:text-background"
-          onClick={() => void undoRemoval()}
-        >
-          Angre
-        </Button>
-      </div>
+  const undoBar = (
+    <div
+      role="status"
+      className="pointer-events-none fixed inset-x-0 bottom-20 z-40 flex justify-center px-4 empty:hidden lg:bottom-6"
+    >
+      {undoable && (
+        <div className="pointer-events-auto flex w-full max-w-md items-center justify-between gap-2 rounded-lg bg-foreground py-1 pl-4 pr-1 text-sm text-background shadow-lg">
+          <span>{undoable.message}</span>
+          <Button
+            type="button"
+            variant="ghost"
+            className="h-11 px-4 text-background hover:bg-background/15 hover:text-background"
+            onClick={() => void undoRemoval()}
+          >
+            Angre
+          </Button>
+        </div>
+      )}
     </div>
   );
 

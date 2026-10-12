@@ -12,6 +12,7 @@ import { parseRestoredItem, type RestoredItem } from "./restore";
 export type ListActionResult = { ok: true } | { ok: false; message: string };
 
 const SAVE_FAILED = "Kunne ikke lagre endringen. Prøv igjen.";
+const MAX_RESTORED_ITEMS = 200;
 const NOT_LOGGED_IN = "Du må være logget inn";
 
 async function currentUserId(): Promise<string | null> {
@@ -130,6 +131,9 @@ export async function removeFromList(productId: string): Promise<ListActionResul
 }
 
 export async function restoreItems(items: RestoredItem[]): Promise<ListActionResult> {
+  if (!Array.isArray(items) || items.length > MAX_RESTORED_ITEMS) {
+    return { ok: false, message: SAVE_FAILED };
+  }
   const parsed = items.map(parseRestoredItem);
   if (parsed.some((item) => item === null)) return { ok: false, message: SAVE_FAILED };
 
