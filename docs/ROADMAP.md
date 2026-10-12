@@ -33,6 +33,7 @@ Update checkboxes as work lands.
 - [ ] Check after the first production deploy that migrations ran (see `docs/technology/environments.md`). Includes `pg_trgm` (search) and the product `description` column. Check on production that `SELECT lower('Å')` returns `å` (search lowercases in the database; dev uses `C.UTF-8`, which works)
 
 ## Later
+- [x] Record scanned barcodes that are not in the catalogue (counted once per user and day; the admin list is in the dashboard issue)
 - [ ] Users propose unknown barcodes, admin review queue
 - [ ] `StoreLocation` (specific branches)
 - [ ] Price accuracy: when users report different prices, show a range or a consensus instead of only the latest (see `docs/domain/pricing.md`)

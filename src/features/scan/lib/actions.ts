@@ -7,6 +7,10 @@ import { isValidBarcode } from "@/features/products/lib/barcode";
 import { findCheapest } from "@/features/pricing/lib/cheapest";
 import { findLatestPricesPerStore } from "@/features/pricing/lib/queries";
 import { findProductByBarcode } from "@/features/products/lib/queries";
+import {
+  prismaUnknownBarcodeStore,
+  recordUnknownBarcode,
+} from "@/features/products/lib/unknown-barcodes";
 import { isOnList } from "@/features/shopping-list/lib/queries";
 
 export type ScannedProduct = {
@@ -32,7 +36,10 @@ export async function lookupBarcode(barcode: string): Promise<LookupResult> {
 
   const product = await findProductByBarcode(value);
   const postalCode = session.user.postalCode;
-  if (!product) return { ok: true, product: null, postalCode };
+  if (!product) {
+    await noteUnknownBarcode(value, session.user.id);
+    return { ok: true, product: null, postalCode };
+  }
 
   const [prices, onList] = await Promise.all([
     postalCode ? findLatestPricesPerStore(product.id, postalCode) : [],
@@ -43,4 +50,19 @@ export async function lookupBarcode(barcode: string): Promise<LookupResult> {
     product: { ...product, onList, cheapest: findCheapest(prices) },
     postalCode,
   };
+}
+
+async function noteUnknownBarcode(barcode: string, userId: string) {
+  const secret = process.env.NEXTAUTH_SECRET;
+  if (!secret) return;
+  try {
+    await recordUnknownBarcode(prismaUnknownBarcodeStore, {
+      barcode,
+      userId,
+      secret,
+      now: new Date(),
+    });
+  } catch (error) {
+    console.error("Could not record unknown barcode", error);
+  }
 }

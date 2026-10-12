@@ -79,8 +79,8 @@ function OutcomeMessage({ outcome }: { outcome: Outcome }) {
     return (
       <div className="flex flex-col gap-3">
         <p>
-          Fant ikke produktet med strekkode {barcode}. Vi legger det til
-          etter hvert.
+          Fant ikke produktet med strekkode {barcode}. Takk, vi har notert
+          den.
         </p>
         <Button asChild variant="outline" className="h-11 sm:w-fit">
           <Link href="/search">Søk etter navn</Link>
