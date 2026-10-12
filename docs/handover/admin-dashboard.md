@@ -1,6 +1,6 @@
 # Handover: admin dashboard
 
-Designer to developer. Delete this file when the reviewer says so. Layout widths and the top bar come from `laptop-layout.md` (this page uses the `wide` column).
+Designer to developer. Delete this file when the reviewer says so. Layout widths and the top bar are described in `docs/technology/architecture.md` (this page uses the `wide` column).
 
 ## Goal
 
