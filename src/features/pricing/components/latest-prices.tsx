@@ -1,5 +1,5 @@
 import type { Store } from "@prisma/client";
-import { formatPrice } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { daysSince, isStale, STALE_AFTER_DAYS } from "../lib/staleness";
 import { STORE_LABELS } from "../lib/stores";
 
@@ -8,9 +8,11 @@ type LatestPrice = { id: string; store: Store; price: number; reportedAt: Date }
 export function LatestPrices({
   prices,
   postalCode,
+  highlightedStore,
 }: {
   prices: LatestPrice[];
   postalCode: string;
+  highlightedStore: Store | null;
 }) {
   if (prices.length === 0) {
     return (
@@ -25,13 +27,21 @@ export function LatestPrices({
   return (
     <ul className="flex flex-col divide-y rounded-lg border">
       {cheapestFirst.map((report) => (
-        <li key={report.id} className="flex flex-col gap-1 p-3">
+        <li
+          key={report.id}
+          className={cn(
+            "flex flex-col gap-1 p-3",
+            report.store === highlightedStore && "bg-primary/10",
+          )}
+        >
           <div className="flex items-baseline justify-between">
             <span className="font-medium">{STORE_LABELS[report.store]}</span>
             <span className="font-semibold">{formatPrice(report.price)}</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            {describeAge(report.reportedAt)}
+            {report.store === highlightedStore
+              ? "Oppdatert nå"
+              : describeAge(report.reportedAt)}
           </p>
           {isStale(report.reportedAt) && (
             <p className="text-sm text-amber-700 dark:text-amber-400">

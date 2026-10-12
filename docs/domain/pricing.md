@@ -8,8 +8,10 @@
 ## Built (step 5)
 - Product page `/products/[id]`, reached from the scan result. Shows the latest price per chain for the user's saved postal code, cheapest first, with age and a staleness warning.
 - Report form on the product page: chain and price in kroner (`29,90` or `29.90`, stored as øre). Always `PER_UNIT`, no sale info yet. Each submit inserts a new report, so history is kept and the same user can report the same chain again.
+- Implausible prices: if the price is more than 3x or less than 1/3 of the median of the current prices (latest per chain, same postal code), the server answers "Er du sikker?" and the form asks the user to confirm or change the price. The check is `isImplausiblePrice()` in `lib/plausibility.ts`. With no known prices, anything is accepted. Zero gets its own message ("Prisen må være over 0").
+- Form feedback: the success and error messages disappear as soon as the user edits a field. After a success chain and price are reset, and the updated price row is highlighted ("Oppdatert nå") until the next report.
 - Without a saved postal code the form and prices are hidden; the app layout shows the "Hvor handler du?" card. With no reports for the postal code it says so.
-- Code: `src/features/pricing` (`lib/parse-price.ts`, `lib/staleness.ts`, `lib/queries.ts`, `lib/actions.ts`, `components/`).
+- Code: `src/features/pricing` (`lib/parse-price.ts`, `lib/plausibility.ts`, `lib/staleness.ts`, `lib/queries.ts`, `lib/actions.ts`, `components/`).
 
 ## Not built yet
 - Sale price (`isOnSale`, `regularPrice`) and `PER_KG` in the form.

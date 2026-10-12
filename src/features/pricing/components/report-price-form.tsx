@@ -1,34 +1,65 @@
 "use client";
 
-import { useActionState } from "react";
+import { useState, useTransition } from "react";
+import type { Store } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { reportPrice } from "../lib/actions";
+import { reportPrice, type ReportPriceResult } from "../lib/actions";
 import { STORES, STORE_LABELS } from "../lib/stores";
 
-export function ReportPriceForm({ productId }: { productId: string }) {
-  const [state, formAction, pending] = useActionState(
-    reportPrice.bind(null, productId),
-    null,
-  );
+export function ReportPriceForm({
+  productId,
+  onReported,
+}: {
+  productId: string;
+  onReported: (store: Store) => void;
+}) {
+  const [store, setStore] = useState("");
+  const [price, setPrice] = useState("");
+  const [result, setResult] = useState<ReportPriceResult | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  function submit(confirmed: boolean) {
+    setResult(null);
+    startTransition(async () => {
+      const outcome = await reportPrice(productId, { store, price, confirmed });
+      setResult(outcome);
+      if (outcome.status === "saved") {
+        setStore("");
+        setPrice("");
+        onReported(outcome.store);
+      }
+    });
+  }
+
+  const needsConfirmation = result?.status === "needs-confirmation";
 
   return (
-    <form action={formAction} className="flex flex-col gap-3">
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        submit(false);
+      }}
+      className="flex flex-col gap-3"
+    >
       <label className="flex flex-col gap-1.5 text-sm font-medium">
         Butikkjede
         <select
-          key={state?.ok === false ? state.values.store : ""}
           name="store"
           required
-          defaultValue={state?.ok === false ? state.values.store : ""}
+          value={store}
+          onChange={(event) => {
+            setStore(event.target.value);
+            setResult(null);
+          }}
           className="h-9 rounded-md border border-input bg-background px-3 text-sm"
         >
           <option value="" disabled>
             Velg butikkjede
           </option>
-          {STORES.map((store) => (
-            <option key={store} value={store}>
-              {STORE_LABELS[store]}
+          {STORES.map((option) => (
+            <option key={option} value={option}>
+              {STORE_LABELS[option]}
             </option>
           ))}
         </select>
@@ -39,23 +70,43 @@ export function ReportPriceForm({ productId }: { productId: string }) {
           name="price"
           inputMode="decimal"
           placeholder="29,90"
-          defaultValue={state?.ok === false ? state.values.price : ""}
+          value={price}
+          onChange={(event) => {
+            setPrice(event.target.value);
+            setResult(null);
+          }}
           required
         />
       </label>
       <p
-        role={state?.ok === false ? "alert" : "status"}
+        role={result?.status === "error" ? "alert" : "status"}
         className={
-          state?.ok === false
+          result?.status === "error"
             ? "text-sm text-destructive"
             : "text-sm text-muted-foreground"
         }
       >
-        {state?.message}
+        {result?.message}
       </p>
-      <Button type="submit" disabled={pending}>
-        {pending ? "Sender ..." : "Rapporter pris"}
-      </Button>
+      {needsConfirmation ? (
+        <div className="flex flex-col gap-2">
+          <Button type="button" disabled={pending} onClick={() => submit(true)}>
+            {pending ? "Sender ..." : "Ja, rapporter prisen"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={pending}
+            onClick={() => setResult(null)}
+          >
+            Endre pris
+          </Button>
+        </div>
+      ) : (
+        <Button type="submit" disabled={pending}>
+          {pending ? "Sender ..." : "Rapporter pris"}
+        </Button>
+      )}
     </form>
   );
 }

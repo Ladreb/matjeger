@@ -1,8 +1,7 @@
 import { getServerSession } from "next-auth";
 import { notFound } from "next/navigation";
 import { authOptions } from "@/features/auth/lib/auth";
-import { LatestPrices } from "@/features/pricing/components/latest-prices";
-import { ReportPriceForm } from "@/features/pricing/components/report-price-form";
+import { ProductPrices } from "@/features/pricing/components/product-prices";
 import { findLatestPricesPerStore } from "@/features/pricing/lib/queries";
 import { findProduct } from "@/features/products/lib/queries";
 import { AddToListButton } from "@/features/shopping-list/components/add-to-list-button";
@@ -43,16 +42,11 @@ export default async function ProductPage({
       />
 
       {postalCode && (
-        <>
-          <section className="flex flex-col gap-2">
-            <h2 className="font-medium">Priser i {postalCode}</h2>
-            <LatestPrices prices={prices} postalCode={postalCode} />
-          </section>
-          <section className="flex flex-col gap-2">
-            <h2 className="font-medium">Rapporter pris</h2>
-            <ReportPriceForm productId={product.id} />
-          </section>
-        </>
+        <ProductPrices
+          productId={product.id}
+          postalCode={postalCode}
+          prices={prices}
+        />
       )}
     </div>
   );
