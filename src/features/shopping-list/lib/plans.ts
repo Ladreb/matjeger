@@ -9,6 +9,7 @@ export type StorePrice = {
   store: Store;
   price: number;
   reportedAt: Date;
+  isNearby: boolean;
 };
 
 export type PlanLine = {
@@ -18,6 +19,7 @@ export type PlanLine = {
   lineTotal: number;
   reportedAt: Date;
   isStale: boolean;
+  isNearby: boolean;
 };
 
 export type PlanStop = { store: Store; lines: PlanLine[]; total: number };
@@ -27,6 +29,7 @@ export type Plan = {
   uncoveredProductIds: string[];
   total: number;
   staleLineCount: number;
+  nearbyLineCount: number;
 };
 
 export type PlanResult = { plans: Plan[]; unpricedProductIds: string[] };
@@ -54,7 +57,7 @@ function buildStop(
   now: Date,
 ): PlanStop {
   const lines = entries.map(({ productId, quantity }) => {
-    const { price, reportedAt } = prices.get(productId)!;
+    const { price, reportedAt, isNearby } = prices.get(productId)!;
     return {
       productId,
       quantity,
@@ -62,6 +65,7 @@ function buildStop(
       lineTotal: price * quantity,
       reportedAt,
       isStale: isStale(reportedAt, now),
+      isNearby,
     };
   });
   const total = lines.reduce((sum, line) => sum + line.lineTotal, 0);
@@ -124,6 +128,9 @@ function buildPlan(
     staleLineCount: stops
       .flatMap((stop) => stop.lines)
       .filter((line) => line.isStale).length,
+    nearbyLineCount: stops
+      .flatMap((stop) => stop.lines)
+      .filter((line) => line.isNearby).length,
   };
 }
 

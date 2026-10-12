@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { PageColumn } from "@/components/page-column";
 import { Button } from "@/components/ui/button";
 import type { Store } from "@prisma/client";
+import { priceAreaOf } from "@/features/location/lib/price-area";
 import { formatStaleAge, isStale } from "@/features/pricing/lib/staleness";
 import { ReportPriceForm } from "@/features/pricing/components/report-price-form";
 import { AddToListButton } from "@/features/shopping-list/components/add-to-list-button";
@@ -116,12 +117,16 @@ function ScannedProductCard({
   const [reporting, setReporting] = useState(false);
   const [cheapest, setCheapest] = useState(product.cheapest);
   const priceLabel = cheapest
-    ? cheapestPriceLabel(cheapest.price, cheapest.store)
+    ? cheapestPriceLabel(
+        cheapest.price,
+        cheapest.store,
+        cheapest.isNearby && postalCode ? priceAreaOf(postalCode).label : null,
+      )
     : null;
 
   function updateCheapest(store: Store, price: number) {
     if (!cheapest || price < cheapest.price) {
-      setCheapest({ store, price, reportedAt: new Date() });
+      setCheapest({ store, price, reportedAt: new Date(), isNearby: false });
     }
   }
 
@@ -145,7 +150,7 @@ function ScannedProductCard({
       ) : (
         <p className="text-sm text-muted-foreground">
           {postalCode ? (
-            `Ingen priser for postnummer ${postalCode} ennå.`
+            `Ingen priser for postnummer ${postalCode} eller ${priceAreaOf(postalCode).label} ennå.`
           ) : (
             <>
               <Link href="/profile" className="underline">

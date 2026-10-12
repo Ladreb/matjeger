@@ -15,7 +15,8 @@ UX, to avoid typing postal codes on every report:
 - Attach it to each report automatically. Show as an editable chip next to the chain.
 - Show prices for the user's postal code first, then the nearest area with data, labelled.
 - Later, if too coarse: add a `StoreLocation` model for specific branches.
-Open: how "nearest area" is computed (needs a postal code → coordinates dataset, e.g. Bring/Posten or Kartverket).
+First version (issue #37): the area is the first 2 digits of the postal code, own postal code wins per chain, area prices are always labelled.
+Open: how "nearest area" is computed for real (needs a postal code → coordinates dataset, e.g. Bring/Posten or Kartverket).
 
 ## 4. Two environments: local/test and production (decided, 2026-10-10)
 Before this, `.env` and `.env.development.local` pointed at the same Neon database, so local work changed production.

@@ -1,11 +1,18 @@
 import type { Store } from "@prisma/client";
 import Link from "next/link";
+import { isNearbyPrice, priceAreaOf } from "@/features/location/lib/price-area";
 import { cn, formatPrice } from "@/lib/utils";
 import { countAgreeingReporters, type RecentReport } from "../lib/agreement";
 import { daysSince, isStale, STALE_AFTER_DAYS } from "../lib/staleness";
 import { STORE_LABELS } from "../lib/stores";
 
-type LatestPrice = { id: string; store: Store; price: number; reportedAt: Date };
+type LatestPrice = {
+  id: string;
+  store: Store;
+  price: number;
+  reportedAt: Date;
+  postalCode: string;
+};
 
 export function LatestPrices({
   prices,
@@ -21,7 +28,7 @@ export function LatestPrices({
   if (prices.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        Ingen har rapportert pris for postnummer {postalCode} ennå. Rapporter
+        Ingen har rapportert pris for postnummer {postalCode} eller {priceAreaOf(postalCode).label} ennå. Rapporter
         prisen under,{" "}
         <Link href="/search" className="underline">
           søk etter en annen vare
@@ -36,10 +43,13 @@ export function LatestPrices({
   }
 
   const cheapestFirst = [...prices].sort((a, b) => a.price - b.price);
+  const areaLabel = priceAreaOf(postalCode).label;
 
   return (
     <ul className="flex flex-col divide-y rounded-lg border">
-      {cheapestFirst.map((report) => (
+      {cheapestFirst.map((report) => {
+        const isNearby = isNearbyPrice(report.postalCode, postalCode);
+        return (
         <li
           key={report.id}
           className={cn(
@@ -56,16 +66,21 @@ export function LatestPrices({
               ? "Oppdatert nå"
               : describeAge(report.reportedAt)}
           </p>
-          <AgreementNote
-            count={countAgreeingReporters(report.store, report.price, recentReports)}
-          />
+          {isNearby ? (
+            <p className="text-sm font-medium">Pris fra {areaLabel}</p>
+          ) : (
+            <AgreementNote
+              count={countAgreeingReporters(report.store, report.price, recentReports)}
+            />
+          )}
           {isStale(report.reportedAt) && (
             <p className="text-sm text-amber-700 dark:text-amber-400">
               Eldre enn {STALE_AFTER_DAYS} dager, prisen kan ha endret seg.
             </p>
           )}
         </li>
-      ))}
+        );
+      })}
     </ul>
   );
 }
