@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PageColumn } from "@/components/page-column";
 import { Button } from "@/components/ui/button";
 import { listProducts } from "@/features/products/lib/queries";
 
@@ -6,7 +7,7 @@ export default async function AdminProductsPage() {
   const products = await listProducts();
 
   return (
-    <>
+    <PageColumn width="wide" className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Produkter</h1>
         <Button asChild>
@@ -35,6 +36,6 @@ export default async function AdminProductsPage() {
           ))}
         </ul>
       )}
-    </>
+    </PageColumn>
   );
 }

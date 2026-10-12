@@ -1,6 +1,11 @@
+import { PageColumn } from "@/components/page-column";
+
 export default function ProductLoading() {
   return (
-    <div className="flex animate-pulse flex-col gap-6 p-4">
+    <PageColumn
+      width="default"
+      className="flex animate-pulse flex-col gap-6 p-4"
+    >
       <p role="status" className="sr-only">
         Laster…
       </p>
@@ -12,6 +17,6 @@ export default function ProductLoading() {
         <div className="h-5 w-1/3 rounded bg-muted" />
         <div className="h-32 rounded-lg bg-muted" />
       </div>
-    </div>
+    </PageColumn>
   );
 }

@@ -3,6 +3,7 @@
 import { ChevronRight, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { PageColumn } from "@/components/page-column";
 import { Button } from "@/components/ui/button";
 import { STORE_LABELS } from "@/features/pricing/lib/stores";
 import { formatPrice } from "@/lib/utils";
@@ -165,7 +166,10 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
 
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-3 px-4 py-12 text-center">
+      <PageColumn
+        width="default"
+        className="flex flex-col items-center gap-3 px-4 py-12 text-center"
+      >
         <ShoppingCart aria-hidden className="size-10 text-muted-foreground" />
         <h1 ref={heading} tabIndex={-1} className="text-xl font-semibold">
           Handlelisten er tom
@@ -180,7 +184,7 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
         <Button asChild variant="ghost" className="h-11">
           <Link href="/scan">Skann en vare</Link>
         </Button>
-      </div>
+      </PageColumn>
     );
   }
 
@@ -189,7 +193,7 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
   const cheapestIsComplete = cheapest?.uncoveredProductIds.length === 0;
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <PageColumn width="default" className="flex flex-col gap-4 p-4">
       <div>
         <h1 ref={heading} tabIndex={-1} className="text-xl font-semibold">
           Handlelisten
@@ -251,7 +255,7 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
           <Button
             type="button"
             variant="outline"
-            className="h-11"
+            className="h-11 sm:w-fit"
             onClick={() => void clearMarked()}
           >
             Fjern markerte varer fra listen ({markedCount})
@@ -321,6 +325,6 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
           </p>
         )}
       </section>
-    </div>
+    </PageColumn>
   );
 }

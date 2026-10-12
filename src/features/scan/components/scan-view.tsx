@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
+import { PageColumn } from "@/components/page-column";
 import { Button } from "@/components/ui/button";
 import { lookupBarcode, type LookupResult } from "../lib/actions";
 import { BarcodeScanner } from "./barcode-scanner";
@@ -30,7 +31,7 @@ export function ScanView() {
   const showScanner = cameraAvailable && !outcome && !pending;
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4">
+    <PageColumn width="narrow" className="flex flex-1 flex-col gap-4 p-4">
       {showScanner && (
         <BarcodeScanner
           onScan={lookup}
@@ -46,13 +47,17 @@ export function ScanView() {
       {outcome && !pending && (
         <>
           <OutcomeMessage outcome={outcome} />
-          <Button variant="outline" onClick={() => setOutcome(null)}>
+          <Button
+            variant="outline"
+            className="sm:w-fit"
+            onClick={() => setOutcome(null)}
+          >
             Skann ny
           </Button>
         </>
       )}
       <ManualBarcodeForm onSubmit={lookup} disabled={pending} />
-    </div>
+    </PageColumn>
   );
 }
 

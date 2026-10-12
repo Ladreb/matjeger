@@ -1,5 +1,6 @@
 import { getServerSession } from "next-auth";
 import { notFound } from "next/navigation";
+import { PageColumn } from "@/components/page-column";
 import { authOptions } from "@/features/auth/lib/auth";
 import { ProductPrices } from "@/features/pricing/components/product-prices";
 import { findLatestPricesPerStore } from "@/features/pricing/lib/queries";
@@ -26,7 +27,7 @@ export default async function ProductPage({
   ]);
 
   return (
-    <div className="flex flex-col gap-6 p-4">
+    <PageColumn width="default" className="flex flex-col gap-6 p-4">
       <div>
         <h1 className="text-xl font-semibold">{product.name}</h1>
         {product.brand && (
@@ -48,6 +49,6 @@ export default async function ProductPage({
           prices={prices}
         />
       )}
-    </div>
+    </PageColumn>
   );
 }

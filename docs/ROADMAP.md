@@ -8,6 +8,7 @@ Update checkboxes as work lands.
 - [x] Landing page, Nordic theme, light/dark toggle
 - [x] App shell: header, bottom nav, auth guard
 - [x] Schema: Product, PriceReport, User roles
+- [x] Laptop layout: centred page column, natural button width, top nav from 1024 px (see `docs/technology/architecture.md`)
 - [x] Dev login and seed data for local testing (see `docs/technology/environments.md`)
 
 ## Next (in order)
