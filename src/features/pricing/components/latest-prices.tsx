@@ -1,4 +1,5 @@
 import type { Store } from "@prisma/client";
+import Link from "next/link";
 import { cn, formatPrice } from "@/lib/utils";
 import { daysSince, isStale, STALE_AFTER_DAYS } from "../lib/staleness";
 import { STORE_LABELS } from "../lib/stores";
@@ -17,7 +18,15 @@ export function LatestPrices({
   if (prices.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        Ingen har rapportert pris for postnummer {postalCode} ennå.
+        Ingen har rapportert pris for postnummer {postalCode} ennå. Du kan{" "}
+        <Link href="/search" className="underline">
+          søke etter en annen vare
+        </Link>{" "}
+        eller{" "}
+        <Link href="/profile" className="underline">
+          endre postnummer
+        </Link>
+        .
       </p>
     );
   }
