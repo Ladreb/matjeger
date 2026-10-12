@@ -12,7 +12,7 @@ type Props = {
   saving: number | null;
   open: boolean;
   now: Date;
-  itemsByProductId: Map<string, { name: string; quantity: number; checked: boolean }>;
+  itemsByProductId: Map<string, { name: string; quantity: number }>;
 };
 
 export function PlanCard({
@@ -98,12 +98,7 @@ export function PlanCard({
                     key={line.productId}
                     className="flex flex-col text-sm"
                   >
-                    <div
-                      className={cn(
-                        "flex justify-between gap-2",
-                        item?.checked && "text-muted-foreground line-through",
-                      )}
-                    >
+                    <div className="flex justify-between gap-2">
                       <span>
                         {line.quantity} × {item?.name}
                       </span>
