@@ -3,12 +3,13 @@ import { STORE_LABELS } from "@/features/pricing/lib/stores";
 import { formatStaleAge } from "@/features/pricing/lib/staleness";
 import { cn, formatPrice } from "@/lib/utils";
 import type { Plan } from "../lib/plans";
-import { countItems, describeStalePrices } from "../lib/wording";
+import { countItems, describeSaving, describeStalePrices } from "../lib/wording";
 
 type Props = {
   plan: Plan;
   rank: number;
   isCheapest: boolean;
+  saving: number | null;
   open: boolean;
   now: Date;
   itemsByProductId: Map<string, { name: string; quantity: number; checked: boolean }>;
@@ -18,6 +19,7 @@ export function PlanCard({
   plan,
   rank,
   isCheapest,
+  saving,
   open,
   now,
   itemsByProductId,
@@ -62,6 +64,11 @@ export function PlanCard({
         <span className="col-start-2 col-end-5 text-sm text-muted-foreground">
           {overview}
         </span>
+        {saving !== null && (
+          <span className="col-start-2 col-end-5 text-sm font-medium text-green-700 dark:text-green-400">
+            {describeSaving(saving)}
+          </span>
+        )}
         {plan.staleLineCount > 0 && (
           <span className="col-start-2 col-end-5 text-sm text-amber-700 dark:text-amber-400">
             {describeStalePrices(plan.staleLineCount)}

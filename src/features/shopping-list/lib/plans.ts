@@ -170,3 +170,14 @@ export function computePlans(
 
   return { plans: uniquePlans, unpricedProductIds };
 }
+
+export const VISIBLE_PLAN_COUNT = 3;
+
+export function maxSaving(plans: Plan[]): number | null {
+  const totals = plans
+    .filter((plan) => plan.uncoveredProductIds.length === 0)
+    .map((plan) => plan.total);
+  if (totals.length < 2) return null;
+  const gap = Math.max(...totals) - Math.min(...totals);
+  return gap > 0 ? gap : null;
+}
