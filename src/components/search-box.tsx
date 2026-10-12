@@ -9,7 +9,21 @@ import { cn } from "@/lib/utils";
 const DEBOUNCE_MS = 200;
 const MIN_TERM_LENGTH_WHILE_TYPING = 2;
 
-export function SearchBox({ initialQuery }: { initialQuery: string }) {
+type SearchBoxProps = {
+  initialQuery: string;
+  path: string;
+  placeholder: string;
+  label: string;
+  keepParams?: Record<string, string>;
+};
+
+export function SearchBox({
+  initialQuery,
+  path,
+  placeholder,
+  label,
+  keepParams = {},
+}: SearchBoxProps) {
   const router = useRouter();
   const [value, setValue] = useState(initialQuery);
   const [isPending, startTransition] = useTransition();
@@ -32,9 +46,10 @@ export function SearchBox({ initialQuery }: { initialQuery: string }) {
     const trimmed = term.trim();
     setLastSentTerm(trimmed);
     startTransition(() => {
-      router.replace(
-        trimmed ? `/search?q=${encodeURIComponent(trimmed)}` : "/search",
-      );
+      const params = new URLSearchParams(keepParams);
+      if (trimmed) params.set("q", trimmed);
+      const query = params.toString();
+      router.replace(query ? `${path}?${query}` : path);
     });
   }
 
@@ -60,15 +75,18 @@ export function SearchBox({ initialQuery }: { initialQuery: string }) {
   }
 
   return (
-    <form action="/search" onSubmit={handleSubmit} className="flex gap-2">
+    <form action={path} onSubmit={handleSubmit} className="flex gap-2">
+      {Object.entries(keepParams).map(([name, value]) => (
+        <input key={name} type="hidden" name={name} value={value} />
+      ))}
       <Input
         name="q"
         type="search"
         value={value}
         onChange={handleChange}
         onCompositionEnd={(event) => scheduleSearch(event.currentTarget.value)}
-        placeholder="Søk etter navn eller merke"
-        aria-label="Søk etter produkter"
+        placeholder={placeholder}
+        aria-label={label}
         autoComplete="off"
       />
       <Button

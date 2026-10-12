@@ -1,11 +1,11 @@
 import { getServerSession } from "next-auth";
 import Link from "next/link";
 import { PageColumn } from "@/components/page-column";
+import { SearchBox } from "@/components/search-box";
 import { authOptions } from "@/features/auth/lib/auth";
 import { searchProducts } from "@/features/products/lib/queries";
 import { AddToListButton } from "@/features/shopping-list/components/add-to-list-button";
 import { cheapestPriceLabel, splitByMatch } from "../lib/results";
-import { SearchBox } from "./search-box";
 
 export async function SearchView({ query }: { query: string }) {
   const session = query ? await getServerSession(authOptions) : null;
@@ -16,7 +16,12 @@ export async function SearchView({ query }: { query: string }) {
 
   return (
     <PageColumn width="default" className="flex flex-col gap-4 p-4">
-      <SearchBox initialQuery={query} />
+      <SearchBox
+        initialQuery={query}
+        path="/search"
+        placeholder="Søk etter navn eller merke"
+        label="Søk etter produkter"
+      />
 
       {products?.length === 0 && (
         <p className="text-muted-foreground">
