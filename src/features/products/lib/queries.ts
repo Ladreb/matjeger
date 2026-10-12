@@ -96,6 +96,7 @@ export async function searchProducts(
         WHERE r."productId" = found.id
           AND r."postalCode" = ${postalCode}
           AND r."priceUnit" = 'PER_UNIT'
+          AND r."hiddenAt" IS NULL
         ORDER BY r.store, r."reportedAt" DESC, r.id DESC
       ) latest
       ORDER BY latest.price, latest.store

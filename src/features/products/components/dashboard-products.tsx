@@ -193,7 +193,12 @@ function ProductTable({ products }: { products: DashboardProduct[] }) {
             </td>
             <td className="py-2 pr-4">
               {product.cheapestPrice !== null && product.cheapestStore ? (
-                `${formatPrice(product.cheapestPrice)}, ${STORE_LABELS[product.cheapestStore]}`
+                <Link
+                  href={`${editHref(product)}#prisrapporter`}
+                  className="relative underline-offset-2 hover:underline"
+                >
+                  {formatPrice(product.cheapestPrice)}, {STORE_LABELS[product.cheapestStore]}
+                </Link>
               ) : (
                 <span className="text-muted-foreground">-</span>
               )}

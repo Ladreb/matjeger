@@ -41,6 +41,7 @@ const dashboardRows = Prisma.sql`
     SELECT DISTINCT ON (r."productId", r.store, r."postalCode")
       r."productId", r.store, r.price, r."priceUnit", r."reportedAt"
     FROM "PriceReport" r
+    WHERE r."hiddenAt" IS NULL
     ORDER BY r."productId", r.store, r."postalCode", r."reportedAt" DESC, r.id DESC
   ),
   stats AS (

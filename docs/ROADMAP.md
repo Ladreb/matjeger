@@ -21,7 +21,8 @@ Update checkboxes as work lands.
    - [x] Admin dashboard: products with prices, filters, search, unknown barcodes tab with "Opprett produkt" and "Ignorer"
    - [ ] "Vis ignorerte" list: a dismissed barcode can only be restored with "Angre" before the page is left, not after a reload
    - [x] Scan to fill the barcode field in the product form, "Opprett produkt" on `/scan` for an unknown barcode, "Rediger produkt" on the product page (admins)
-   - [ ] Hiding bad price reports (see `docs/handover/admin-dashboard.md`)
+   - [x] Hiding bad price reports: "Skjul" and "Vis igjen" in the "Prisrapporter" section on the edit page (see `docs/domain/pricing.md`)
+   - [ ] Still open from `docs/handover/admin-dashboard.md`: sortable table columns, loading skeleton for the dashboard. Delete the handover file when these are built or dropped
 4. [x] **Barcode scan**: ZXing camera scan on `/scan`, lookup, manual entry fallback, result card with cheapest price, add to list and report price, "Søk etter navn" for unknown barcodes
 5. [x] **Price reporting**: chain + price form, latest price per chain on product page, staleness warning
 6. [x] **Search**: product search by name/brand on `/search`, fuzzy, as you type, cheapest price on each result, "Lignende treff" for fuzzy matches, loading skeleton on the product page (measurements in `docs/technology/performance.md`)

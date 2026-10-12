@@ -30,3 +30,6 @@ Reason for a second login: not everyone wants Google. Passwords were rejected: t
 
 ## 6. Shopping list: a list table now, one list shown, at most 2 stops per plan (decided, 2026-10-11)
 `ShoppingList` is its own table (owned by a user) and `ShoppingListItem` belongs to a list, unique per list and product. Reason: several lists per user is expected, and adding the table later would mean migrating every item. The app shows and uses the user's oldest list and creates it on the first add, so the UI has no names or overview yet. A plan is one chain plus, if it has gaps, one extra chain. More stops are not worth the walking. Ranking details are in `docs/domain/shopping-list.md`.
+
+## 7. Hide, not delete, a bad price report (decided, 2026-10-12)
+An admin hides a report (`PriceReport.hiddenAt`, `hiddenById`); nothing is deleted. Reason: a mistake is reversible, history is kept for the later accuracy work, and "latest wins" (#2) then falls back to the previous visible report. Both `PRODUCT_ADMIN` and `ADMIN` can hide. Admins see the reporter's name on the edit page.

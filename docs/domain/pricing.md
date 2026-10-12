@@ -2,6 +2,7 @@
 
 - A `PriceReport` links a product, a chain, a postal code and a price. Price is an integer in øre, with a `PER_UNIT` or `PER_KG` unit. A report can mark a sale price and keep the regular price.
 - The latest report per product, chain and postal code is the current price.
+- A report can be hidden by an admin (`hiddenAt`, `hiddenById`). A hidden report is kept but ignored by every price read, so the latest price falls back to the previous visible report (see DECISIONS #7).
 - Reports older than 30 days (`STALE_AFTER_DAYS`) are shown with a warning, not hidden.
 - Any logged-in user can report. The reporter's saved postal code is attached automatically.
 
@@ -12,6 +13,11 @@
 - Form feedback: the success and error messages disappear as soon as the user edits a field. After a success chain and price are reset, and the updated price row is highlighted ("Oppdatert nå") until the next report.
 - Without a saved postal code the form and prices are hidden; the app layout shows the "Hvor handler du?" card. With no reports for the postal code it says so.
 - Code: `src/features/pricing` (`lib/parse-price.ts`, `lib/plausibility.ts`, `lib/staleness.ts`, `lib/queries.ts`, `lib/actions.ts`, `components/`).
+
+## Hiding reports (admins)
+- The edit page `/admin/products/[id]` has a "Prisrapporter" section (anchor `#prisrapporter`, linked from the "Billigst" cell on the dashboard): the newest 20 reports with price, chain, postal code, reporter name (or "ukjent") and age. "Skjul" asks for confirmation; a hidden report stays in the list, struck through, with "Vis igjen".
+- `hideReport` and `restoreReport` in `lib/actions.ts` call `requireCatalogueEditor()`; both admin roles can use them.
+- Every read of "latest price" filters on `hiddenAt` being null: `findLatestPricesPerStore` (product page, scan result, plausibility check in `reportPrice`), the search cheapest price (`products/lib/queries.ts`), the shopping list prices (`shopping-list/lib/queries.ts`) and the admin dashboard (`products/lib/dashboard-queries.ts`). A new query that reads `PriceReport` must do the same. `findRecentReports` is the only read that includes hidden reports.
 
 ## Not built yet
 - Sale price (`isOnSale`, `regularPrice`) and `PER_KG` in the form.
