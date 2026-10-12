@@ -18,7 +18,7 @@ export function DashboardFilters({ active, query, counts }: Props) {
   return (
     <nav
       aria-label="Filter"
-      className="-mx-6 flex gap-2 overflow-x-auto px-6 pb-1 sm:mx-0 sm:px-0"
+      className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0"
     >
       {DASHBOARD_FILTERS.map((filter) => (
         <Link

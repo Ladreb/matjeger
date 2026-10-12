@@ -19,7 +19,7 @@ export default async function ProfilePage() {
     : null;
 
   return (
-    <PageColumn width="narrow" className="flex flex-col gap-6 p-6">
+    <PageColumn width="narrow" className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
         <p className="font-semibold">{session?.user?.name}</p>
         <p className="text-sm text-muted-foreground">{session?.user?.email}</p>

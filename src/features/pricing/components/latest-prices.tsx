@@ -47,7 +47,7 @@ export function LatestPrices({
 
   return (
     <ul className="flex flex-col divide-y rounded-lg border">
-      {cheapestFirst.map((report) => (
+      {cheapestFirst.map((report, index) => (
         <li
           key={report.id}
           className={cn(
@@ -56,7 +56,14 @@ export function LatestPrices({
           )}
         >
           <div className="flex items-baseline justify-between">
-            <span className="font-medium">{STORE_LABELS[report.store]}</span>
+            <span className="flex items-center gap-2 font-medium">
+              {STORE_LABELS[report.store]}
+              {index === 0 && cheapestFirst.length > 1 && (
+                <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground">
+                  Billigst
+                </span>
+              )}
+            </span>
             <span className="font-semibold">{formatPrice(report.price)}</span>
           </div>
           <p className="text-sm text-muted-foreground">

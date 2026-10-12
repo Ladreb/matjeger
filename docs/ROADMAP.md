@@ -53,5 +53,7 @@ Update checkboxes as work lands.
 - [ ] More tests: Vitest runs with `npm test` and covers the plan ranking and staleness; actions, queries and components have none
 - [ ] Think about UPC-A: the scanner reads 12-digit UPC-A codes, but products are probably stored as 13-digit EAN, so a lookup can miss. Possible fix: pad to 13 digits before lookup. Not prioritized
 
+- [x] UX polish (issue #38): branded 404 "Fant ikke siden", one 16 px side padding via `PageColumn`, product page back link, "Billigst" tag, missing chains line and "Endre" postal code link, bigger "Se sammenligning", static example card on the landing page
+
 ## Housekeeping
 - [ ] Stale worktrees (`.claude/worktrees/*`) and branches

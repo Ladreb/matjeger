@@ -20,7 +20,7 @@ export function PostalCodePrompt({
 
   return (
     <PageColumn width="default">
-      <div className="m-4 flex flex-col gap-3 rounded-lg border p-4">
+      <div className="flex flex-col gap-3 rounded-lg border p-4">
         <p className="font-semibold">Hvor handler du?</p>
         <p className="text-sm text-muted-foreground">
           Prisene varierer, så vi bruker postnummeret ditt når du rapporterer og

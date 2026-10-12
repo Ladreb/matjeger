@@ -4,7 +4,7 @@ export default function ProductLoading() {
   return (
     <PageColumn
       width="default"
-      className="flex animate-pulse flex-col gap-6 p-4"
+      className="flex animate-pulse flex-col gap-6"
     >
       <p role="status" className="sr-only">
         Laster…
