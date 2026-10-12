@@ -17,7 +17,10 @@ Update checkboxes as work lands.
    - [x] Schema and migration on dev, "Where do you shop?" flow (geolocation or 4 digits, see DECISIONS #3)
    - [ ] Applied on production by the first production deploy (needs `PriceReport` to be empty, and a Neon restore point first)
 2. [x] **Role guards**: `requireCatalogueEditor()` for pages and server actions
-3. [x] **Admin product create/edit**: `/admin/products` (list, create, edit; no delete, no image yet)
+3. [x] **Admin product create/edit**: `/admin/products` (create, edit; no delete, no image yet)
+   - [x] Admin dashboard: products with prices, filters, search, unknown barcodes tab with "Opprett produkt" and "Ignorer"
+   - [ ] "Vis ignorerte" list: a dismissed barcode can only be restored with "Angre" before the page is left, not after a reload
+   - [ ] Scan to fill the barcode field, hiding bad price reports (see `docs/handover/admin-dashboard.md`)
 4. [x] **Barcode scan**: ZXing camera scan on `/scan`, lookup, manual entry fallback, result card with cheapest price, add to list and report price, "Søk etter navn" for unknown barcodes
 5. [x] **Price reporting**: chain + price form, latest price per chain on product page, staleness warning
 6. [x] **Search**: product search by name/brand on `/search`, fuzzy, as you type, cheapest price on each result, "Lignende treff" for fuzzy matches, loading skeleton on the product page (measurements in `docs/technology/performance.md`)
@@ -33,7 +36,7 @@ Update checkboxes as work lands.
 - [ ] Check after the first production deploy that migrations ran (see `docs/technology/environments.md`). Includes `pg_trgm` (search) and the product `description` column. Check on production that `SELECT lower('Å')` returns `å` (search lowercases in the database; dev uses `C.UTF-8`, which works)
 
 ## Later
-- [x] Record scanned barcodes that are not in the catalogue (counted once per user and day; the admin list is in the dashboard issue)
+- [x] Record scanned barcodes that are not in the catalogue (counted once per user and day; listed in the admin dashboard)
 - [ ] Users propose unknown barcodes, admin review queue
 - [ ] `StoreLocation` (specific branches)
 - [ ] Price accuracy: when users report different prices, show a range or a consensus instead of only the latest (see `docs/domain/pricing.md`)

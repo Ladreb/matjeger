@@ -52,6 +52,23 @@ export async function updateProduct(
   redirect("/admin/products");
 }
 
+// No revalidate: the row stays on screen with "Angre" until the admin leaves the page.
+export async function dismissUnknownBarcode(barcode: string) {
+  await requireCatalogueEditor();
+  await db.unknownBarcodeScan.updateMany({
+    where: { barcode },
+    data: { dismissedAt: new Date() },
+  });
+}
+
+export async function restoreUnknownBarcode(barcode: string) {
+  await requireCatalogueEditor();
+  await db.unknownBarcodeScan.updateMany({
+    where: { barcode },
+    data: { dismissedAt: null },
+  });
+}
+
 function describeSaveError(error: unknown): string {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2002") {
