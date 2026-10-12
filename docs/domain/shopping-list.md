@@ -4,7 +4,7 @@ Each user has a list. The app shows which chain is cheapest for the whole list a
 
 ## What the user sees
 - Add from a button on each search result and on the product page (the scan result links to the product page). Adding a product that is already on the list does nothing.
-- `/shopping-list`: items oldest first, each with a tick, quantity 1 to 99 (minus and plus), and a bin. "Fjern markerte varer fra listen" removes every ticked item. A tick only dims the item, it does not mean bought.
+- `/shopping-list`: items oldest first, each with a tick, quantity 1 to 99 (minus and plus), and a bin. "Fjern markerte varer fra listen" removes every ticked item. A tick is only a visual aid: it dims the item and strikes it through in the list, and the whole name area is tappable. It does not mean bought, and the plan cards, prices and totals do not change.
 - A summary bar at the top links to the plans. It names the best plan and its total, and adds "Du sparer opptil X kr", the number of stops and a stale price warning when they apply.
 - "Billigste butikk": plan cards, cheapest first, the first one open. Only the first 3 show, a "Vis alle (n)" button shows the rest. Stale prices (over 30 days) count in totals and are marked, never hidden.
 - States: empty list, no postal code (list works, no plans), no prices at the postal code, loading, and an error page.

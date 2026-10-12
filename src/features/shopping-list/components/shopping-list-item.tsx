@@ -26,27 +26,28 @@ export function ShoppingListItem({
   return (
     <li className="flex flex-col px-1 py-1">
       <div className="flex items-center">
-        <label className="flex size-11 shrink-0 cursor-pointer items-center justify-center">
-          <input
-            type="checkbox"
-            checked={item.checked}
-            onChange={(event) => onCheckedChange(event.target.checked)}
-            aria-label={`Marker ${label}`}
-            className="size-5 accent-primary"
-          />
+        <label className="flex min-h-11 min-w-0 flex-1 cursor-pointer items-center">
+          <span className="flex size-11 shrink-0 items-center justify-center">
+            <input
+              type="checkbox"
+              checked={item.checked}
+              onChange={(event) => onCheckedChange(event.target.checked)}
+              aria-label={`Marker ${label}`}
+              className="size-5 accent-primary"
+            />
+          </span>
+          <span
+            className={cn(
+              "flex min-w-0 flex-1 flex-col px-1",
+              item.checked && "text-muted-foreground line-through",
+            )}
+          >
+            <span>{item.name}</span>
+            {item.brand && (
+              <span className="text-sm text-muted-foreground">{item.brand}</span>
+            )}
+          </span>
         </label>
-
-        <div
-          className={cn(
-            "flex min-w-0 flex-1 flex-col px-1",
-            item.checked && "text-muted-foreground line-through",
-          )}
-        >
-          <span>{item.name}</span>
-          {item.brand && (
-            <span className="text-sm text-muted-foreground">{item.brand}</span>
-          )}
-        </div>
 
         <div role="group" aria-label={`Antall ${label}`} className="flex items-center">
           <Button
