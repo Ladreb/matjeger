@@ -1,42 +1,49 @@
 "use server";
 
+import type { Store } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { authOptions } from "@/features/auth/lib/auth";
 import { db } from "@/lib/db";
+import { formatPrice } from "@/lib/utils";
 import { parsePriceToOre } from "./parse-price";
+import { isImplausiblePrice, medianPrice } from "./plausibility";
+import { findLatestPricesPerStore } from "./queries";
 import { isStore } from "./stores";
 
-export type ReportPriceState =
-  | { ok: true; message: string }
-  | { ok: false; message: string; values: { store: string; price: string } }
-  | null;
+export type ReportPriceInput = {
+  store: string;
+  price: string;
+  confirmed: boolean;
+};
+
+export type ReportPriceResult =
+  | { status: "saved"; store: Store; message: string }
+  | { status: "needs-confirmation"; message: string }
+  | { status: "error"; message: string };
 
 export async function reportPrice(
   productId: string,
-  _previous: ReportPriceState,
-  formData: FormData,
-): Promise<ReportPriceState> {
-  const values = {
-    store: String(formData.get("store") ?? ""),
-    price: String(formData.get("price") ?? ""),
-  };
+  input: ReportPriceInput,
+): Promise<ReportPriceResult> {
 
   const session = await getServerSession(authOptions);
-  if (!session) return { ok: false, message: "Du må være logget inn", values };
+  if (!session) return { status: "error", message: "Du må være logget inn" };
 
-  const { store } = values;
+  const { store } = input;
   if (!isStore(store)) {
-    return { ok: false, message: "Velg en butikkjede", values };
+    return { status: "error", message: "Velg en butikkjede" };
   }
 
-  const price = parsePriceToOre(values.price);
+  const price = parsePriceToOre(input.price);
   if (price === null) {
     return {
-      ok: false,
+      status: "error",
       message: "Skriv inn en pris med siffer og komma, for eksempel 29,90",
-      values,
     };
+  }
+  if (price === 0) {
+    return { status: "error", message: "Prisen må være over 0" };
   }
 
   const user = await db.user.findUnique({
@@ -44,7 +51,7 @@ export async function reportPrice(
     select: { postalCode: true },
   });
   if (!user?.postalCode) {
-    return { ok: false, message: "Lagre postnummeret ditt først", values };
+    return { status: "error", message: "Lagre postnummeret ditt først" };
   }
 
   const product = await db.product.findUnique({
@@ -52,7 +59,19 @@ export async function reportPrice(
     select: { id: true },
   });
   if (!product) {
-    return { ok: false, message: "Fant ikke produktet", values };
+    return { status: "error", message: "Fant ikke produktet" };
+  }
+
+  if (!input.confirmed) {
+    const knownPrices = (
+      await findLatestPricesPerStore(productId, user.postalCode)
+    ).map((report) => report.price);
+    if (isImplausiblePrice(price, knownPrices)) {
+      return {
+        status: "needs-confirmation",
+        message: `Er du sikker? ${formatPrice(price)} er langt fra de andre prisene (rundt ${formatPrice(medianPrice(knownPrices) ?? 0)}).`,
+      };
+    }
   }
 
   try {
@@ -67,13 +86,9 @@ export async function reportPrice(
     });
   } catch (error) {
     console.error("reportPrice failed", error);
-    return {
-      ok: false,
-      message: "Kunne ikke lagre prisen. Prøv igjen.",
-      values,
-    };
+    return { status: "error", message: "Kunne ikke lagre prisen. Prøv igjen." };
   }
 
   revalidatePath(`/products/${productId}`);
-  return { ok: true, message: "Takk! Prisen er rapportert." };
+  return { status: "saved", store, message: "Takk! Prisen er rapportert." };
 }
