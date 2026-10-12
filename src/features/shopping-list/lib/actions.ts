@@ -7,10 +7,12 @@ import { authOptions } from "@/features/auth/lib/auth";
 import { db } from "@/lib/db";
 import { currentListIdSql } from "./current-list";
 import { clampQuantity } from "./quantity";
+import { parseRestoredItem, type RestoredItem } from "./restore";
 
 export type ListActionResult = { ok: true } | { ok: false; message: string };
 
 const SAVE_FAILED = "Kunne ikke lagre endringen. Prøv igjen.";
+const MAX_RESTORED_ITEMS = 200;
 const NOT_LOGGED_IN = "Du må være logget inn";
 
 async function currentUserId(): Promise<string | null> {
@@ -115,6 +117,40 @@ export async function clearCheckedItems(): Promise<ListActionResult> {
       DELETE FROM "ShoppingListItem"
       WHERE "listId" = ${currentListIdSql(userId)} AND checked = true
     `;
+    return true;
+  });
+}
+
+export async function removeFromList(productId: string): Promise<ListActionResult> {
+  return run(SAVE_FAILED, async (userId) => {
+    await db.shoppingListItem.deleteMany({
+      where: { productId, list: { userId } },
+    });
+    return true;
+  });
+}
+
+export async function restoreItems(items: RestoredItem[]): Promise<ListActionResult> {
+  if (!Array.isArray(items) || items.length > MAX_RESTORED_ITEMS) {
+    return { ok: false, message: SAVE_FAILED };
+  }
+  const parsed = items.map(parseRestoredItem);
+  if (parsed.some((item) => item === null)) return { ok: false, message: SAVE_FAILED };
+
+  return run(SAVE_FAILED, async (userId) => {
+    const listId = await findOrCreateListId(userId);
+    try {
+      await db.shoppingListItem.createMany({
+        data: parsed.map((item) => ({ ...item!, listId })),
+        skipDuplicates: true,
+      });
+    } catch (error) {
+      const productMissing =
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2003";
+      if (productMissing) return false;
+      throw error;
+    }
     return true;
   });
 }

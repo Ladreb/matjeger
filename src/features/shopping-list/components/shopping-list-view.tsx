@@ -10,6 +10,7 @@ import { formatPrice } from "@/lib/utils";
 import {
   clearCheckedItems,
   removeItem,
+  restoreItems,
   setChecked,
   setQuantity,
   type ListActionResult,
@@ -35,6 +36,7 @@ type Props = {
 
 type SavedValues = { quantity: number; checked: boolean };
 
+const UNDO_SECONDS = 6;
 const SAVE_FAILED = "Kunne ikke lagre endringen. Prøv igjen.";
 const FAILED: ListActionResult = { ok: false, message: SAVE_FAILED };
 
@@ -57,8 +59,13 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
   const [clearFailed, setClearFailed] = useState(false);
   const [confirmed, setConfirmed] = useState(() => confirmedValues(initialItems));
   const [unfinishedChanges, setUnfinishedChanges] = useState(0);
+  const [undoFailed, setUndoFailed] = useState(false);
   const [showAllPlans, setShowAllPlans] = useState(false);
   const [seenInitialItems, setSeenInitialItems] = useState(initialItems);
+  const [undoable, setUndoable] = useState<{
+    removed: ListItemData[];
+    message: string;
+  } | null>(null);
 
   // Fresh server data (an add from another page, or a late refresh) replaces the screen, unless a change of ours is still saving, since the server has not seen it yet.
   if (seenInitialItems !== initialItems) {
@@ -71,6 +78,12 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
   const unfinishedSaves = useRef(new Map<string, number>());
   const heading = useRef<HTMLHeadingElement>(null);
   const focusHeadingAfterRender = useRef(false);
+
+  useEffect(() => {
+    if (!undoable) return;
+    const timer = setTimeout(() => setUndoable(null), UNDO_SECONDS * 1000);
+    return () => clearTimeout(timer);
+  }, [undoable]);
 
   useEffect(() => {
     if (focusHeadingAfterRender.current) {
@@ -146,6 +159,7 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
 
   async function remove(item: ListItemData) {
     setItems((current) => current.filter((other) => other.id !== item.id));
+    setUndoable(null);
     focusHeadingAfterRender.current = true;
     setUnfinishedChanges((count) => count + 1);
     const result = await removeItem(item.id).catch(() => FAILED);
@@ -153,6 +167,24 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
     if (!result.ok) {
       restore([item]);
       setError(item.id, SAVE_FAILED);
+      return;
+    }
+    setUndoable({ removed: [item], message: `«${item.name}» er fjernet` });
+  }
+
+  async function undoRemoval() {
+    if (!undoable) return;
+    const { removed } = undoable;
+    setUndoable(null);
+    setUndoFailed(false);
+    restore(removed);
+    setUnfinishedChanges((count) => count + 1);
+    const result = await restoreItems(removed).catch(() => FAILED);
+    setUnfinishedChanges((count) => count - 1);
+    if (!result.ok) {
+      const restoredIds = new Set(removed.map((item) => item.id));
+      setItems((current) => current.filter((item) => !restoredIds.has(item.id)));
+      setUndoFailed(true);
     }
   }
 
@@ -161,14 +193,38 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
     setItems((current) => current.filter((item) => !item.checked));
     focusHeadingAfterRender.current = true;
     setClearFailed(false);
+    setUndoable(null);
     setUnfinishedChanges((count) => count + 1);
     const result = await clearCheckedItems().catch(() => FAILED);
     setUnfinishedChanges((count) => count - 1);
     if (!result.ok) {
       restore(removed);
       setClearFailed(true);
+      return;
     }
+    setUndoable({ removed, message: `${countItems(removed.length)} er fjernet` });
   }
+
+  const undoBar = (
+    <div
+      role="status"
+      className="pointer-events-none fixed inset-x-0 bottom-20 z-40 flex justify-center px-4 empty:hidden lg:bottom-6"
+    >
+      {undoable && (
+        <div className="pointer-events-auto flex w-full max-w-md items-center justify-between gap-2 rounded-lg bg-foreground py-1 pl-4 pr-1 text-sm text-background shadow-lg">
+          <span>{undoable.message}</span>
+          <Button
+            type="button"
+            variant="ghost"
+            className="h-11 px-4 text-background hover:bg-background/15 hover:text-background"
+            onClick={() => void undoRemoval()}
+          >
+            Angre
+          </Button>
+        </div>
+      )}
+    </div>
+  );
 
   if (items.length === 0) {
     return (
@@ -190,6 +246,7 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
         <Button asChild variant="ghost" className="h-11">
           <Link href="/scan">Skann en vare</Link>
         </Button>
+        {undoBar}
       </PageColumn>
     );
   }
@@ -238,6 +295,12 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
           </span>
           <ChevronRight aria-hidden className="size-4" />
         </a>
+      )}
+
+      {undoFailed && (
+        <p role="alert" className="text-sm text-destructive">
+          Kunne ikke angre. Legg varen til på nytt.
+        </p>
       )}
 
       <ul className="flex flex-col divide-y rounded-lg border">
@@ -350,6 +413,7 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
           </p>
         )}
       </section>
+      {undoBar}
     </PageColumn>
   );
 }

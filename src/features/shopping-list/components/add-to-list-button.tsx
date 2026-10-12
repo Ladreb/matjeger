@@ -4,7 +4,7 @@ import { Check, Plus } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { addToList } from "../lib/actions";
+import { addToList, removeFromList } from "../lib/actions";
 
 type Props = {
   productId: string;
@@ -22,14 +22,28 @@ export function AddToListButton({
 }: Props) {
   const [onList, setOnList] = useState(initialOnList);
   const [error, setError] = useState<string | null>(null);
+  const [justAdded, setJustAdded] = useState(false);
 
   async function add() {
     setError(null);
     setOnList(true);
+    setJustAdded(true);
     const result = await addToList(productId).catch(() => ({ ok: false }));
     if (!result.ok) {
       setOnList(false);
+      setJustAdded(false);
       setError("Kunne ikke legge til varen. Prøv igjen.");
+    }
+  }
+
+  async function remove() {
+    setError(null);
+    setOnList(false);
+    setJustAdded(false);
+    const result = await removeFromList(productId).catch(() => ({ ok: false }));
+    if (!result.ok) {
+      setOnList(true);
+      setError("Kunne ikke fjerne varen. Prøv igjen.");
     }
   }
 
@@ -43,13 +57,15 @@ export function AddToListButton({
     return (
       <>
         {onList ? (
-          <span className="mr-1 flex size-11 items-center justify-center text-primary">
-            <Check
-              role="img"
-              aria-label={`«${productName}» er på handlelisten`}
-              className="size-5"
-            />
-          </span>
+          <Button
+            type="button"
+            variant="ghost"
+            className="mr-1 size-11 text-primary"
+            aria-label={`Fjern «${productName}» fra handlelisten`}
+            onClick={remove}
+          >
+            <Check className="size-5" aria-hidden />
+          </Button>
         ) : (
           <Button
             type="button"
@@ -61,6 +77,19 @@ export function AddToListButton({
             <Plus className="size-5" aria-hidden />
           </Button>
         )}
+        <p
+          role="status"
+          className="basis-full px-4 pb-2 text-sm empty:hidden"
+        >
+          {justAdded && onList && (
+            <>
+              Lagt til.{" "}
+              <Link href="/shopping-list" className="underline">
+                Se listen
+              </Link>
+            </>
+          )}
+        </p>
         {errorText}
       </>
     );
@@ -76,6 +105,9 @@ export function AddToListButton({
           </span>
           <Button asChild variant="outline" className="h-11">
             <Link href="/shopping-list">Se listen</Link>
+          </Button>
+          <Button type="button" variant="ghost" className="h-11" onClick={remove}>
+            Fjern
           </Button>
         </div>
       ) : (
