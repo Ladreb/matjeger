@@ -4,7 +4,16 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { PageColumn } from "@/components/page-column";
 import { Button } from "@/components/ui/button";
-import { lookupBarcode, type LookupResult } from "../lib/actions";
+import type { Store } from "@prisma/client";
+import { formatStaleAge, isStale } from "@/features/pricing/lib/staleness";
+import { ReportPriceForm } from "@/features/pricing/components/report-price-form";
+import { AddToListButton } from "@/features/shopping-list/components/add-to-list-button";
+import { cheapestPriceLabel } from "@/features/search/lib/results";
+import {
+  lookupBarcode,
+  type LookupResult,
+  type ScannedProduct,
+} from "../lib/actions";
 import { BarcodeScanner } from "./barcode-scanner";
 import { ManualBarcodeForm } from "./manual-barcode-form";
 
@@ -68,22 +77,100 @@ function OutcomeMessage({ outcome }: { outcome: Outcome }) {
   }
   if (!result.product) {
     return (
-      <p>
-        Fant ikke produktet med strekkode {barcode}. Vi legger det til
-        etter hvert.
-      </p>
+      <div className="flex flex-col gap-3">
+        <p>
+          Fant ikke produktet med strekkode {barcode}. Vi legger det til
+          etter hvert.
+        </p>
+        <Button asChild variant="outline" className="h-11 sm:w-fit">
+          <Link href="/search">Søk etter navn</Link>
+        </Button>
+      </div>
     );
   }
   return (
-    <Link
-      href={`/products/${result.product.id}`}
-      className="block rounded-lg border p-3"
-    >
-      <p className="font-medium">{result.product.name}</p>
-      {result.product.brand && (
-        <p className="text-sm text-muted-foreground">{result.product.brand}</p>
+    <ScannedProductCard product={result.product} postalCode={result.postalCode} />
+  );
+}
+
+function ScannedProductCard({
+  product,
+  postalCode,
+}: {
+  product: ScannedProduct;
+  postalCode: string | null;
+}) {
+  const [reporting, setReporting] = useState(false);
+  const [cheapest, setCheapest] = useState(product.cheapest);
+  const priceLabel = cheapest
+    ? cheapestPriceLabel(cheapest.price, cheapest.store)
+    : null;
+
+  function updateCheapest(store: Store, price: number) {
+    if (!cheapest || price < cheapest.price) {
+      setCheapest({ store, price, reportedAt: new Date() });
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-3 rounded-lg border p-3">
+      <div>
+        <p className="font-medium">{product.name}</p>
+        {product.brand && (
+          <p className="text-sm text-muted-foreground">{product.brand}</p>
+        )}
+      </div>
+      {priceLabel && cheapest ? (
+        <div>
+          <p className="text-lg font-semibold">{priceLabel}</p>
+          {isStale(cheapest.reportedAt) && (
+            <p className="text-sm text-amber-700 dark:text-amber-400">
+              {formatStaleAge(cheapest.reportedAt)}
+            </p>
+          )}
+        </div>
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          {postalCode ? (
+            `Ingen priser for postnummer ${postalCode} ennå.`
+          ) : (
+            <>
+              <Link href="/profile" className="underline">
+                Lagre postnummeret ditt
+              </Link>{" "}
+              for å se priser.
+            </>
+          )}
+        </p>
       )}
-      <p className="mt-1 text-sm text-primary">Se priser og rapporter</p>
-    </Link>
+      <AddToListButton
+        productId={product.id}
+        productName={product.name}
+        initialOnList={product.onList}
+        showLabel
+      />
+      {reporting ? (
+        <ReportPriceForm
+          productId={product.id}
+          onReported={updateCheapest}
+          autoFocusPrice
+        />
+      ) : (
+        <Button
+          type="button"
+          variant="outline"
+          className="h-11 sm:w-fit"
+          onClick={() => setReporting(true)}
+        >
+          Rapporter pris
+        </Button>
+      )}
+      <Link
+        href={`/products/${product.id}`}
+        className="text-sm text-primary underline"
+      >
+        Se alle priser
+      </Link>
+    </div>
   );
 }

@@ -18,7 +18,7 @@ export type ReportPriceInput = {
 };
 
 export type ReportPriceResult =
-  | { status: "saved"; store: Store; message: string }
+  | { status: "saved"; store: Store; price: number; message: string }
   | { status: "needs-confirmation"; message: string }
   | { status: "error"; message: string };
 
@@ -90,5 +90,5 @@ export async function reportPrice(
   }
 
   revalidatePath(`/products/${productId}`);
-  return { status: "saved", store, message: "Takk! Prisen er rapportert." };
+  return { status: "saved", store, price, message: "Takk! Prisen er rapportert." };
 }

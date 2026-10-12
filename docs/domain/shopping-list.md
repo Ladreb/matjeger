@@ -3,7 +3,7 @@
 Each user has a list. The app shows which chain is cheapest for the whole list at the user's postal code.
 
 ## What the user sees
-- Add from a button on each search result and on the product page (the scan result links to the product page). Adding a product that is already on the list does nothing. After an add in search, "Lagt til. Se listen" shows under the row and the check is a button that removes the item again. On the product page "Fjern" sits next to "Se listen".
+- Add from a button on each search result and on the product page (the scan result card has the same button). Adding a product that is already on the list does nothing. After an add in search, "Lagt til. Se listen" shows under the row and the check is a button that removes the item again. On the product page "Fjern" sits next to "Se listen".
 - `/shopping-list`: items oldest first, each with a tick, quantity 1 to 99 (minus and plus), and a bin (set apart from the stepper). Stepper, bin and tick are at least 44 px. "Fjern markerte varer fra listen" removes every ticked item. A tick is only a visual aid: it dims the item and strikes it through in the list, and the whole name area is tappable. It does not mean bought, and the plan cards, prices and totals do not change.
 - A summary bar at the top links to the plans. It names the best plan and its total, and adds "Du sparer opptil X kr", the number of stops and a stale price warning when they apply.
 - "Billigste butikk": plan cards, cheapest first, the first one open. Only the first 3 show, a "Vis alle (n)" button shows the rest. Stale prices (over 30 days) count in totals and are marked, never hidden.
@@ -29,4 +29,4 @@ Accepted on purpose: the plans use only `PER_UNIT` prices while the product page
 - The list page runs two queries after the session: the items, and the latest price per product and chain.
 
 ## Not built
-Several or named lists, sharing, per-kg and sale prices, free-text items, reordering, undo after the 6 seconds or after leaving the page, a count badge on the bottom nav, adding from the scanner, prices from the nearest area (DECISIONS #3), plans with 3 or more stops.
+Several or named lists, sharing, per-kg and sale prices, free-text items, reordering, undo after the 6 seconds or after leaving the page, a count badge on the bottom nav, prices from the nearest area (DECISIONS #3), plans with 3 or more stops.
