@@ -29,6 +29,7 @@ export async function findLatestListPrices(
     FROM "PriceReport"
     WHERE "postalCode" = ${postalCode}
       AND "priceUnit" = 'PER_UNIT'
+      AND "hiddenAt" IS NULL
       AND "productId" IN (
         SELECT "productId" FROM "ShoppingListItem" WHERE "listId" = ${currentListIdSql(userId)}
       )

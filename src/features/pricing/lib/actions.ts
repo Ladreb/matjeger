@@ -4,6 +4,7 @@ import type { Store } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { authOptions } from "@/features/auth/lib/auth";
+import { requireCatalogueEditor } from "@/features/auth/lib/require-catalogue-editor";
 import { db } from "@/lib/db";
 import { formatPrice } from "@/lib/utils";
 import { parsePriceToOre } from "./parse-price";
@@ -91,4 +92,32 @@ export async function reportPrice(
 
   revalidatePath(`/products/${productId}`);
   return { status: "saved", store, price, message: "Takk! Prisen er rapportert." };
+}
+
+export async function hideReport(reportId: string) {
+  const session = await requireCatalogueEditor();
+  const report = await db.priceReport.update({
+    where: { id: reportId },
+    data: { hiddenAt: new Date(), hiddenById: session.user.id },
+    select: { productId: true },
+  });
+  revalidateReportViews(report.productId);
+}
+
+export async function restoreReport(reportId: string) {
+  await requireCatalogueEditor();
+  const report = await db.priceReport.update({
+    where: { id: reportId },
+    data: { hiddenAt: null, hiddenById: null },
+    select: { productId: true },
+  });
+  revalidateReportViews(report.productId);
+}
+
+function revalidateReportViews(productId: string) {
+  revalidatePath(`/admin/products/${productId}`);
+  revalidatePath(`/products/${productId}`);
+  revalidatePath("/admin/products");
+  revalidatePath("/shopping-list");
+  revalidatePath("/search");
 }

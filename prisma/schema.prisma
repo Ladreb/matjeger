@@ -60,7 +60,10 @@ model PriceReport {
   regularPrice Int?      // in øre, populated when isOnSale is true
   reportedAt   DateTime  @default(now())
   reportedById String?
-  reportedBy   User?     @relation(fields: [reportedById], references: [id])
+  reportedBy   User?     @relation("ReportedBy", fields: [reportedById], references: [id])
+  hiddenAt     DateTime? // set by an admin; hidden reports are kept but never used as a price
+  hiddenById   String?
+  hiddenBy     User?     @relation("HiddenBy", fields: [hiddenById], references: [id])
 
   @@index([productId, store, postalCode, reportedAt])
 }
@@ -118,7 +121,8 @@ model User {
   postalCode    String?       // where the user shops, 4 digits
   accounts      Account[]
   sessions      Session[]
-  priceReports  PriceReport[]
+  priceReports  PriceReport[] @relation("ReportedBy")
+  hiddenReports PriceReport[] @relation("HiddenBy")
   products      Product[]
   shoppingLists ShoppingList[]
   createdAt     DateTime      @default(now())
