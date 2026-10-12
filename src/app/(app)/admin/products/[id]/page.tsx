@@ -23,6 +23,7 @@ export default async function EditProductPage({
       <ProductForm
         action={updateProduct.bind(null, product.id)}
         initialValues={productToFormValues(product)}
+        productId={product.id}
       />
     </PageColumn>
   );

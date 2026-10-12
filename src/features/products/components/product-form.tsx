@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { BarcodeField } from "./barcode-field";
 import type {
   ProductFormState,
   ProductFormValues,
@@ -15,9 +16,10 @@ type ProductFormProps = {
     formData: FormData,
   ) => Promise<ProductFormState>;
   initialValues: ProductFormValues;
+  productId?: string;
 };
 
-export function ProductForm({ action, initialValues }: ProductFormProps) {
+export function ProductForm({ action, initialValues, productId }: ProductFormProps) {
   const [state, formAction, pending] = useActionState(action, null);
   const values = state?.values ?? initialValues;
 
@@ -31,18 +33,25 @@ export function ProductForm({ action, initialValues }: ProductFormProps) {
         placeholder="For eksempel: iskrem, dessert, vanilje"
         defaultValue={values.description}
       />
-      <Field
-        label="Strekkode"
-        name="barcode"
-        inputMode="numeric"
-        defaultValue={values.barcode}
-      />
-      <Field
-        label="PLU-kode (for varer uten strekkode)"
-        name="pluCode"
-        inputMode="numeric"
-        defaultValue={values.pluCode}
-      />
+      <fieldset className="flex flex-col gap-4">
+        <legend className="mb-3 text-sm text-muted-foreground">
+          Strekkode eller PLU-kode (én av dem må fylles ut)
+        </legend>
+        <BarcodeField
+          initialValue={values.barcode}
+          productId={productId}
+          existingProduct={state?.existingProduct}
+        />
+        <Field
+          label="PLU-kode (for varer uten strekkode)"
+          name="pluCode"
+          inputMode="numeric"
+          defaultValue={values.pluCode}
+        />
+        {state?.errorField === "code" && !state.existingProduct && (
+          <p className="text-sm text-destructive">{state.error}</p>
+        )}
+      </fieldset>
       <Field
         label="Vekt i gram (valgfritt)"
         name="weightG"
@@ -56,7 +65,7 @@ export function ProductForm({ action, initialValues }: ProductFormProps) {
         defaultValue={values.volumeMl}
       />
 
-      {state?.error && <p className="text-sm text-destructive">{state.error}</p>}
+      {state?.error && state.errorField !== "code" && <p className="text-sm text-destructive">{state.error}</p>}
 
       <div className="flex gap-2">
         <Button type="submit" disabled={pending}>

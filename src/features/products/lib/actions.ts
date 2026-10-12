@@ -5,9 +5,12 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireCatalogueEditor } from "@/features/auth/lib/require-catalogue-editor";
 import { db } from "@/lib/db";
+import { isValidBarcode } from "./barcode";
 import {
   readProductFormValues,
+  type ExistingProduct,
   type ProductFormState,
+  type ProductFormValues,
 } from "./product-form-values";
 import { validateProduct } from "./validate-product";
 
@@ -18,14 +21,16 @@ export async function createProduct(
   const session = await requireCatalogueEditor();
   const values = readProductFormValues(formData);
   const validation = validateProduct(values);
-  if (!validation.ok) return { error: validation.error, values };
+  if (!validation.ok) {
+    return { error: validation.error, errorField: validation.errorField, values };
+  }
 
   try {
     await db.product.create({
       data: { ...validation.data, createdById: session.user.id },
     });
   } catch (error) {
-    return { error: describeSaveError(error), values };
+    return describeSaveError(error, values);
   }
 
   revalidatePath("/admin/products");
@@ -40,12 +45,14 @@ export async function updateProduct(
   await requireCatalogueEditor();
   const values = readProductFormValues(formData);
   const validation = validateProduct(values);
-  if (!validation.ok) return { error: validation.error, values };
+  if (!validation.ok) {
+    return { error: validation.error, errorField: validation.errorField, values };
+  }
 
   try {
     await db.product.update({ where: { id }, data: validation.data });
   } catch (error) {
-    return { error: describeSaveError(error), values };
+    return describeSaveError(error, values, id);
   }
 
   revalidatePath("/admin/products");
@@ -69,15 +76,47 @@ export async function restoreUnknownBarcode(barcode: string) {
   });
 }
 
-function describeSaveError(error: unknown): string {
+export async function findProductWithBarcode(
+  barcode: string,
+  ignoreProductId?: string,
+): Promise<ExistingProduct | null> {
+  await requireCatalogueEditor();
+  if (!isValidBarcode(barcode)) return null;
+  return db.product.findFirst({
+    where: {
+      barcode,
+      id: ignoreProductId ? { not: ignoreProductId } : undefined,
+    },
+    select: { id: true, name: true },
+  });
+}
+
+async function describeSaveError(
+  error: unknown,
+  values: ProductFormValues,
+  productId?: string,
+): Promise<ProductFormState> {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2002") {
       const target = String(error.meta?.target ?? "");
-      return target.includes("pluCode")
-        ? "Et produkt med denne PLU-koden finnes allerede"
-        : "Et produkt med denne strekkoden finnes allerede";
+      if (target.includes("pluCode")) {
+        return {
+          error: "Et produkt med denne PLU-koden finnes allerede",
+          errorField: "code",
+          values,
+        };
+      }
+      return {
+        error: "Et produkt med denne strekkoden finnes allerede",
+        errorField: "code",
+        existingProduct:
+          (await findProductWithBarcode(values.barcode, productId)) ?? undefined,
+        values,
+      };
     }
-    if (error.code === "P2025") return "Produktet finnes ikke lenger";
+    if (error.code === "P2025") {
+      return { error: "Produktet finnes ikke lenger", values };
+    }
   }
-  return "Kunne ikke lagre produktet";
+  return { error: "Kunne ikke lagre produktet", values };
 }

@@ -1,7 +1,10 @@
 import { getServerSession } from "next-auth";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageColumn } from "@/components/page-column";
+import { Button } from "@/components/ui/button";
 import { authOptions } from "@/features/auth/lib/auth";
+import { canEditCatalogue } from "@/features/auth/lib/roles";
 import { ProductPrices } from "@/features/pricing/components/product-prices";
 import { findLatestPricesPerStore } from "@/features/pricing/lib/queries";
 import { findProduct } from "@/features/products/lib/queries";
@@ -41,6 +44,12 @@ export default async function ProductPage({
         initialOnList={onList}
         showLabel
       />
+
+      {session && canEditCatalogue(session.user.role) && (
+        <Button asChild variant="outline" className="sm:w-fit">
+          <Link href={`/admin/products/${product.id}`}>Rediger produkt</Link>
+        </Button>
+      )}
 
       {postalCode && (
         <ProductPrices
