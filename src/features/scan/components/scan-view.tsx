@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { PageColumn } from "@/components/page-column";
 import { Button } from "@/components/ui/button";
+import type { Store } from "@prisma/client";
+import { formatStaleAge, isStale } from "@/features/pricing/lib/staleness";
 import { ReportPriceForm } from "@/features/pricing/components/report-price-form";
 import { AddToListButton } from "@/features/shopping-list/components/add-to-list-button";
 import { cheapestPriceLabel } from "@/features/search/lib/results";
@@ -99,20 +101,34 @@ function ScannedProductCard({
   postalCode: string | null;
 }) {
   const [reporting, setReporting] = useState(false);
-  const priceLabel = product.cheapest
-    ? cheapestPriceLabel(product.cheapest.price, product.cheapest.store)
+  const [cheapest, setCheapest] = useState(product.cheapest);
+  const priceLabel = cheapest
+    ? cheapestPriceLabel(cheapest.price, cheapest.store)
     : null;
+
+  function updateCheapest(store: Store, price: number) {
+    if (!cheapest || price < cheapest.price) {
+      setCheapest({ store, price, reportedAt: new Date() });
+    }
+  }
 
   return (
     <div className="flex flex-col gap-3 rounded-lg border p-3">
-      <Link href={`/products/${product.id}`} className="block">
+      <div>
         <p className="font-medium">{product.name}</p>
         {product.brand && (
           <p className="text-sm text-muted-foreground">{product.brand}</p>
         )}
-      </Link>
-      {priceLabel ? (
-        <p className="text-lg font-semibold">{priceLabel}</p>
+      </div>
+      {priceLabel && cheapest ? (
+        <div>
+          <p className="text-lg font-semibold">{priceLabel}</p>
+          {isStale(cheapest.reportedAt) && (
+            <p className="text-sm text-amber-700 dark:text-amber-400">
+              {formatStaleAge(cheapest.reportedAt)}
+            </p>
+          )}
+        </div>
       ) : (
         <p className="text-sm text-muted-foreground">
           {postalCode ? (
@@ -134,7 +150,11 @@ function ScannedProductCard({
         showLabel
       />
       {reporting ? (
-        <ReportPriceForm productId={product.id} autoFocusPrice />
+        <ReportPriceForm
+          productId={product.id}
+          onReported={updateCheapest}
+          autoFocusPrice
+        />
       ) : (
         <Button
           type="button"

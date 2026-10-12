@@ -14,7 +14,7 @@ export type ScannedProduct = {
   name: string;
   brand: string | null;
   onList: boolean;
-  cheapest: { store: Store; price: number } | null;
+  cheapest: { store: Store; price: number; reportedAt: Date } | null;
 };
 
 export type LookupResult =

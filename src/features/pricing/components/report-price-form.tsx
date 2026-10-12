@@ -13,7 +13,7 @@ export function ReportPriceForm({
   autoFocusPrice = false,
 }: {
   productId: string;
-  onReported?: (store: Store) => void;
+  onReported?: (store: Store, price: number) => void;
   autoFocusPrice?: boolean;
 }) {
   const [store, setStore] = useState("");
@@ -29,7 +29,7 @@ export function ReportPriceForm({
       if (outcome.status === "saved") {
         setStore("");
         setPrice("");
-        onReported?.(outcome.store);
+        onReported?.(outcome.store, outcome.price);
       }
     });
   }
