@@ -23,8 +23,16 @@ export function BarcodeField({
   const [value, setValue] = useState(initialValue);
   const [scanning, setScanning] = useState(false);
   const [cameraUnavailable, setCameraUnavailable] = useState(false);
-  const [duplicate, setDuplicate] = useState<ExistingProduct | null>(null);
-  const shownDuplicate = duplicate ?? existingProduct;
+  // undefined: show what the last save reported. null: the barcode changed since, so show nothing.
+  const [duplicate, setDuplicate] = useState<ExistingProduct | null | undefined>(
+    undefined,
+  );
+  const [lastSaveResult, setLastSaveResult] = useState(existingProduct);
+  if (lastSaveResult !== existingProduct) {
+    setLastSaveResult(existingProduct);
+    setDuplicate(undefined);
+  }
+  const shownDuplicate = duplicate !== undefined ? duplicate : existingProduct;
 
   async function fillFromScan(barcode: string) {
     setValue(barcode);
@@ -48,10 +56,14 @@ export function BarcodeField({
           Kamera er ikke tilgjengelig. Skriv inn strekkoden.
         </p>
       )}
-      <label className="flex flex-col gap-1.5 text-sm font-medium">
-        Strekkode
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="barcode" className="text-sm font-medium">
+          Strekkode
+        </label>
         <div className="flex gap-2">
           <Input
+            id="barcode"
+            className="h-11"
             name="barcode"
             inputMode="numeric"
             value={value}
@@ -63,6 +75,7 @@ export function BarcodeField({
           <Button
             type="button"
             variant="outline"
+            className="h-11"
             onClick={() => {
               setCameraUnavailable(false);
               setScanning((open) => !open);
@@ -72,7 +85,7 @@ export function BarcodeField({
             {scanning ? "Lukk" : "Skann"}
           </Button>
         </div>
-      </label>
+      </div>
       {shownDuplicate && (
         <p className="text-sm text-destructive">
           Finnes allerede:{" "}
