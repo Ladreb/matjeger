@@ -90,12 +90,18 @@ export function ReportPriceForm({
       </p>
       {needsConfirmation ? (
         <div className="flex flex-col gap-2">
-          <Button type="button" disabled={pending} onClick={() => submit(true)}>
+          <Button
+            type="button"
+            className="sm:w-fit"
+            disabled={pending}
+            onClick={() => submit(true)}
+          >
             {pending ? "Sender ..." : "Ja, rapporter prisen"}
           </Button>
           <Button
             type="button"
             variant="outline"
+            className="sm:w-fit"
             disabled={pending}
             onClick={() => setResult(null)}
           >
@@ -103,7 +109,7 @@ export function ReportPriceForm({
           </Button>
         </div>
       ) : (
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" className="sm:w-fit" disabled={pending}>
           {pending ? "Sender ..." : "Rapporter pris"}
         </Button>
       )}

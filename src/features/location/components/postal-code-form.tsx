@@ -59,6 +59,7 @@ export function PostalCodeForm({
       <Button
         type="button"
         variant="outline"
+        className="sm:w-fit"
         onClick={useMyLocation}
         disabled={pending}
       >

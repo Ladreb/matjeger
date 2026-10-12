@@ -79,7 +79,7 @@ export function AddToListButton({
           </Button>
         </div>
       ) : (
-        <Button type="button" className="h-11 w-full" onClick={add}>
+        <Button type="button" className="h-11 w-full sm:w-fit" onClick={add}>
           <Plus aria-hidden />
           Legg til på handlelisten
         </Button>

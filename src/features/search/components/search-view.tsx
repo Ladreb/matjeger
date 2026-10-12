@@ -1,5 +1,6 @@
 import { getServerSession } from "next-auth";
 import Link from "next/link";
+import { PageColumn } from "@/components/page-column";
 import { authOptions } from "@/features/auth/lib/auth";
 import { searchProducts } from "@/features/products/lib/queries";
 import { AddToListButton } from "@/features/shopping-list/components/add-to-list-button";
@@ -11,7 +12,7 @@ export async function SearchView({ query }: { query: string }) {
     query && session ? await searchProducts(query, session.user.id) : null;
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <PageColumn width="default" className="flex flex-col gap-4 p-4">
       <SearchBox initialQuery={query} />
 
       {products?.length === 0 && (
@@ -44,6 +45,6 @@ export async function SearchView({ query }: { query: string }) {
           ))}
         </ul>
       )}
-    </div>
+    </PageColumn>
   );
 }
