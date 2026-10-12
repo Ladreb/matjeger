@@ -19,7 +19,7 @@ import { ManualBarcodeForm } from "./manual-barcode-form";
 
 type Outcome = { barcode: string; result: LookupResult };
 
-export function ScanView() {
+export function ScanView({ canCreateProducts }: { canCreateProducts: boolean }) {
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [cameraAvailable, setCameraAvailable] = useState(true);
   const [pending, startTransition] = useTransition();
@@ -55,7 +55,7 @@ export function ScanView() {
       {pending && <p className="text-muted-foreground">Slår opp ...</p>}
       {outcome && !pending && (
         <>
-          <OutcomeMessage outcome={outcome} />
+          <OutcomeMessage outcome={outcome} canCreateProducts={canCreateProducts} />
           <Button
             variant="outline"
             className="sm:w-fit"
@@ -70,7 +70,13 @@ export function ScanView() {
   );
 }
 
-function OutcomeMessage({ outcome }: { outcome: Outcome }) {
+function OutcomeMessage({
+  outcome,
+  canCreateProducts,
+}: {
+  outcome: Outcome;
+  canCreateProducts: boolean;
+}) {
   const { barcode, result } = outcome;
   if (!result.ok) {
     return <p className="text-destructive">{result.error}</p>;
@@ -82,6 +88,13 @@ function OutcomeMessage({ outcome }: { outcome: Outcome }) {
           Fant ikke produktet med strekkode {barcode}. Takk, vi har notert
           den.
         </p>
+        {canCreateProducts && (
+          <Button asChild className="h-11 sm:w-fit">
+            <Link href={`/admin/products/new?barcode=${barcode}`}>
+              Opprett produkt
+            </Link>
+          </Button>
+        )}
         <Button asChild variant="outline" className="h-11 sm:w-fit">
           <Link href="/search">Søk etter navn</Link>
         </Button>

@@ -10,7 +10,14 @@ export type ProductFormValues = {
   volumeMl: string;
 };
 
-export type ProductFormState = { error: string; values: ProductFormValues } | null;
+export type ExistingProduct = { id: string; name: string };
+
+export type ProductFormState = {
+  error: string;
+  values: ProductFormValues;
+  errorField?: "code";
+  existingProduct?: ExistingProduct;
+} | null;
 
 export const emptyProductFormValues: ProductFormValues = {
   barcode: "",
