@@ -41,7 +41,7 @@ Every read of `PriceReport`, and what it does:
 - `findRecentVisibleReports` (same-price count): exact postal code only. A chain with an area price never shows the count, because the own postal code has no report for it.
 - Search cheapest price (`products/lib/queries.ts`): same rule inside the existing lateral join, no extra query. The result says "(pris fra 01xx)" when the cheapest price is from the area.
 - Shopping list prices (`shopping-list/lib/queries.ts`): same rule per product and chain. Plans count how many lines use area prices ("Inkluderer N priser fra 01xx" on the summary and the plan card) and each such line says "Pris fra 01xx".
-- Scan card: the cheapest price says "(pris fra 01xx)" when it is an area price. After the user reports a price on the card, the card only updates if the new price is lower than the shown one (as before).
+- Scan card: the cheapest price says "(pris fra 01xx)" when it is an area price. After the user reports a price on the card, a new own-postal-code price replaces the shown price when the shown one is an area price or is for the same chain (even if higher); otherwise it only replaces it when lower (`cheapestAfterReport`).
 - Admin dashboard (`dashboard-queries.ts`) and the admin report list (`findRecentReports`): unchanged. Admins see every postal code already.
 - `findStorePreferences`: reads the user's own reports, no postal code involved.
 All of these exclude hidden reports, except `findRecentReports`.

@@ -8,6 +8,15 @@ describe("priceAreaOf", () => {
   });
 });
 
+describe("priceAreaOf edge cases", () => {
+  it("handles short and odd input without throwing", () => {
+    expect(priceAreaOf("")).toEqual({ label: "", from: "", to: "" });
+    expect(priceAreaOf("1")).toEqual({ label: "1", from: "1", to: "1" });
+    expect(priceAreaOf("0")).toEqual({ label: "0", from: "0", to: "0" });
+    expect(priceAreaOf("ab12")).toEqual({ label: "abxx", from: "ab00", to: "ab99" });
+  });
+});
+
 describe("isNearbyPrice", () => {
   it("is false for the user's own postal code and true for another one", () => {
     expect(isNearbyPrice("0151", "0151")).toBe(false);

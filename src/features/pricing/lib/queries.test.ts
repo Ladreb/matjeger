@@ -26,6 +26,19 @@ describe("findLatestPricesPerStore", () => {
   });
 });
 
+describe("findLatestPricesPerStore ordering", () => {
+  it("sorts the own postal code before newer area reports", async () => {
+    await findLatestPricesPerStore("p1", "0151");
+    const sql = queryRaw.mock.calls[0][0].sql.replace(/\s+/g, " ");
+    const own = sql.indexOf('(r."postalCode" = ?) DESC');
+    const newest = sql.indexOf('r."reportedAt" DESC');
+    expect(sql).toContain("DISTINCT ON (r.store)");
+    expect(sql).toContain("ORDER BY r.store, (r.\"postalCode\" = ?) DESC");
+    expect(own).toBeGreaterThan(-1);
+    expect(own).toBeLessThan(newest);
+  });
+});
+
 describe("findRecentVisibleReports", () => {
   it("ignores hidden reports and reports older than the staleness limit", async () => {
     await findRecentVisibleReports("p1", "0150", new Date("2026-10-31T00:00:00Z"));

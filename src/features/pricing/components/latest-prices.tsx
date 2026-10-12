@@ -28,8 +28,8 @@ export function LatestPrices({
   if (prices.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        Ingen har rapportert pris for postnummer {postalCode} eller {priceAreaOf(postalCode).label} ennå. Rapporter
-        prisen under,{" "}
+        Ingen har rapportert pris for postnummer {postalCode} eller{" "}
+        {priceAreaOf(postalCode).label} ennå. Rapporter prisen under,{" "}
         <Link href="/search" className="underline">
           søk etter en annen vare
         </Link>{" "}
@@ -47,9 +47,7 @@ export function LatestPrices({
 
   return (
     <ul className="flex flex-col divide-y rounded-lg border">
-      {cheapestFirst.map((report) => {
-        const isNearby = isNearbyPrice(report.postalCode, postalCode);
-        return (
+      {cheapestFirst.map((report) => (
         <li
           key={report.id}
           className={cn(
@@ -66,7 +64,7 @@ export function LatestPrices({
               ? "Oppdatert nå"
               : describeAge(report.reportedAt)}
           </p>
-          {isNearby ? (
+          {isNearbyPrice(report.postalCode, postalCode) ? (
             <p className="text-sm font-medium">Pris fra {areaLabel}</p>
           ) : (
             <AgreementNote
@@ -79,8 +77,7 @@ export function LatestPrices({
             </p>
           )}
         </li>
-        );
-      })}
+      ))}
     </ul>
   );
 }

@@ -6,6 +6,7 @@ import { PageColumn } from "@/components/page-column";
 import { Button } from "@/components/ui/button";
 import type { Store } from "@prisma/client";
 import { priceAreaOf } from "@/features/location/lib/price-area";
+import { cheapestAfterReport } from "@/features/pricing/lib/cheapest";
 import { formatStaleAge, isStale } from "@/features/pricing/lib/staleness";
 import { ReportPriceForm } from "@/features/pricing/components/report-price-form";
 import { AddToListButton } from "@/features/shopping-list/components/add-to-list-button";
@@ -125,9 +126,7 @@ function ScannedProductCard({
     : null;
 
   function updateCheapest(store: Store, price: number) {
-    if (!cheapest || price < cheapest.price) {
-      setCheapest({ store, price, reportedAt: new Date(), isNearby: false });
-    }
+    setCheapest(cheapestAfterReport(cheapest, store, price, new Date()));
   }
 
   return (
