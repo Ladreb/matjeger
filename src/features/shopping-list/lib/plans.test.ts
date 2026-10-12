@@ -1,6 +1,6 @@
 import type { Store } from "@prisma/client";
 import { describe, expect, it } from "vitest";
-import { computePlans, type StorePrice } from "./plans";
+import { computePlans, maxSaving, type Plan, type StorePrice } from "./plans";
 
 const NOW = new Date("2026-10-11T12:00:00Z");
 const FRESH = new Date("2026-10-01T12:00:00Z");
@@ -268,5 +268,31 @@ describe("computePlans", () => {
     const kiwi = plans.find((p) => p.stops[0].store === "KIWI")!;
     expect(kiwi.stops.map((s) => s.total)).toEqual([200, 300]);
     expect(kiwi.total).toBe(500);
+  });
+});
+
+describe("maxSaving", () => {
+  function plan(total: number, uncovered: string[] = []): Plan {
+    return { stops: [], uncoveredProductIds: uncovered, total, staleLineCount: 0 };
+  }
+
+  it("is the gap between the cheapest and the most expensive complete plan", () => {
+    expect(maxSaving([plan(10000), plan(12000), plan(15000)])).toBe(5000);
+  });
+
+  it("is null with one complete plan", () => {
+    expect(maxSaving([plan(10000), plan(9000, ["a"])])).toBeNull();
+  });
+
+  it("is null when the complete plans cost the same", () => {
+    expect(maxSaving([plan(10000), plan(10000)])).toBeNull();
+  });
+
+  it("ignores partial plans", () => {
+    expect(maxSaving([plan(10000), plan(11000), plan(90000, ["a"])])).toBe(1000);
+  });
+
+  it("is null without plans", () => {
+    expect(maxSaving([])).toBeNull();
   });
 });

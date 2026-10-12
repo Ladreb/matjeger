@@ -14,9 +14,14 @@ import {
   setQuantity,
   type ListActionResult,
 } from "../lib/actions";
-import { computePlans, type StorePrice } from "../lib/plans";
+import {
+  computePlans,
+  maxSaving,
+  VISIBLE_PLAN_COUNT,
+  type StorePrice,
+} from "../lib/plans";
 import { clampQuantity } from "../lib/quantity";
-import { countItems, describeStalePrices } from "../lib/wording";
+import { countItems, describeSaving, describeStalePrices } from "../lib/wording";
 import type { ListItemData } from "../types/shopping-list";
 import { PlanCard } from "./plan-card";
 import { ShoppingListItem } from "./shopping-list-item";
@@ -52,6 +57,7 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
   const [clearFailed, setClearFailed] = useState(false);
   const [confirmed, setConfirmed] = useState(() => confirmedValues(initialItems));
   const [unfinishedChanges, setUnfinishedChanges] = useState(0);
+  const [showAllPlans, setShowAllPlans] = useState(false);
   const [seenInitialItems, setSeenInitialItems] = useState(initialItems);
 
   // Fresh server data (an add from another page, or a late refresh) replaces the screen, unless a change of ours is still saving, since the server has not seen it yet.
@@ -191,6 +197,8 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
   const markedCount = items.filter((item) => item.checked).length;
   const cheapest = plans[0];
   const cheapestIsComplete = cheapest?.uncoveredProductIds.length === 0;
+  const saving = cheapestIsComplete ? maxSaving(plans) : null;
+  const shownPlans = showAllPlans ? plans : plans.slice(0, VISIBLE_PLAN_COUNT);
 
   return (
     <PageColumn width="default" className="flex flex-col gap-4 p-4">
@@ -217,6 +225,11 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
               Se sammenligning
               {cheapest.stops.length > 1 && ` · ${cheapest.stops.length} stopp`}
             </span>
+            {saving !== null && (
+              <span className="font-medium text-green-700 dark:text-green-400">
+                {describeSaving(saving)}
+              </span>
+            )}
             {cheapest.staleLineCount > 0 && (
               <span className="text-amber-700 dark:text-amber-400">
                 {describeStalePrices(cheapest.staleLineCount)}
@@ -301,7 +314,7 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
         )}
 
         {postalCode &&
-          plans.map((plan, index) => (
+          shownPlans.map((plan, index) => (
             <PlanCard
               key={plan.stops
                 .map((stop) => `${stop.store}:${stop.lines.map((l) => l.productId)}`)
@@ -309,11 +322,23 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
               plan={plan}
               rank={index + 1}
               isCheapest={index === 0 && cheapestIsComplete}
+              saving={index === 0 ? saving : null}
               open={index === 0}
               now={now}
               itemsByProductId={itemsByProductId}
             />
           ))}
+
+        {postalCode && plans.length > shownPlans.length && (
+          <Button
+            type="button"
+            variant="outline"
+            className="h-11 sm:w-fit"
+            onClick={() => setShowAllPlans(true)}
+          >
+            Vis alle ({plans.length})
+          </Button>
+        )}
 
         {postalCode && plans.length > 0 && unpricedProductIds.length > 0 && (
           <p className="text-sm text-muted-foreground">
