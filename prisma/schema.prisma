@@ -89,6 +89,24 @@ model ShoppingListItem {
   @@index([productId])
 }
 
+// Barcodes scanned by users that no product has. Counts at most once per scanner and day.
+model UnknownBarcodeScan {
+  barcode     String    @id
+  count       Int       @default(1)
+  firstSeenAt DateTime  @default(now())
+  lastSeenAt  DateTime  @default(now())
+  dismissedAt DateTime?
+}
+
+// Rate limit memory for UnknownBarcodeScan. Holds a keyed hash of the scanner, never the user id. Old days are deleted.
+model UnknownBarcodeScanner {
+  barcode     String
+  day         String    // YYYY-MM-DD in Norwegian time
+  scannerHash String
+  @@id([barcode, day, scannerHash])
+  @@index([day])
+}
+
 // NextAuth models
 model User {
   id            String        @id @default(cuid())
