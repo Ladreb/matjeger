@@ -1,19 +1,31 @@
+import { Prisma, type Store } from "@prisma/client";
+import { inPriceArea, ownPostalCodeFirst } from "@/features/location/lib/price-area-sql";
 import { db } from "@/lib/db";
 import { STALE_AFTER_DAYS } from "./staleness";
 import { buildStorePreferences } from "./store-preferences";
 
-export function findLatestPricesPerStore(
-  productId: string,
-  postalCode: string,
-) {
-  return db.priceReport.findMany({
-    where: { productId, postalCode, hiddenAt: null },
-    orderBy: [{ reportedAt: "desc" }, { id: "desc" }],
-    distinct: ["store"],
-    select: { id: true, store: true, price: true, reportedAt: true },
-  });
+type LatestPriceRow = {
+  id: string;
+  store: string;
+  price: number;
+  reportedAt: Date;
+  postalCode: string;
+};
+
+// The user's own postal code wins per chain; a chain without one gets the newest price from the postal code area (DECISIONS #3).
+export async function findLatestPricesPerStore(productId: string, postalCode: string) {
+  const rows = await db.$queryRaw<LatestPriceRow[]>(Prisma.sql`
+    SELECT DISTINCT ON (r.store) r.id, r.store::text AS store, r.price, r."reportedAt", r."postalCode"
+    FROM "PriceReport" r
+    WHERE r."productId" = ${productId}
+      AND ${inPriceArea(Prisma.sql`r."postalCode"`, postalCode)}
+      AND r."hiddenAt" IS NULL
+    ORDER BY r.store, ${ownPostalCodeFirst(Prisma.sql`r."postalCode"`, postalCode)}, r."reportedAt" DESC, r.id DESC
+  `);
+  return rows.map((row) => ({ ...row, store: row.store as Store }));
 }
 
+// Exact postal code only, so the same-price count never mixes areas.
 export function findRecentVisibleReports(
   productId: string,
   postalCode: string,

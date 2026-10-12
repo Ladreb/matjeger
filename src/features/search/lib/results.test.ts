@@ -26,6 +26,12 @@ describe("cheapestPriceLabel", () => {
     );
   });
 
+  it("says which area a nearby price is from", () => {
+    expect(cheapestPriceLabel(2190, "REMA_1000", "01xx")).toBe(
+      `fra ${formatPrice(2190)} hos Rema 1000 (pris fra 01xx)`,
+    );
+  });
+
   it("is empty when there is no price", () => {
     expect(cheapestPriceLabel(null, null)).toBeNull();
   });

@@ -42,8 +42,9 @@ Update checkboxes as work lands.
 - [x] Record scanned barcodes that are not in the catalogue (counted once per user and day; listed in the admin dashboard)
 - [ ] Users propose unknown barcodes, admin review queue
 - [ ] `StoreLocation` (specific branches)
+- [x] Prices from the postal code area (first 2 digits) when the own postal code has none, labelled "Priser fra 01xx" (issue #37). Real distance still needs a postal code to coordinates dataset (DECISIONS #3)
 - [x] Price accuracy: product page shows how many users reported the same price in the last 30 days (DECISIONS #8)
-- [ ] Latest price per chain: Prisma `distinct` runs in memory and loads every report for the product and postal code; switch to `DISTINCT ON (store)` when reports grow
+- [x] Latest price per chain: `findLatestPricesPerStore` now uses `DISTINCT ON (store)` in SQL (issue #37)
 - [ ] Sale price and per-kg in the report form
 - [ ] Search: split multi-word searches into words ("tine melk"), collapse double spaces in stored names ("Foo, bar" becomes "foo  bar" and misses the exact ranks), and add GIN trigram indexes on `Product` name, brand and description (the query scans every product today, which is fine for a curated catalogue); fold æ/ø/å so "ol" finds "øl"
 - [x] Run Prisma migrations over the direct connection (`DATABASE_URL_UNPOOLED`) instead of the pooled one (done in `vercel.json`)

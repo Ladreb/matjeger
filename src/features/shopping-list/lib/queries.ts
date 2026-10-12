@@ -1,4 +1,6 @@
 import { Prisma, type Store } from "@prisma/client";
+import { inPriceArea, ownPostalCodeFirst } from "@/features/location/lib/price-area-sql";
+import { isNearbyPrice } from "@/features/location/lib/price-area";
 import { db } from "@/lib/db";
 import type { ListItemData } from "../types/shopping-list";
 import { currentListIdSql } from "./current-list";
@@ -17,25 +19,30 @@ export async function findListItems(userId: string): Promise<ListItemData[]> {
   return rows.map((row) => ({ ...row, createdAt: row.createdAt.toISOString() }));
 }
 
-type PriceRow = Omit<StorePrice, "store"> & { store: string };
+type PriceRow = Omit<StorePrice, "store" | "isNearby"> & { store: string; postalCode: string };
 
-// One query for every product on the list. DISTINCT ON keeps the latest report per product and chain (DECISIONS #2); the ORDER BY must start with the same columns.
+// One query for every product on the list. DISTINCT ON keeps one report per product and chain; the ORDER BY must start with the same columns.
+// The user's own postal code wins, a chain without one gets the newest price from the postal code area (DECISIONS #3).
 export async function findLatestListPrices(
   userId: string,
   postalCode: string,
 ): Promise<StorePrice[]> {
   const rows = await db.$queryRaw<PriceRow[]>(Prisma.sql`
-    SELECT DISTINCT ON ("productId", "PriceReport".store) "productId", "PriceReport".store::text AS store, price, "reportedAt"
+    SELECT DISTINCT ON ("productId", "PriceReport".store) "productId", "PriceReport".store::text AS store, price, "reportedAt", "postalCode"
     FROM "PriceReport"
-    WHERE "postalCode" = ${postalCode}
+    WHERE ${inPriceArea(Prisma.sql`"postalCode"`, postalCode)}
       AND "priceUnit" = 'PER_UNIT'
       AND "hiddenAt" IS NULL
       AND "productId" IN (
         SELECT "productId" FROM "ShoppingListItem" WHERE "listId" = ${currentListIdSql(userId)}
       )
-    ORDER BY "productId", "PriceReport".store, "reportedAt" DESC, id DESC
+    ORDER BY "productId", "PriceReport".store, ${ownPostalCodeFirst(Prisma.sql`"postalCode"`, postalCode)}, "reportedAt" DESC, id DESC
   `);
-  return rows.map((row) => ({ ...row, store: row.store as Store }));
+  return rows.map(({ postalCode: reportPostalCode, ...row }) => ({
+    ...row,
+    store: row.store as Store,
+    isNearby: isNearbyPrice(reportPostalCode, postalCode),
+  }));
 }
 
 export async function isOnList(

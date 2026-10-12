@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PageColumn } from "@/components/page-column";
 import { Button } from "@/components/ui/button";
+import { priceAreaOf } from "@/features/location/lib/price-area";
 import { STORE_LABELS } from "@/features/pricing/lib/stores";
 import { formatPrice } from "@/lib/utils";
 import {
@@ -22,7 +23,12 @@ import {
   type StorePrice,
 } from "../lib/plans";
 import { clampQuantity } from "../lib/quantity";
-import { countItems, describeSaving, describeStalePrices } from "../lib/wording";
+import {
+  countItems,
+  describeNearbyPrices,
+  describeSaving,
+  describeStalePrices,
+} from "../lib/wording";
 import type { ListItemData } from "../types/shopping-list";
 import { PlanCard } from "./plan-card";
 import { ShoppingListItem } from "./shopping-list-item";
@@ -54,6 +60,7 @@ function confirmedValues(items: ListItemData[]) {
 }
 
 export function ShoppingListView({ initialItems, prices, postalCode, now }: Props) {
+  const areaLabel = postalCode ? priceAreaOf(postalCode).label : "";
   const [items, setItems] = useState(initialItems);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [clearFailed, setClearFailed] = useState(false);
@@ -287,6 +294,11 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
                 {describeSaving(saving)}
               </span>
             )}
+            {cheapest.nearbyLineCount > 0 && (
+              <span className="text-muted-foreground">
+                {describeNearbyPrices(cheapest.nearbyLineCount, areaLabel)}
+              </span>
+            )}
             {cheapest.staleLineCount > 0 && (
               <span className="text-amber-700 dark:text-amber-400">
                 {describeStalePrices(cheapest.staleLineCount)}
@@ -310,7 +322,7 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
             item={item}
             noPriceInPostalCode={
               postalCode && !pricedProductIds.has(item.productId)
-                ? postalCode
+                ? `${postalCode} eller ${areaLabel}`
                 : null
             }
             error={errors[item.id]}
@@ -363,7 +375,8 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
 
         {postalCode && plans.length === 0 && (
           <p className="text-sm text-muted-foreground">
-            Ingen har rapportert priser for varene på listen i {postalCode} ennå.
+            Ingen har rapportert priser for varene på listen i {postalCode} eller{" "}
+            {areaLabel} ennå.
             Åpne en vare og rapporter prisen,{" "}
             <Link href="/search" className="underline">
               søk etter andre varer
@@ -388,6 +401,7 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
               saving={index === 0 ? saving : null}
               open={index === 0}
               now={now}
+              areaLabel={areaLabel}
               itemsByProductId={itemsByProductId}
             />
           ))}

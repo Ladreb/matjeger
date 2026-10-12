@@ -12,7 +12,7 @@ function price(
   øre: number,
   reportedAt = FRESH,
 ): StorePrice {
-  return { productId, store, price: øre, reportedAt };
+  return { productId, store, price: øre, reportedAt, isNearby: false };
 }
 
 function item(productId: string, quantity = 1) {
@@ -254,6 +254,15 @@ describe("computePlans", () => {
     );
   });
 
+  it("counts the lines priced from a nearby postal code", () => {
+    const { plans } = compute(
+      [item("a"), item("b")],
+      [price("a", "KIWI", 100), { ...price("b", "KIWI", 200), isNearby: true }],
+    );
+    expect(plans[0].nearbyLineCount).toBe(1);
+    expect(plans[0].stops[0].lines.find((l) => l.productId === "b")?.isNearby).toBe(true);
+  });
+
   it("does not call a price of exactly 30 days stale", () => {
     const thirtyDays = new Date("2026-09-11T12:00:00Z");
     const { plans } = compute([item("a")], [price("a", "KIWI", 100, thirtyDays)]);
@@ -273,7 +282,7 @@ describe("computePlans", () => {
 
 describe("maxSaving", () => {
   function plan(total: number, uncovered: string[] = []): Plan {
-    return { stops: [], uncoveredProductIds: uncovered, total, staleLineCount: 0 };
+    return { stops: [], uncoveredProductIds: uncovered, total, staleLineCount: 0, nearbyLineCount: 0 };
   }
 
   it("is the gap between the cheapest and the most expensive complete plan", () => {

@@ -3,7 +3,12 @@ import { STORE_LABELS } from "@/features/pricing/lib/stores";
 import { formatStaleAge } from "@/features/pricing/lib/staleness";
 import { cn, formatPrice } from "@/lib/utils";
 import type { Plan } from "../lib/plans";
-import { countItems, describeSaving, describeStalePrices } from "../lib/wording";
+import {
+  countItems,
+  describeNearbyPrices,
+  describeSaving,
+  describeStalePrices,
+} from "../lib/wording";
 
 type Props = {
   plan: Plan;
@@ -12,6 +17,7 @@ type Props = {
   saving: number | null;
   open: boolean;
   now: Date;
+  areaLabel: string;
   itemsByProductId: Map<string, { name: string; quantity: number }>;
 };
 
@@ -22,6 +28,7 @@ export function PlanCard({
   saving,
   open,
   now,
+  areaLabel,
   itemsByProductId,
 }: Props) {
   const storeNames = plan.stops.map((stop) => STORE_LABELS[stop.store]);
@@ -74,6 +81,11 @@ export function PlanCard({
             {describeStalePrices(plan.staleLineCount)}
           </span>
         )}
+        {plan.nearbyLineCount > 0 && (
+          <span className="col-start-2 col-end-5 text-sm text-muted-foreground">
+            {describeNearbyPrices(plan.nearbyLineCount, areaLabel)}
+          </span>
+        )}
         {isPartial && (
           <span className="col-start-2 col-end-5 flex items-start gap-1 text-sm text-amber-700 dark:text-amber-400">
             <TriangleAlert aria-hidden className="mt-0.5 size-4 shrink-0" />
@@ -104,6 +116,11 @@ export function PlanCard({
                       </span>
                       <span>{formatPrice(line.lineTotal)}</span>
                     </div>
+                    {line.isNearby && (
+                      <span className="text-muted-foreground">
+                        Pris fra {areaLabel}
+                      </span>
+                    )}
                     {line.isStale && (
                       <span className="text-amber-700 dark:text-amber-400">
                         {formatStaleAge(line.reportedAt, now)}

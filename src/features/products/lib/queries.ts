@@ -1,5 +1,7 @@
 import { Prisma, type Store } from "@prisma/client";
 import { currentListIdSql } from "@/features/shopping-list/lib/current-list";
+import { isNearbyPrice } from "@/features/location/lib/price-area";
+import { inPriceArea, ownPostalCodeFirst } from "@/features/location/lib/price-area-sql";
 import { db } from "@/lib/db";
 
 export function listProducts() {
@@ -32,10 +34,12 @@ type SearchResult = {
   isSimilarMatch: boolean;
   cheapestPrice: number | null;
   cheapestStore: Store | null;
+  cheapestIsNearby: boolean;
 };
 
-type SearchRow = Omit<SearchResult, "cheapestStore"> & {
+type SearchRow = Omit<SearchResult, "cheapestStore" | "cheapestIsNearby"> & {
   cheapestStore: string | null;
+  cheapestPostalCode: string | null;
 };
 
 // The cheapest price is the lowest of the latest report per chain (DECISIONS #2), found in the same query so a result row costs no extra round trip.
@@ -55,6 +59,10 @@ export async function searchProducts(
   if (!lowered) return [];
   const pattern = lowered.replace(/[\\%_]/g, "\\$&");
 
+  const priceColumn = Prisma.sql`r."postalCode"`;
+  const inArea = postalCode ? inPriceArea(priceColumn, postalCode) : Prisma.sql`FALSE`;
+  const ownFirst = postalCode ? ownPostalCodeFirst(priceColumn, postalCode) : Prisma.sql`TRUE`;
+
   const rows = await db.$queryRaw<SearchRow[]>(Prisma.sql`
     SELECT found.id, found.name, found.brand, found.rank = ${FUZZY_RANK} AS "isSimilarMatch",
       EXISTS (
@@ -62,7 +70,8 @@ export async function searchProducts(
         WHERE i."listId" = ${currentListIdSql(userId)} AND i."productId" = found.id
       ) AS "onList",
       cheapest.price AS "cheapestPrice",
-      cheapest.store AS "cheapestStore"
+      cheapest.store AS "cheapestStore",
+      cheapest."postalCode" AS "cheapestPostalCode"
     FROM (
       SELECT id, name, brand, rank, score
       FROM (
@@ -89,23 +98,27 @@ export async function searchProducts(
       LIMIT ${SEARCH_RESULT_LIMIT}
     ) found
     LEFT JOIN LATERAL (
-      SELECT latest.store::text AS store, latest.price
+      SELECT latest.store::text AS store, latest.price, latest."postalCode"
       FROM (
-        SELECT DISTINCT ON (r.store) r.store, r.price
+        SELECT DISTINCT ON (r.store) r.store, r.price, r."postalCode"
         FROM "PriceReport" r
         WHERE r."productId" = found.id
-          AND r."postalCode" = ${postalCode}
+          AND ${inArea}
           AND r."priceUnit" = 'PER_UNIT'
           AND r."hiddenAt" IS NULL
-        ORDER BY r.store, r."reportedAt" DESC, r.id DESC
+        ORDER BY r.store, ${ownFirst}, r."reportedAt" DESC, r.id DESC
       ) latest
       ORDER BY latest.price, latest.store
       LIMIT 1
     ) cheapest ON true
     ORDER BY found.rank, found.score DESC, found.name
   `);
-  return rows.map((row) => ({
+  return rows.map(({ cheapestPostalCode, ...row }) => ({
     ...row,
     cheapestStore: row.cheapestStore as Store | null,
+    cheapestIsNearby:
+      cheapestPostalCode !== null &&
+      postalCode !== null &&
+      isNearbyPrice(cheapestPostalCode, postalCode),
   }));
 }

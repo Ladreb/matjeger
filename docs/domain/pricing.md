@@ -30,11 +30,25 @@
 ## Hiding reports (admins)
 - The edit page `/admin/products/[id]` has a "Prisrapporter" section (anchor `#prisrapporter`, linked from the "Billigst" cell on the dashboard): the newest 20 reports with price, chain, postal code, reporter name (or "ukjent") and age. "Skjul" asks for confirmation; a hidden report stays in the list, struck through, with "Vis igjen".
 - `hideReport` and `restoreReport` in `lib/actions.ts` call `requireCatalogueEditor()`; both admin roles can use them.
-- Every read of "latest price" filters on `hiddenAt` being null: `findLatestPricesPerStore` (product page, scan result, plausibility check in `reportPrice`), the search cheapest price (`products/lib/queries.ts`), the shopping list prices (`shopping-list/lib/queries.ts`) and the admin dashboard (`products/lib/dashboard-queries.ts`). A new query that reads `PriceReport` must do the same. `findRecentReports` is the only read that includes hidden reports.
+- Every read of "latest price" filters on `hiddenAt` being null: `findLatestPricesPerStore` (product page, scan result, plausibility check in `reportPrice`), the search cheapest price (`products/lib/queries.ts`), the shopping list prices (`shopping-list/lib/queries.ts`) and the admin dashboard (`products/lib/dashboard-queries.ts`). A new query that reads `PriceReport` must do the same. `findRecentReports` is the only read that includes hidden reports. Reads also use the postal code area, see "Prices from the postal code area".
+
+## Prices from the postal code area
+When the user's own postal code has no price for a chain, the newest visible price from the same area (first 2 digits, see `docs/domain/location.md`) is used and labelled. A price from the user's own postal code always wins for its chain. Reports are still saved with the user's own postal code.
+
+Every read of `PriceReport`, and what it does:
+- `findLatestPricesPerStore` (product page, scan result, plausibility check): own code first, then area, labelled "Pris fra 01xx" per chain. When no chain has an own price the heading reads "Priser fra 01xx" with a line saying the own postal code has no reports.
+- Plausibility check in `reportPrice`: uses the same prices as the page shows (area prices when the own postal code has none), so a first report in an empty postal code is still checked against its neighbours.
+- `findRecentVisibleReports` (same-price count): exact postal code only. A chain with an area price never shows the count, because the own postal code has no report for it.
+- Search cheapest price (`products/lib/queries.ts`): same rule inside the existing lateral join, no extra query. The result says "(pris fra 01xx)" when the cheapest price is from the area.
+- Shopping list prices (`shopping-list/lib/queries.ts`): same rule per product and chain. Plans count how many lines use area prices ("Inkluderer N priser fra 01xx" on the summary and the plan card) and each such line says "Pris fra 01xx".
+- Scan card: the cheapest price says "(pris fra 01xx)" when it is an area price. After the user reports a price on the card, a new own-postal-code price replaces the shown price when the shown one is an area price or is for the same chain (even if higher); otherwise it only replaces it when lower (`cheapestAfterReport`).
+- Admin dashboard (`dashboard-queries.ts`) and the admin report list (`findRecentReports`): unchanged. Admins see every postal code already.
+- `findStorePreferences`: reads the user's own reports, no postal code involved.
+All of these exclude hidden reports, except `findRecentReports`.
 
 ## Not built yet
 - Sale price (`isOnSale`, `regularPrice`) and `PER_KG` in the form.
-- Prices from the nearest area when the user's postal code has none (see DECISIONS #3).
+- Real distance for "nearby" (needs a postal code to coordinates dataset). A second, narrower step (3 digits before 2) was left out to keep the rule simple.
 - Postal code chip next to the chain in the report form, so the user can see and edit which postal code a report gets (DECISIONS #3).
 - A median or range when users disagree. Only the same-price count is built (see "Accuracy across reports").
 

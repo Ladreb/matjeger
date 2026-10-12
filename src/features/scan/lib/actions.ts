@@ -4,6 +4,7 @@ import type { Store } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/features/auth/lib/auth";
 import { isValidBarcode } from "@/features/products/lib/barcode";
+import { isNearbyPrice } from "@/features/location/lib/price-area";
 import { findCheapest } from "@/features/pricing/lib/cheapest";
 import { findLatestPricesPerStore } from "@/features/pricing/lib/queries";
 import { findProductByBarcode } from "@/features/products/lib/queries";
@@ -18,7 +19,12 @@ export type ScannedProduct = {
   name: string;
   brand: string | null;
   onList: boolean;
-  cheapest: { store: Store; price: number; reportedAt: Date } | null;
+  cheapest: {
+    store: Store;
+    price: number;
+    reportedAt: Date;
+    isNearby: boolean;
+  } | null;
 };
 
 export type LookupResult =
@@ -45,9 +51,19 @@ export async function lookupBarcode(barcode: string): Promise<LookupResult> {
     postalCode ? findLatestPricesPerStore(product.id, postalCode) : [],
     isOnList(session.user.id, product.id),
   ]);
+  const cheapest = findCheapest(prices);
   return {
     ok: true,
-    product: { ...product, onList, cheapest: findCheapest(prices) },
+    product: {
+      ...product,
+      onList,
+      cheapest: cheapest && {
+        store: cheapest.store,
+        price: cheapest.price,
+        reportedAt: cheapest.reportedAt,
+        isNearby: isNearbyPrice(cheapest.postalCode, postalCode ?? ""),
+      },
+    },
     postalCode,
   };
 }
