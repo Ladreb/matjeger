@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, readdirSync, rmSync, statSync } from "node:fs";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -8,6 +8,18 @@ import EmbeddedPostgres from "embedded-postgres";
 const USER = "matjeger_test";
 const PASSWORD = "matjeger_test";
 const DATABASE = "matjeger_test";
+const FOLDER_PREFIX = "matjeger-test-db-";
+const STALE_FOLDER_MS = 60 * 60 * 1000;
+
+// An interrupt can outrun the cleanup, so the next run removes what it left behind. No real run lasts an hour.
+function removeStaleFolders() {
+  for (const name of readdirSync(tmpdir())) {
+    const folder = join(tmpdir(), name);
+    if (name.startsWith(FOLDER_PREFIX) && Date.now() - statSync(folder).mtimeMs > STALE_FOLDER_MS) {
+      rmSync(folder, { recursive: true, force: true });
+    }
+  }
+}
 
 function findFreePort(): Promise<number> {
   return new Promise((resolve, reject) => {
@@ -40,7 +52,8 @@ function applyMigrations(url: string, port: number) {
 }
 
 export default async function startThrowawayDatabase() {
-  const directory = mkdtempSync(join(tmpdir(), "matjeger-test-db-"));
+  removeStaleFolders();
+  const directory = mkdtempSync(join(tmpdir(), FOLDER_PREFIX));
   const port = await findFreePort();
   const postgres = new EmbeddedPostgres({
     databaseDir: join(directory, "data"),
