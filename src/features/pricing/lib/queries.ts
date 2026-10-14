@@ -1,7 +1,7 @@
 import { Prisma, type Store } from "@prisma/client";
-import { priceAreaOf } from "@/features/location/lib/price-area";
-import { inPriceArea, ownPostalCodeFirst } from "@/features/location/lib/price-area-sql";
+import { areaLabelOf } from "@/features/location/lib/price-area";
 import { db } from "@/lib/db";
+import { latestPricesPerStoreSql } from "./latest-prices-sql";
 import { STALE_AFTER_DAYS } from "./staleness";
 import { buildStorePreferences } from "./store-preferences";
 
@@ -13,24 +13,17 @@ type LatestPriceRow = {
   postalCode: string;
 };
 
-// A chain without a price in the user's own postal code gets the newest one from the postal code area (DECISIONS #3).
-// areaLabel is set only for those, so screens can mark an area price without comparing postal codes.
 export async function findLatestPricesPerStore(productId: string, postalCode: string | null | undefined) {
   if (!postalCode) return [];
   const rows = await db.$queryRaw<LatestPriceRow[]>(Prisma.sql`
-    SELECT DISTINCT ON (r.store) r.id, r.store::text AS store, r.price, r."reportedAt", r."postalCode"
-    FROM "PriceReport" r
-    WHERE r."productId" = ${productId}
-      AND ${inPriceArea(Prisma.sql`r."postalCode"`, postalCode)}
-      AND r."priceUnit" = 'PER_UNIT'
-      AND r."hiddenAt" IS NULL
-    ORDER BY r.store, ${ownPostalCodeFirst(Prisma.sql`r."postalCode"`, postalCode)}, r."reportedAt" DESC, r.id DESC
+    SELECT latest.id, latest.store::text AS store, latest.price, latest."reportedAt", latest."postalCode"
+    FROM (${latestPricesPerStoreSql(Prisma.sql`${productId}`, postalCode)}) latest
+    ORDER BY latest.store
   `);
-  const { label: areaLabel } = priceAreaOf(postalCode);
   return rows.map((row) => ({
     ...row,
     store: row.store as Store,
-    areaLabel: row.postalCode === postalCode ? null : areaLabel,
+    areaLabel: areaLabelOf(row.postalCode, postalCode),
   }));
 }
 
