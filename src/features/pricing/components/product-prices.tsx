@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { Store } from "@prisma/client";
-import { isNearbyPrice, nearbyPricesLabel } from "@/features/location/lib/price-area";
 import type { RecentReport } from "../lib/agreement";
 import { describeMissingStores } from "../lib/missing-stores";
 import { LatestPrices } from "./latest-prices";
@@ -14,7 +13,7 @@ type LatestPrice = {
   store: Store;
   price: number;
   reportedAt: Date;
-  postalCode: string;
+  areaLabel: string | null;
 };
 
 export function ProductPrices({
@@ -29,8 +28,7 @@ export function ProductPrices({
   recentReports: RecentReport[];
 }) {
   const [updatedStore, setUpdatedStore] = useState<Store | null>(null);
-  const onlyNearbyPrices =
-    prices.length > 0 && prices.every((p) => isNearbyPrice(p.postalCode, postalCode));
+  const onlyAreaPrices = prices.length > 0 && prices.every((p) => p.areaLabel !== null);
 
   const missingStoresLine =
     prices.length > 0 ? describeMissingStores(prices.map((p) => p.store)) : null;
@@ -40,7 +38,7 @@ export function ProductPrices({
       <section className="flex flex-col gap-2">
         <div className="flex items-baseline justify-between gap-2">
           <h2 className="font-medium">
-            {onlyNearbyPrices ? nearbyPricesLabel(postalCode) : `Priser i ${postalCode}`}
+            {onlyAreaPrices ? `Priser fra ${prices[0].areaLabel}` : `Priser i ${postalCode}`}
           </h2>
           <Link
             href="/profile"
@@ -49,7 +47,7 @@ export function ProductPrices({
             Endre
           </Link>
         </div>
-        {onlyNearbyPrices && (
+        {onlyAreaPrices && (
           <p className="text-sm text-muted-foreground">
             Ingen har rapportert pris for postnummer {postalCode} ennå. Prisene
             under er fra andre postnummer i nærheten.

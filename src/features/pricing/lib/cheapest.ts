@@ -10,7 +10,7 @@ export function findCheapest<T extends StorePrice>(prices: T[]): T | null {
   return cheapest;
 }
 
-export type ShownPrice = StorePrice & { isNearby: boolean };
+export type ShownPrice = StorePrice & { areaLabel: string | null };
 
 // A reported price is in the user's own postal code, so it replaces a nearby price or an older price for the same chain even when higher.
 export function cheapestAfterReport(
@@ -20,6 +20,6 @@ export function cheapestAfterReport(
   reportedAt: Date,
 ): ShownPrice | null {
   const replaces =
-    !current || current.isNearby || current.store === store || price < current.price;
-  return replaces ? { store, price, reportedAt, isNearby: false } : current;
+    !current || current.areaLabel !== null || current.store === store || price < current.price;
+  return replaces ? { store, price, reportedAt, areaLabel: null } : current;
 }

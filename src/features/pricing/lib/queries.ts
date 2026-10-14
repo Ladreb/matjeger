@@ -1,4 +1,5 @@
 import { Prisma, type Store } from "@prisma/client";
+import { priceAreaOf } from "@/features/location/lib/price-area";
 import { inPriceArea, ownPostalCodeFirst } from "@/features/location/lib/price-area-sql";
 import { db } from "@/lib/db";
 import { STALE_AFTER_DAYS } from "./staleness";
@@ -12,17 +13,25 @@ type LatestPriceRow = {
   postalCode: string;
 };
 
-// The user's own postal code wins per chain; a chain without one gets the newest price from the postal code area (DECISIONS #3).
-export async function findLatestPricesPerStore(productId: string, postalCode: string) {
+// The one place that decides the Price: hidden and per-kg reports never count, the user's own postal code wins per chain,
+// and a chain without one gets the newest price from the postal code area (DECISIONS #3), marked with the area's label.
+export async function findLatestPricesPerStore(productId: string, postalCode: string | null | undefined) {
+  if (!postalCode) return [];
   const rows = await db.$queryRaw<LatestPriceRow[]>(Prisma.sql`
     SELECT DISTINCT ON (r.store) r.id, r.store::text AS store, r.price, r."reportedAt", r."postalCode"
     FROM "PriceReport" r
     WHERE r."productId" = ${productId}
       AND ${inPriceArea(Prisma.sql`r."postalCode"`, postalCode)}
+      AND r."priceUnit" = 'PER_UNIT'
       AND r."hiddenAt" IS NULL
     ORDER BY r.store, ${ownPostalCodeFirst(Prisma.sql`r."postalCode"`, postalCode)}, r."reportedAt" DESC, r.id DESC
   `);
-  return rows.map((row) => ({ ...row, store: row.store as Store }));
+  const { label: areaLabel } = priceAreaOf(postalCode);
+  return rows.map((row) => ({
+    ...row,
+    store: row.store as Store,
+    areaLabel: row.postalCode === postalCode ? null : areaLabel,
+  }));
 }
 
 // Exact postal code only, so the same-price count never mixes areas.

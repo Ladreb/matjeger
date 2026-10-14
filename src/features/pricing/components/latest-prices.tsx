@@ -1,6 +1,6 @@
 import type { Store } from "@prisma/client";
 import Link from "next/link";
-import { isNearbyPrice, priceAreaOf } from "@/features/location/lib/price-area";
+import { priceAreaOf } from "@/features/location/lib/price-area";
 import { cn, formatPrice } from "@/lib/utils";
 import { countAgreeingReporters, type RecentReport } from "../lib/agreement";
 import { daysSince, isStale, STALE_AFTER_DAYS } from "../lib/staleness";
@@ -11,7 +11,7 @@ type LatestPrice = {
   store: Store;
   price: number;
   reportedAt: Date;
-  postalCode: string;
+  areaLabel: string | null;
 };
 
 export function LatestPrices({
@@ -43,7 +43,6 @@ export function LatestPrices({
   }
 
   const cheapestFirst = [...prices].sort((a, b) => a.price - b.price);
-  const areaLabel = priceAreaOf(postalCode).label;
 
   return (
     <ul className="flex flex-col divide-y rounded-lg border">
@@ -71,8 +70,8 @@ export function LatestPrices({
               ? "Oppdatert nå"
               : describeAge(report.reportedAt)}
           </p>
-          {isNearbyPrice(report.postalCode, postalCode) ? (
-            <p className="text-sm font-medium">Pris fra {areaLabel}</p>
+          {report.areaLabel ? (
+            <p className="text-sm font-medium">Pris fra {report.areaLabel}</p>
           ) : (
             <AgreementNote
               count={countAgreeingReporters(report.store, report.price, recentReports)}

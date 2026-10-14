@@ -118,11 +118,7 @@ function ScannedProductCard({
   const [reporting, setReporting] = useState(false);
   const [cheapest, setCheapest] = useState(product.cheapest);
   const priceLabel = cheapest
-    ? cheapestPriceLabel(
-        cheapest.price,
-        cheapest.store,
-        cheapest.isNearby && postalCode ? priceAreaOf(postalCode).label : null,
-      )
+    ? cheapestPriceLabel(cheapest.price, cheapest.store, cheapest.areaLabel)
     : null;
 
   function updateCheapest(store: Store, price: number) {
