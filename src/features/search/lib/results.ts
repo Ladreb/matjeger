@@ -14,9 +14,9 @@ export function splitByMatch<T extends { isSimilarMatch: boolean }>(
 export function cheapestPriceLabel(
   price: number | null,
   store: Store | null,
-  nearbyAreaLabel: string | null = null,
+  areaLabel: string | null = null,
 ): string | null {
   if (price === null || store === null) return null;
   const label = `fra ${formatPrice(price)} hos ${STORE_LABELS[store]}`;
-  return nearbyAreaLabel ? `${label} (pris fra ${nearbyAreaLabel})` : label;
+  return areaLabel ? `${label} (pris fra ${areaLabel})` : label;
 }

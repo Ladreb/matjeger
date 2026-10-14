@@ -32,7 +32,7 @@ describe("cheapestAfterReport", () => {
     expect(cheapestAfterReport(shown, "MENY", 3000, day)).toBe(shown);
   });
 
-  it("replaces a nearby price with a higher own price", () => {
+  it("replaces an area price with a higher own price", () => {
     expect(cheapestAfterReport({ ...shown, areaLabel: "01xx" }, "MENY", 3000, day)).toMatchObject(
       { store: "MENY", price: 3000, areaLabel: null },
     );

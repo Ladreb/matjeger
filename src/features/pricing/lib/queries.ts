@@ -27,7 +27,7 @@ export async function findLatestPricesPerStore(productId: string, postalCode: st
   }));
 }
 
-// Exact postal code only, so the same-price count never mixes areas.
+// Exact postal code only, so the same-price count never mixes areas. Hidden and per-kg reports never count, as in latestPricesPerStoreSql.
 export function findRecentVisibleReports(
   productId: string,
   postalCode: string,
@@ -35,7 +35,7 @@ export function findRecentVisibleReports(
 ) {
   const since = new Date(now.getTime() - STALE_AFTER_DAYS * 24 * 60 * 60 * 1000);
   return db.priceReport.findMany({
-    where: { productId, postalCode, hiddenAt: null, reportedAt: { gte: since } },
+    where: { productId, postalCode, hiddenAt: null, priceUnit: "PER_UNIT", reportedAt: { gte: since } },
     select: {
       id: true,
       store: true,

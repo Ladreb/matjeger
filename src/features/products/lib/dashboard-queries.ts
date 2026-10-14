@@ -34,7 +34,7 @@ export type UnknownBarcode = {
 
 const UNKNOWN_BARCODE_LIMIT = 100;
 
-// Admins curate the whole catalogue, so every postal code counts. The latest report per product, chain and postal code is the current price (DECISIONS #2).
+// Admins curate the whole catalogue, so every postal code counts. The latest report per product, store chain and postal code is the Price (DECISIONS #2).
 // The cheapest price skips per-kg reports, so it is never compared with a per-unit price.
 const dashboardRows = Prisma.sql`
   WITH latest AS (

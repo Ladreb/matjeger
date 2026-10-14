@@ -25,7 +25,7 @@ import {
 import { clampQuantity } from "../lib/quantity";
 import {
   countItems,
-  describeNearbyPrices,
+  describeAreaPrices,
   describeSaving,
   describeStalePrices,
 } from "../lib/wording";
@@ -294,9 +294,9 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
                 {describeSaving(saving)}
               </span>
             )}
-            {cheapest.nearbyLineCount > 0 && (
+            {cheapest.areaPriceLineCount > 0 && (
               <span className="text-muted-foreground">
-                {describeNearbyPrices(cheapest.nearbyLineCount, areaLabel)}
+                {describeAreaPrices(cheapest.areaPriceLineCount, areaLabel)}
               </span>
             )}
             {cheapest.staleLineCount > 0 && (

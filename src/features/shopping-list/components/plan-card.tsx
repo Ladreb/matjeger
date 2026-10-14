@@ -5,7 +5,7 @@ import { cn, formatPrice } from "@/lib/utils";
 import type { Plan } from "../lib/plans";
 import {
   countItems,
-  describeNearbyPrices,
+  describeAreaPrices,
   describeSaving,
   describeStalePrices,
 } from "../lib/wording";
@@ -81,9 +81,9 @@ export function PlanCard({
             {describeStalePrices(plan.staleLineCount)}
           </span>
         )}
-        {plan.nearbyLineCount > 0 && (
+        {plan.areaPriceLineCount > 0 && (
           <span className="col-start-2 col-end-5 text-sm text-muted-foreground">
-            {describeNearbyPrices(plan.nearbyLineCount, areaLabel)}
+            {describeAreaPrices(plan.areaPriceLineCount, areaLabel)}
           </span>
         )}
         {isPartial && (

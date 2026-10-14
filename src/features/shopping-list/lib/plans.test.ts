@@ -254,12 +254,12 @@ describe("computePlans", () => {
     );
   });
 
-  it("counts the lines priced from a nearby postal code", () => {
+  it("counts the lines with an area price", () => {
     const { plans } = compute(
       [item("a"), item("b")],
       [price("a", "KIWI", 100), { ...price("b", "KIWI", 200), areaLabel: "01xx" }],
     );
-    expect(plans[0].nearbyLineCount).toBe(1);
+    expect(plans[0].areaPriceLineCount).toBe(1);
     expect(plans[0].stops[0].lines.find((l) => l.productId === "b")?.areaLabel).toBe("01xx");
   });
 
@@ -282,7 +282,7 @@ describe("computePlans", () => {
 
 describe("maxSaving", () => {
   function plan(total: number, uncovered: string[] = []): Plan {
-    return { stops: [], uncoveredProductIds: uncovered, total, staleLineCount: 0, nearbyLineCount: 0 };
+    return { stops: [], uncoveredProductIds: uncovered, total, staleLineCount: 0, areaPriceLineCount: 0 };
   }
 
   it("is the gap between the cheapest and the most expensive complete plan", () => {

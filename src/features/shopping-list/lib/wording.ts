@@ -10,7 +10,7 @@ export function describeStalePrices(count: number): string {
     : `Inkluderer ${count} gamle priser`;
 }
 
-export function describeNearbyPrices(count: number, areaLabel: string): string {
+export function describeAreaPrices(count: number, areaLabel: string): string {
   return count === 1
     ? `Inkluderer 1 pris fra ${areaLabel}`
     : `Inkluderer ${count} priser fra ${areaLabel}`;
