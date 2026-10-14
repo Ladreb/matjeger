@@ -20,6 +20,15 @@ function findFreePort(): Promise<number> {
   });
 }
 
+function applyMigrations() {
+  try {
+    execFileSync("npx", ["prisma", "migrate", "deploy"], { env: process.env, stdio: "pipe", encoding: "utf8" });
+  } catch (error) {
+    const { stdout, stderr } = error as { stdout: string; stderr: string };
+    throw new Error(`prisma migrate deploy failed on the throwaway database:\n${stdout}\n${stderr}`);
+  }
+}
+
 export default async function startThrowawayDatabase() {
   const directory = mkdtempSync(join(tmpdir(), "matjeger-test-db-"));
   const port = await findFreePort();
@@ -45,7 +54,7 @@ export default async function startThrowawayDatabase() {
     // Set unconditionally so the database URLs in the .env files can never be used by these tests.
     const url = `postgresql://${USER}:${PASSWORD}@127.0.0.1:${port}/${DATABASE}`;
     process.env.DATABASE_URL = url;
-    execFileSync("npx", ["prisma", "migrate", "deploy"], { env: process.env, stdio: "pipe" });
+    applyMigrations();
   } catch (error) {
     await stop();
     throw error;
