@@ -13,8 +13,8 @@ type LatestPriceRow = {
   postalCode: string;
 };
 
-// The one place that decides the Price: hidden and per-kg reports never count, the user's own postal code wins per chain,
-// and a chain without one gets the newest price from the postal code area (DECISIONS #3), marked with the area's label.
+// A chain without a price in the user's own postal code gets the newest one from the postal code area (DECISIONS #3).
+// areaLabel is set only for those, so screens can mark an area price without comparing postal codes.
 export async function findLatestPricesPerStore(productId: string, postalCode: string | null | undefined) {
   if (!postalCode) return [];
   const rows = await db.$queryRaw<LatestPriceRow[]>(Prisma.sql`
