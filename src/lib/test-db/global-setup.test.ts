@@ -7,7 +7,7 @@ describe("assertThrowawayUrl", () => {
   });
 
   it("refuses a remote database", () => {
-    expect(() => assertThrowawayUrl("postgresql://u:p@ep-wild-base.neon.tech/neondb", 5555)).toThrow(/throwaway/);
+    expect(() => assertThrowawayUrl("postgresql://u:p@db.example.com/neondb", 5555)).toThrow(/throwaway/);
   });
 
   it("refuses a local database on another port", () => {

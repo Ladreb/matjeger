@@ -28,9 +28,11 @@ export function assertThrowawayUrl(url: string | undefined, port: number) {
   }
 }
 
-function applyMigrations(url: string) {
+function applyMigrations(url: string, port: number) {
+  const env = { ...process.env, DATABASE_URL: url };
+  assertThrowawayUrl(env.DATABASE_URL, port);
   try {
-    execFileSync("npx", ["prisma", "migrate", "deploy"], { env: { ...process.env, DATABASE_URL: url }, stdio: "pipe", encoding: "utf8" });
+    execFileSync("npx", ["prisma", "migrate", "deploy"], { env, stdio: "pipe", encoding: "utf8" });
   } catch (error) {
     const { stdout, stderr } = error as { stdout: string; stderr: string };
     throw new Error(`prisma migrate deploy failed on the throwaway database:\n${stdout}\n${stderr}`);
@@ -49,16 +51,21 @@ export default async function startThrowawayDatabase() {
     onLog: () => {},
   });
 
-  const stop = async () => {
-    await postgres.stop().catch(() => {});
-    rmSync(directory, { recursive: true, force: true });
+  let stopping: Promise<void> | undefined;
+  const stop = () => {
+    stopping ??= (async () => {
+      await postgres.stop().catch(() => {});
+      rmSync(directory, { recursive: true, force: true });
+    })();
+    return stopping;
   };
 
+  const interruptSignals: NodeJS.Signals[] = ["SIGINT", "SIGTERM", "SIGHUP"];
   const stopThenExit = (signal: NodeJS.Signals) => {
     void stop().finally(() => process.exit(signal === "SIGINT" ? 130 : 143));
   };
-  process.once("SIGINT", stopThenExit);
-  process.once("SIGTERM", stopThenExit);
+  const removeSignalHandlers = () => interruptSignals.forEach((signal) => process.off(signal, stopThenExit));
+  interruptSignals.forEach((signal) => process.on(signal, stopThenExit));
 
   try {
     await postgres.initialise();
@@ -68,16 +75,15 @@ export default async function startThrowawayDatabase() {
     // Set unconditionally so the database URLs in the .env files can never be used by these tests.
     const url = `postgresql://${USER}:${PASSWORD}@127.0.0.1:${port}/${DATABASE}`;
     process.env.DATABASE_URL = url;
-    assertThrowawayUrl(process.env.DATABASE_URL, port);
-    applyMigrations(url);
+    applyMigrations(url, port);
   } catch (error) {
+    removeSignalHandlers();
     await stop();
     throw error;
   }
 
   return async () => {
-    process.off("SIGINT", stopThenExit);
-    process.off("SIGTERM", stopThenExit);
+    removeSignalHandlers();
     await stop();
   };
 }
