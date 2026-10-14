@@ -185,8 +185,8 @@ function ProductTable({ products }: { products: DashboardProduct[] }) {
               {barcodeOrPlu(product)}
             </td>
             <td className="py-2 pr-4">
-              {product.chains > 0 ? (
-                `${product.chains} av ${STORES.length}`
+              {product.storeChains > 0 ? (
+                `${product.storeChains} av ${STORES.length}`
               ) : (
                 <span className="text-muted-foreground">Ingen priser</span>
               )}
@@ -244,7 +244,7 @@ function ProductCards({ products }: { products: DashboardProduct[] }) {
 }
 
 function CardSummary({ product }: { product: DashboardProduct }) {
-  if (product.chains === 0) {
+  if (product.storeChains === 0) {
     return (
       <span className="mt-1 w-fit rounded-full bg-muted px-2 py-0.5 text-xs">
         Uten priser
@@ -254,7 +254,7 @@ function CardSummary({ product }: { product: DashboardProduct }) {
   return (
     <span className="flex flex-wrap items-center gap-x-1 text-sm">
       <span>
-        {product.chains} {product.chains === 1 ? "kjede" : "kjeder"}
+        {product.storeChains} {product.storeChains === 1 ? "kjede" : "kjeder"}
       </span>
       {product.cheapestPrice !== null && (
         <span>· fra {formatPrice(product.cheapestPrice)}</span>

@@ -8,7 +8,7 @@ describe("findCheapest", () => {
     expect(findCheapest([])).toBeNull();
   });
 
-  it("returns the lowest price with its chain", () => {
+  it("returns the lowest price with its store chain", () => {
     expect(
       findCheapest([
         { store: "KIWI", price: 2290, reportedAt: day },
@@ -28,7 +28,7 @@ describe("cheapestAfterReport", () => {
     });
   });
 
-  it("keeps a lower own price when another chain is reported higher", () => {
+  it("keeps a lower own price when another store chain is reported higher", () => {
     expect(cheapestAfterReport(shown, "MENY", 3000, day)).toBe(shown);
   });
 
@@ -38,11 +38,11 @@ describe("cheapestAfterReport", () => {
     );
   });
 
-  it("replaces the shown price when the same chain is reported higher", () => {
+  it("replaces the shown price when the same store chain is reported higher", () => {
     expect(cheapestAfterReport(shown, "KIWI", 2500, day)).toMatchObject({ price: 2500 });
   });
 
-  it("takes a lower price from another chain", () => {
+  it("takes a lower price from another store chain", () => {
     expect(cheapestAfterReport(shown, "MENY", 1500, day)).toMatchObject({ store: "MENY" });
   });
 });

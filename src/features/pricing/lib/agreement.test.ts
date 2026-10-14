@@ -16,7 +16,7 @@ const report = (
 });
 
 describe("countAgreeingReporters", () => {
-  it("counts users who reported the same price for the chain", () => {
+  it("counts users who reported the same price for the store chain", () => {
     const reports = [
       report("1", "KIWI", 2990, "a"),
       report("2", "KIWI", 2990, "b"),
@@ -33,7 +33,7 @@ describe("countAgreeingReporters", () => {
     expect(countAgreeingReporters("KIWI", 2990, reports)).toBe(1);
   });
 
-  it("ignores other chains", () => {
+  it("ignores other store chains", () => {
     const reports = [report("1", "REMA_1000", 2990, "a")];
     expect(countAgreeingReporters("KIWI", 2990, reports)).toBe(0);
   });

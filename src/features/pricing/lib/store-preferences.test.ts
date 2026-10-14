@@ -11,7 +11,7 @@ describe("buildStorePreferences", () => {
     expect(result.lastUsedStore).toBeNull();
   });
 
-  it("puts the most used chains first", () => {
+  it("puts the most used store chains first", () => {
     const result = buildStorePreferences(
       [],
       [
@@ -22,7 +22,7 @@ describe("buildStorePreferences", () => {
     expect(result.orderedStores.slice(0, 3)).toEqual(["MENY", "KIWI", "REMA_1000"]);
   });
 
-  it("puts favourites before more used chains", () => {
+  it("puts favourites before more used store chains", () => {
     const result = buildStorePreferences(
       ["ODA"],
       [{ store: "MENY", reports: 5, lastReportedAt: day(1) }],
@@ -30,7 +30,7 @@ describe("buildStorePreferences", () => {
     expect(result.orderedStores.slice(0, 2)).toEqual(["ODA", "MENY"]);
   });
 
-  it("picks the chain with the newest report as last used", () => {
+  it("picks the store chain with the newest report as last used", () => {
     const result = buildStorePreferences(
       [],
       [

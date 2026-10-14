@@ -31,13 +31,13 @@ describe("computePlans", () => {
     expect(compute([], [])).toEqual({ plans: [], unpricedProductIds: [] });
   });
 
-  it("returns no plans when no chain has a price", () => {
+  it("returns no plans when no store chain has a price", () => {
     const result = compute([item("a")], []);
     expect(result.plans).toEqual([]);
     expect(result.unpricedProductIds).toEqual(["a"]);
   });
 
-  it("builds a one-stop plan per chain that covers everything", () => {
+  it("builds a one-stop plan per store chain that covers everything", () => {
     const { plans } = compute(
       [item("a"), item("b")],
       [
@@ -68,7 +68,7 @@ describe("computePlans", () => {
     });
   });
 
-  it("fills gaps from the one other chain that covers the most of them", () => {
+  it("fills gaps from the one other store chain that covers the most of them", () => {
     const { plans } = compute(
       [item("a"), item("b"), item("c")],
       [
@@ -85,7 +85,7 @@ describe("computePlans", () => {
     expect(kiwi.uncoveredProductIds).toEqual([]);
   });
 
-  it("breaks a tie between extra chains on the lowest cost, then chain name", () => {
+  it("breaks a tie between extra store chains on the lowest cost, then store chain name", () => {
     const cheaper = compute(
       [item("a"), item("b")],
       [
@@ -107,7 +107,7 @@ describe("computePlans", () => {
     expect(byName.stops[1].store).toBe("MENY");
   });
 
-  it("marks a plan partial when the extra chain misses some gaps", () => {
+  it("marks a plan partial when the extra store chain misses some gaps", () => {
     const { plans } = compute(
       [item("a"), item("b"), item("c")],
       [
@@ -121,7 +121,7 @@ describe("computePlans", () => {
     expect(kiwi.total).toBe(1500);
   });
 
-  it("sets aside items no chain prices, so they do not make every plan partial", () => {
+  it("sets aside items no store chain prices, so they do not make every plan partial", () => {
     const result = compute(
       [item("a"), item("nobody")],
       [price("a", "KIWI", 1000)],
@@ -152,7 +152,7 @@ describe("computePlans", () => {
     expect(plans.slice(0, complete.length)).toEqual(complete);
   });
 
-  it("ranks equal totals by fewer stops, then chain name", () => {
+  it("ranks equal totals by fewer stops, then store chain name", () => {
     const { plans } = compute(
       [item("a"), item("b")],
       [
@@ -205,7 +205,7 @@ describe("computePlans", () => {
     expect(last.total).toBeLessThan(first.total);
   });
 
-  it("picks the extra chain that covers more gaps even when another is cheaper", () => {
+  it("picks the extra store chain that covers more gaps even when another is cheaper", () => {
     const kiwi = compute(
       [item("a"), item("b"), item("c")],
       [
@@ -234,7 +234,7 @@ describe("computePlans", () => {
     expect(plans[0].staleLineCount).toBe(1);
   });
 
-  it("counts two plans with the same chains and items as one trip", () => {
+  it("counts two plans with the same store chains and items as one trip", () => {
     const { plans } = compute(
       [item("a"), item("b")],
       [price("a", "KIWI", 100), price("b", "REMA_1000", 200)],

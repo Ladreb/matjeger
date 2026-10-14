@@ -13,7 +13,7 @@ export type DashboardProduct = {
   brand: string | null;
   barcode: string | null;
   pluCode: string | null;
-  chains: number;
+  storeChains: number;
   cheapestPrice: number | null;
   cheapestStore: Store | null;
   ageDays: number | null;
@@ -45,7 +45,7 @@ const dashboardRows = Prisma.sql`
     ORDER BY r."productId", r.store, r."postalCode", r."reportedAt" DESC, r.id DESC
   ),
   stats AS (
-    SELECT "productId", count(DISTINCT store)::int AS chains, max("reportedAt") AS "lastReportedAt"
+    SELECT "productId", count(DISTINCT store)::int AS "storeChains", max("reportedAt") AS "lastReportedAt"
     FROM latest
     GROUP BY "productId"
   ),
@@ -57,7 +57,7 @@ const dashboardRows = Prisma.sql`
   ),
   dashboard AS (
     SELECT p.id, p.name, p.brand, p.barcode, p."pluCode",
-      coalesce(s.chains, 0) AS chains,
+      coalesce(s."storeChains", 0) AS "storeChains",
       c.price AS "cheapestPrice",
       c.store AS "cheapestStore",
       floor(extract(epoch FROM now() - s."lastReportedAt") / 86400)::int AS "ageDays"
@@ -69,7 +69,7 @@ const dashboardRows = Prisma.sql`
 
 const filterConditions: Record<DashboardFilter, Prisma.Sql> = {
   all: Prisma.sql`true`,
-  "no-prices": Prisma.sql`chains = 0`,
+  "no-prices": Prisma.sql`"storeChains" = 0`,
   // Products without reports are only under "no-prices", so the two chips never count the same product.
   "old-prices": Prisma.sql`"ageDays" > ${STALE_AFTER_DAYS}`,
   "no-brand": Prisma.sql`coalesce(btrim(brand), '') = ''`,
@@ -110,7 +110,7 @@ export async function listDashboardProducts(
       brand: row.brand,
       barcode: row.barcode,
       pluCode: row.pluCode,
-      chains: row.chains,
+      storeChains: row.storeChains,
       cheapestPrice: row.cheapestPrice,
       cheapestStore: row.cheapestStore as Store | null,
       ageDays: row.ageDays,
