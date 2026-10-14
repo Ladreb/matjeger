@@ -14,7 +14,7 @@
 - Without a saved postal code the form and prices are hidden; the app layout shows the "Hvor handler du?" card. With no reports for the postal code it says so.
 - Code: `src/features/pricing` (`lib/parse-price.ts`, `lib/plausibility.ts`, `lib/staleness.ts`, `lib/queries.ts`, `lib/actions.ts`, `components/`).
 
-## Store store chain buttons, last used and favourites
+## Store chain buttons, last used and favourites
 - The report form shows the store chains as buttons instead of a select. Order: the user's favourite store chains first, then the store chains the user has reported most, then the default order. The store chain of the user's newest report is preselected, and the store chain stays selected after a report is saved.
 - Last used and most used are read from the user's own `PriceReport` rows (`findStorePreferences`), so they are stored nowhere else and follow the user across devices.
 - Favourites are `User.favouriteStores` (`Store[]`, default empty). The user pins them under "Favorittbutikker" on `/profile` (`toggleFavouriteStore`). Pinned store chains show a star in the form.
@@ -47,7 +47,7 @@ What the screens show, all from `areaLabel` on the row:
 - Search: the cheapest price says "(pris fra 01xx)" when it is an Area price.
 - Shopping list: each line with an Area price says "Pris fra 01xx", and the summary and plan card say how many ("Inkluderer N priser fra 01xx", `areaPriceLineCount`).
 - Scan card: the cheapest price says "(pris fra 01xx)" when it is an Area price. After the user reports a price on the card, a new price from the own postal code replaces the shown price when the shown one is an Area price or is for the same store chain (even if higher); otherwise it only replaces it when lower (`cheapestAfterReport`).
-- The empty states ("Ingen priser for postnummer … eller 01xx ennå") print the area label from the user's postal code, because there is no price row to take it from.
+- The empty states (product page: "Ingen har rapportert pris for postnummer … eller 01xx ennå"; scan card and shopping list: "Ingen priser for postnummer … eller 01xx ennå") print the area label from the user's postal code, because there is no price row to take it from.
 
 Reads that do not use the module, on purpose:
 - `findRecentVisibleReports` (same-price count): exact postal code only, so the count never mixes areas, but it ignores hidden and per-kg reports like the module. A store chain with an Area price never shows the count, because the own postal code has no report for it.
