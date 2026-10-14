@@ -19,9 +19,9 @@ Set `ENABLE_DEV_TOOLS=true` in `.env.development.local` to turn these on. Never 
 
 ## Database tests (throwaway Postgres)
 
-`npm run test:db` runs the tests in `*.db.test.ts` files against a real Postgres that lives only for the run. It starts an embedded Postgres 17 (the `embedded-postgres` dev dependency, nothing to install on the machine), applies every migration with `prisma migrate deploy`, runs the tests and removes everything afterwards. The code is in `src/lib/test-db`.
+`npm run test:db` runs the tests in `*.db.test.ts` files against a real Postgres that lives only for the run. It starts an embedded Postgres 17 (the `embedded-postgres` dev dependency, nothing to install by hand: `npm install` downloads the Postgres binaries), applies every migration with `prisma migrate deploy`, runs the tests and removes everything afterwards when the run finishes or the setup fails. If the run is killed (Ctrl-C or `kill`), a `matjeger-test-db-*` folder can stay in the system temp folder. Delete it by hand. The code is in `src/lib/test-db`.
 
-- It never uses the Neon `dev` or production branch. The setup sets `DATABASE_URL` to its own `127.0.0.1` database on a free port and ignores the `.env` files, even when a different `DATABASE_URL` is already set.
+- It never uses the Neon `dev` or production branch. The setup sets `DATABASE_URL` to its own `127.0.0.1` database on a free port before anything reads it, so a `DATABASE_URL` from the shell or the `.env` files is not used.
 - `npm test` (unit tests) does not run `*.db.test.ts` and needs no database, so it stays fast.
 - Test files run one at a time because they share the one database. A test cleans up the rows it creates.
 - Use it for rules that live in SQL or Prisma queries, where mocking the database would only test the query text.

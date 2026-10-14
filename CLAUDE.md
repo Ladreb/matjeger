@@ -62,7 +62,7 @@ npm run dev          # Start development server
 npm run build        # Build for production
 npm run lint         # Run ESLint
 npm test             # Run unit tests (Vitest)
-npm run test:db      # Run database tests against a throwaway Postgres (no setup needed)
+npm run test:db      # Run database tests against a throwaway Postgres (no Postgres install needed)
 npx prisma studio    # Open Prisma Studio (DB GUI)
 npx prisma migrate dev --name <name>   # Create and apply a migration
 npx prisma generate  # Regenerate Prisma client after schema changes
