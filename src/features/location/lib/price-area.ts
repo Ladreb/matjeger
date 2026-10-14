@@ -16,7 +16,3 @@ export function priceAreaOf(postalCode: string): PriceArea {
 export function areaLabelOf(reportPostalCode: string, ownPostalCode: string): string | null {
   return reportPostalCode === ownPostalCode ? null : priceAreaOf(ownPostalCode).label;
 }
-
-export function isNearbyPrice(reportPostalCode: string, ownPostalCode: string): boolean {
-  return reportPostalCode !== ownPostalCode;
-}

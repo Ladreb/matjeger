@@ -1,6 +1,6 @@
 import { Prisma, type Store } from "@prisma/client";
-import { inPriceArea, ownPostalCodeFirst } from "@/features/location/lib/price-area-sql";
-import { isNearbyPrice } from "@/features/location/lib/price-area";
+import { areaLabelOf } from "@/features/location/lib/price-area";
+import { latestPricesPerStoreSql } from "@/features/pricing/lib/latest-prices-sql";
 import { db } from "@/lib/db";
 import type { ListItemData } from "../types/shopping-list";
 import { currentListIdSql } from "./current-list";
@@ -19,29 +19,25 @@ export async function findListItems(userId: string): Promise<ListItemData[]> {
   return rows.map((row) => ({ ...row, createdAt: row.createdAt.toISOString() }));
 }
 
-type PriceRow = Omit<StorePrice, "store" | "isNearby"> & { store: string; postalCode: string };
+type PriceRow = Omit<StorePrice, "store" | "areaLabel"> & { store: string; postalCode: string };
 
-// One query for every product on the list. DISTINCT ON keeps one report per product and chain; the ORDER BY must start with the same columns.
-// The user's own postal code wins, a chain without one gets the newest price from the postal code area (DECISIONS #3).
+// One query for every product on the list: the shared price lookup runs once per list item inside it, the same way search does.
 export async function findLatestListPrices(
   userId: string,
-  postalCode: string,
+  postalCode: string | null | undefined,
 ): Promise<StorePrice[]> {
+  if (!postalCode) return [];
   const rows = await db.$queryRaw<PriceRow[]>(Prisma.sql`
-    SELECT DISTINCT ON ("productId", "PriceReport".store) "productId", "PriceReport".store::text AS store, price, "reportedAt", "postalCode"
-    FROM "PriceReport"
-    WHERE ${inPriceArea(Prisma.sql`"postalCode"`, postalCode)}
-      AND "priceUnit" = 'PER_UNIT'
-      AND "hiddenAt" IS NULL
-      AND "productId" IN (
-        SELECT "productId" FROM "ShoppingListItem" WHERE "listId" = ${currentListIdSql(userId)}
-      )
-    ORDER BY "productId", "PriceReport".store, ${ownPostalCodeFirst(Prisma.sql`"postalCode"`, postalCode)}, "reportedAt" DESC, id DESC
+    SELECT i."productId", latest.store::text AS store, latest.price, latest."reportedAt", latest."postalCode"
+    FROM "ShoppingListItem" i
+    CROSS JOIN LATERAL (${latestPricesPerStoreSql(Prisma.sql`i."productId"`, postalCode)}) latest
+    WHERE i."listId" = ${currentListIdSql(userId)}
+    ORDER BY i."productId", latest.store
   `);
   return rows.map(({ postalCode: reportPostalCode, ...row }) => ({
     ...row,
     store: row.store as Store,
-    isNearby: isNearbyPrice(reportPostalCode, postalCode),
+    areaLabel: areaLabelOf(reportPostalCode, postalCode),
   }));
 }
 

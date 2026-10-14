@@ -116,9 +116,9 @@ export function PlanCard({
                       </span>
                       <span>{formatPrice(line.lineTotal)}</span>
                     </div>
-                    {line.isNearby && (
+                    {line.areaLabel && (
                       <span className="text-muted-foreground">
-                        Pris fra {areaLabel}
+                        Pris fra {line.areaLabel}
                       </span>
                     )}
                     {line.isStale && (

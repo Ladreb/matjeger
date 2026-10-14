@@ -15,7 +15,7 @@ export default async function ShoppingListPage() {
 
   const [items, prices] = await Promise.all([
     findListItems(userId),
-    postalCode ? findLatestListPrices(userId, postalCode) : [],
+    findLatestListPrices(userId, postalCode),
   ]);
 
   return (

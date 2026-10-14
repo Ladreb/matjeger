@@ -9,7 +9,7 @@ export type StorePrice = {
   store: Store;
   price: number;
   reportedAt: Date;
-  isNearby: boolean;
+  areaLabel: string | null;
 };
 
 export type PlanLine = {
@@ -19,7 +19,7 @@ export type PlanLine = {
   lineTotal: number;
   reportedAt: Date;
   isStale: boolean;
-  isNearby: boolean;
+  areaLabel: string | null;
 };
 
 export type PlanStop = { store: Store; lines: PlanLine[]; total: number };
@@ -57,7 +57,7 @@ function buildStop(
   now: Date,
 ): PlanStop {
   const lines = entries.map(({ productId, quantity }) => {
-    const { price, reportedAt, isNearby } = prices.get(productId)!;
+    const { price, reportedAt, areaLabel } = prices.get(productId)!;
     return {
       productId,
       quantity,
@@ -65,7 +65,7 @@ function buildStop(
       lineTotal: price * quantity,
       reportedAt,
       isStale: isStale(reportedAt, now),
-      isNearby,
+      areaLabel,
     };
   });
   const total = lines.reduce((sum, line) => sum + line.lineTotal, 0);
@@ -130,7 +130,7 @@ function buildPlan(
       .filter((line) => line.isStale).length,
     nearbyLineCount: stops
       .flatMap((stop) => stop.lines)
-      .filter((line) => line.isNearby).length,
+      .filter((line) => line.areaLabel !== null).length,
   };
 }
 

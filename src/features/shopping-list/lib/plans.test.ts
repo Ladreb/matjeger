@@ -12,7 +12,7 @@ function price(
   øre: number,
   reportedAt = FRESH,
 ): StorePrice {
-  return { productId, store, price: øre, reportedAt, isNearby: false };
+  return { productId, store, price: øre, reportedAt, areaLabel: null };
 }
 
 function item(productId: string, quantity = 1) {
@@ -257,10 +257,10 @@ describe("computePlans", () => {
   it("counts the lines priced from a nearby postal code", () => {
     const { plans } = compute(
       [item("a"), item("b")],
-      [price("a", "KIWI", 100), { ...price("b", "KIWI", 200), isNearby: true }],
+      [price("a", "KIWI", 100), { ...price("b", "KIWI", 200), areaLabel: "01xx" }],
     );
     expect(plans[0].nearbyLineCount).toBe(1);
-    expect(plans[0].stops[0].lines.find((l) => l.productId === "b")?.isNearby).toBe(true);
+    expect(plans[0].stops[0].lines.find((l) => l.productId === "b")?.areaLabel).toBe("01xx");
   });
 
   it("does not call a price of exactly 30 days stale", () => {
