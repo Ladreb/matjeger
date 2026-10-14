@@ -17,6 +17,15 @@ Set `ENABLE_DEV_TOOLS=true` in `.env.development.local` to turn these on. Never 
 - **Seed:** `npx prisma db seed` adds 20 test products (barcodes start with `200000000`, a GS1 in-store prefix, with valid EAN-13 check digits so they can be scanned) and price reports for postal code 0150, with ages from today to 60 days so the staleness warning shows. The last 10 products have short names and tricky brands to test search. Safe to run again. It refuses to run without the flag.
 - Both let a Claude session open any page without a real Google account.
 
+## Database tests (throwaway Postgres)
+
+`npm run test:db` runs the tests in `*.db.test.ts` files against a real Postgres that lives only for the run. It starts an embedded Postgres 17 (the `embedded-postgres` dev dependency, nothing to install by hand: `npm install` downloads the Postgres binaries), applies every migration with `prisma migrate deploy`, runs the tests and removes everything afterwards when the run finishes or the setup fails. If the run is killed (Ctrl-C or `kill`), a `matjeger-test-db-*` folder can stay in the system temp folder. Delete it by hand. The code is in `src/lib/test-db`.
+
+- It never uses the Neon `dev` or production branch. The setup sets `DATABASE_URL` to its own `127.0.0.1` database on a free port before anything reads it, so a `DATABASE_URL` from the shell or the `.env` files is not used.
+- `npm test` (unit tests) does not run `*.db.test.ts` and needs no database, so it stays fast.
+- Test files run one at a time because they share the one database. A test cleans up the rows it creates.
+- Use it for rules that live in SQL or Prisma queries, where mocking the database would only test the query text.
+
 ## Rules
 
 - **Production secrets never live in a file in the repo folder.** They live in Vercel's environment variables and in Neon.
