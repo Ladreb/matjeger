@@ -20,7 +20,7 @@ describe("splitByMatch", () => {
 });
 
 describe("cheapestPriceLabel", () => {
-  it("names the price and the chain", () => {
+  it("names the price and the store chain", () => {
     expect(cheapestPriceLabel(2190, "REMA_1000")).toBe(
       `fra ${formatPrice(2190)} hos Rema 1000`,
     );

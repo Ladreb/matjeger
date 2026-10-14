@@ -42,7 +42,7 @@ type SearchRow = Omit<SearchResult, "cheapestStore" | "cheapestAreaLabel"> & {
   cheapestPostalCode: string | null;
 };
 
-// The cheapest price is the lowest of the latest report per chain (DECISIONS #2), found in the same query so a result row costs no extra round trip.
+// The cheapest price is the lowest of the latest report per store chain (DECISIONS #2), found in the same query so a result row costs no extra round trip.
 // Short terms (is, te, øl) have too few trigrams to tell a typo from noise, so they only match whole words and word starts.
 // The separators here must stay the same as in the SQL translate(), so "0,5" matches "0,5 l" on both sides.
 export async function searchProducts(
