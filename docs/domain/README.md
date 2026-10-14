@@ -12,7 +12,4 @@ What Matjeger does, by domain. Each domain maps to a folder in `src/features/<do
 
 ## Glossary
 
-- **Chain**: a Norwegian grocery chain, the `Store` enum (Rema 1000, Kiwi, Spar, Meny, Coop Extra, Coop Obs, Coop Prix, Bunnpris, Oda).
-- **Price report**: one user's observation of a product price at a chain, in a postal code, at a point in time.
-- **Øre**: prices are integers in øre (1 kr = 100 øre).
-- **Stale**: a price report older than 30 days.
+Terms are defined in [`GLOSSARY.md`](../../GLOSSARY.md) at the repo root. The `Store` enum in the code holds the store chains (Rema 1000, Kiwi, Spar, Meny, Coop Extra, Coop Obs, Coop Prix, Bunnpris, Oda).
