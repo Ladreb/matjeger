@@ -20,9 +20,17 @@ function findFreePort(): Promise<number> {
   });
 }
 
-function applyMigrations() {
+export function assertThrowawayUrl(url: string | undefined, port: number) {
+  const parsed = url ? new URL(url) : null;
+  const isThrowaway = parsed?.hostname === "127.0.0.1" && parsed.port === String(port) && parsed.pathname === `/${DATABASE}`;
+  if (!isThrowaway) {
+    throw new Error("Refusing to run migrations: DATABASE_URL is not the throwaway test database.");
+  }
+}
+
+function applyMigrations(url: string) {
   try {
-    execFileSync("npx", ["prisma", "migrate", "deploy"], { env: process.env, stdio: "pipe", encoding: "utf8" });
+    execFileSync("npx", ["prisma", "migrate", "deploy"], { env: { ...process.env, DATABASE_URL: url }, stdio: "pipe", encoding: "utf8" });
   } catch (error) {
     const { stdout, stderr } = error as { stdout: string; stderr: string };
     throw new Error(`prisma migrate deploy failed on the throwaway database:\n${stdout}\n${stderr}`);
@@ -46,6 +54,12 @@ export default async function startThrowawayDatabase() {
     rmSync(directory, { recursive: true, force: true });
   };
 
+  const stopThenExit = (signal: NodeJS.Signals) => {
+    void stop().finally(() => process.exit(signal === "SIGINT" ? 130 : 143));
+  };
+  process.once("SIGINT", stopThenExit);
+  process.once("SIGTERM", stopThenExit);
+
   try {
     await postgres.initialise();
     await postgres.start();
@@ -54,11 +68,16 @@ export default async function startThrowawayDatabase() {
     // Set unconditionally so the database URLs in the .env files can never be used by these tests.
     const url = `postgresql://${USER}:${PASSWORD}@127.0.0.1:${port}/${DATABASE}`;
     process.env.DATABASE_URL = url;
-    applyMigrations();
+    assertThrowawayUrl(process.env.DATABASE_URL, port);
+    applyMigrations(url);
   } catch (error) {
     await stop();
     throw error;
   }
 
-  return stop;
+  return async () => {
+    process.off("SIGINT", stopThenExit);
+    process.off("SIGTERM", stopThenExit);
+    await stop();
+  };
 }
