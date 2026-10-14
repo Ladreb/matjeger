@@ -20,11 +20,11 @@ describe("findCheapest", () => {
 });
 
 describe("cheapestAfterReport", () => {
-  const shown = { store: "KIWI" as const, price: 2000, reportedAt: day, isNearby: false };
+  const shown = { store: "KIWI" as const, price: 2000, reportedAt: day, areaLabel: null };
 
   it("takes the report when nothing is shown", () => {
     expect(cheapestAfterReport(null, "MENY", 3000, day)).toEqual({
-      store: "MENY", price: 3000, reportedAt: day, isNearby: false,
+      store: "MENY", price: 3000, reportedAt: day, areaLabel: null,
     });
   });
 
@@ -33,8 +33,8 @@ describe("cheapestAfterReport", () => {
   });
 
   it("replaces a nearby price with a higher own price", () => {
-    expect(cheapestAfterReport({ ...shown, isNearby: true }, "MENY", 3000, day)).toMatchObject(
-      { store: "MENY", price: 3000, isNearby: false },
+    expect(cheapestAfterReport({ ...shown, areaLabel: "01xx" }, "MENY", 3000, day)).toMatchObject(
+      { store: "MENY", price: 3000, areaLabel: null },
     );
   });
 

@@ -29,7 +29,7 @@ export default async function ProductPage({
 
   const postalCode = session?.user.postalCode;
   const [prices, recentReports, onList] = await Promise.all([
-    postalCode ? findLatestPricesPerStore(id, postalCode) : [],
+    findLatestPricesPerStore(id, postalCode),
     postalCode ? findRecentVisibleReports(id, postalCode) : [],
     session ? isOnList(session.user.id, id) : false,
   ]);
