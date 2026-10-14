@@ -167,6 +167,43 @@ describe("findLatestListPrices", () => {
     expect(prices.map((p) => p.price)).toEqual([2100]);
   });
 
+  it("has no prices for a user without a list", async () => {
+    const productId = await newProduct();
+    const user = await db.user.create({ data: { email: `utenliste${++counter}@example.invalid` } });
+    userIds.push(user.id);
+    await newListWith(productId);
+    await report(productId);
+
+    expect(await findLatestListPrices(user.id, "0150")).toEqual([]);
+  });
+
+  it("prices only the oldest list", async () => {
+    const onOldestList = await newProduct();
+    const onNewerList = await newProduct();
+    const user = await db.user.create({ data: { email: `toliste${++counter}@example.invalid` } });
+    userIds.push(user.id);
+    await db.shoppingList.create({
+      data: {
+        userId: user.id,
+        createdAt: new Date("2026-09-01"),
+        items: { create: [{ productId: onOldestList }] },
+      },
+    });
+    await db.shoppingList.create({
+      data: {
+        userId: user.id,
+        createdAt: new Date("2026-10-01"),
+        items: { create: [{ productId: onNewerList }] },
+      },
+    });
+    await report(onOldestList);
+    await report(onNewerList);
+
+    const prices = await findLatestListPrices(user.id, "0150");
+
+    expect(prices.map((p) => p.productId)).toEqual([onOldestList]);
+  });
+
   it("gives each product the same prices as the product page", async () => {
     const first = await newProduct();
     const second = await newProduct();
