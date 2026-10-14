@@ -29,7 +29,7 @@ export type Plan = {
   uncoveredProductIds: string[];
   total: number;
   staleLineCount: number;
-  nearbyLineCount: number;
+  areaPriceLineCount: number;
 };
 
 export type PlanResult = { plans: Plan[]; unpricedProductIds: string[] };
@@ -128,7 +128,7 @@ function buildPlan(
     staleLineCount: stops
       .flatMap((stop) => stop.lines)
       .filter((line) => line.isStale).length,
-    nearbyLineCount: stops
+    areaPriceLineCount: stops
       .flatMap((stop) => stop.lines)
       .filter((line) => line.areaLabel !== null).length,
   };

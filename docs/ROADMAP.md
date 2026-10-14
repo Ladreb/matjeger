@@ -50,7 +50,7 @@ Update checkboxes as work lands.
 - [x] Run Prisma migrations over the direct connection (`DATABASE_URL_UNPOOLED`) instead of the pooled one (done in `vercel.json`)
 - [ ] Several shopping lists: names, an overview, a list picker, and `listId` passed to the actions instead of "the user's oldest list" (see `docs/domain/shopping-list.md`)
 - [ ] Session lookup runs two queries per page (`@auth/prisma-adapter`) and is the fixed cost of every request; look at it if requests need to get faster
-- [ ] More tests: Vitest runs with `npm test` and covers the plan ranking and staleness; actions, queries and components have none
+- [ ] More tests: Vitest runs with `npm test` and covers the plan ranking and staleness; `npm run test:db` runs the price reads against a throwaway Postgres. Actions and components have no tests
 - [ ] Think about UPC-A: the scanner reads 12-digit UPC-A codes, but products are probably stored as 13-digit EAN, so a lookup can miss. Possible fix: pad to 13 digits before lookup. Not prioritized
 
 - [x] UX polish (issue #38): branded 404 "Fant ikke siden", one 16 px side padding via `PageColumn`, product page back link, "Billigst" tag, missing chains line and "Endre" postal code link, bigger "Se sammenligning", static example card on the landing page

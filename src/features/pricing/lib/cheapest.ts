@@ -12,7 +12,7 @@ export function findCheapest<T extends StorePrice>(prices: T[]): T | null {
 
 export type ShownPrice = StorePrice & { areaLabel: string | null };
 
-// A reported price is in the user's own postal code, so it replaces a nearby price or an older price for the same chain even when higher.
+// A reported price is in the user's own postal code, so it replaces an area price or an older price for the same chain even when higher.
 export function cheapestAfterReport(
   current: ShownPrice | null,
   store: Store,
