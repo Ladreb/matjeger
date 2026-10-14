@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isNearbyPrice, priceAreaOf } from "./price-area";
+import { areaLabelOf, isNearbyPrice, priceAreaOf } from "./price-area";
 
 describe("priceAreaOf", () => {
   it("uses the first two digits as the area", () => {
@@ -21,5 +21,15 @@ describe("isNearbyPrice", () => {
   it("is false for the user's own postal code and true for another one", () => {
     expect(isNearbyPrice("0151", "0151")).toBe(false);
     expect(isNearbyPrice("0150", "0151")).toBe(true);
+  });
+});
+
+describe("areaLabelOf", () => {
+  it("is null for a price from the user's own postal code", () => {
+    expect(areaLabelOf("0151", "0151")).toBeNull();
+  });
+
+  it("is the label of the user's postal code area for a price from another postal code", () => {
+    expect(areaLabelOf("0182", "0151")).toBe("01xx");
   });
 });

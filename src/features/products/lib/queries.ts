@@ -1,7 +1,7 @@
 import { Prisma, type Store } from "@prisma/client";
 import { currentListIdSql } from "@/features/shopping-list/lib/current-list";
-import { isNearbyPrice } from "@/features/location/lib/price-area";
-import { inPriceArea, ownPostalCodeFirst } from "@/features/location/lib/price-area-sql";
+import { areaLabelOf } from "@/features/location/lib/price-area";
+import { latestPricesPerStoreSql } from "@/features/pricing/lib/latest-prices-sql";
 import { db } from "@/lib/db";
 
 export function listProducts() {
@@ -34,10 +34,10 @@ type SearchResult = {
   isSimilarMatch: boolean;
   cheapestPrice: number | null;
   cheapestStore: Store | null;
-  cheapestIsNearby: boolean;
+  cheapestAreaLabel: string | null;
 };
 
-type SearchRow = Omit<SearchResult, "cheapestStore" | "cheapestIsNearby"> & {
+type SearchRow = Omit<SearchResult, "cheapestStore" | "cheapestAreaLabel"> & {
   cheapestStore: string | null;
   cheapestPostalCode: string | null;
 };
@@ -58,10 +58,6 @@ export async function searchProducts(
     .trim();
   if (!lowered) return [];
   const pattern = lowered.replace(/[\\%_]/g, "\\$&");
-
-  const priceColumn = Prisma.sql`r."postalCode"`;
-  const inArea = postalCode ? inPriceArea(priceColumn, postalCode) : Prisma.sql`FALSE`;
-  const ownFirst = postalCode ? ownPostalCodeFirst(priceColumn, postalCode) : Prisma.sql`TRUE`;
 
   const rows = await db.$queryRaw<SearchRow[]>(Prisma.sql`
     SELECT found.id, found.name, found.brand, found.rank = ${FUZZY_RANK} AS "isSimilarMatch",
@@ -99,15 +95,7 @@ export async function searchProducts(
     ) found
     LEFT JOIN LATERAL (
       SELECT latest.store::text AS store, latest.price, latest."postalCode"
-      FROM (
-        SELECT DISTINCT ON (r.store) r.store, r.price, r."postalCode"
-        FROM "PriceReport" r
-        WHERE r."productId" = found.id
-          AND ${inArea}
-          AND r."priceUnit" = 'PER_UNIT'
-          AND r."hiddenAt" IS NULL
-        ORDER BY r.store, ${ownFirst}, r."reportedAt" DESC, r.id DESC
-      ) latest
+      FROM (${latestPricesPerStoreSql(Prisma.sql`found.id`, postalCode)}) latest
       ORDER BY latest.price, latest.store
       LIMIT 1
     ) cheapest ON true
@@ -116,9 +104,7 @@ export async function searchProducts(
   return rows.map(({ cheapestPostalCode, ...row }) => ({
     ...row,
     cheapestStore: row.cheapestStore as Store | null,
-    cheapestIsNearby:
-      cheapestPostalCode !== null &&
-      postalCode !== null &&
-      isNearbyPrice(cheapestPostalCode, postalCode),
+    cheapestAreaLabel:
+      cheapestPostalCode !== null && postalCode ? areaLabelOf(cheapestPostalCode, postalCode) : null,
   }));
 }
