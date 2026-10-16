@@ -363,7 +363,7 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
 
       <section
         id="billigste-butikk"
-        className="flex scroll-mt-16 flex-col gap-3 lg:sticky lg:top-20 lg:col-start-2 lg:row-start-2"
+        className="flex scroll-mt-16 flex-col gap-3 lg:sticky lg:top-20 lg:col-start-2 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto"
       >
         <div>
           <h2 className="text-lg font-semibold">Billigste butikk</h2>
