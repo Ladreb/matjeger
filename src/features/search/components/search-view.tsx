@@ -30,7 +30,7 @@ export async function SearchView({ query }: { query: string }) {
       )}
 
       {!query && (
-        <p className="text-muted-foreground">
+        <p className="py-12 text-center text-muted-foreground lg:py-24">
           Søk etter vare, for eksempel melk
         </p>
       )}
