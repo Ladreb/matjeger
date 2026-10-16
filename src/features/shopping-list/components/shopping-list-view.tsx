@@ -265,8 +265,11 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
   const shownPlans = showAllPlans ? plans : plans.slice(0, VISIBLE_PLAN_COUNT);
 
   return (
-    <PageColumn width="default" className="flex flex-col gap-4">
-      <div>
+    <PageColumn
+      width="wide"
+      className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8"
+    >
+      <div className="lg:col-span-2">
         <h1 ref={heading} tabIndex={-1} className="text-xl font-semibold">
           Handlelisten
         </h1>
@@ -276,7 +279,7 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
       {postalCode && cheapest && (
         <a
           href="#billigste-butikk"
-          className="flex items-center justify-between gap-2 rounded-lg bg-secondary p-3 text-sm"
+          className="flex items-center justify-between gap-2 rounded-lg bg-secondary p-3 text-sm lg:hidden"
         >
           <span className="flex flex-col">
             <span>
@@ -310,53 +313,58 @@ export function ShoppingListView({ initialItems, prices, postalCode, now }: Prop
       )}
 
       {undoFailed && (
-        <p role="alert" className="text-sm text-destructive">
+        <p role="alert" className="text-sm text-destructive lg:col-span-2">
           Kunne ikke angre. Legg varen til på nytt.
         </p>
       )}
 
-      <ul className="flex flex-col divide-y rounded-lg border">
-        {items.map((item) => (
-          <ShoppingListItem
-            key={item.id}
-            item={item}
-            noPriceInPostalCode={
-              postalCode && !pricedProductIds.has(item.productId)
-                ? `${postalCode} eller ${areaLabel}`
-                : null
-            }
-            error={errors[item.id]}
-            onQuantityChange={(quantity) => {
-              const next = clampQuantity(quantity);
-              void save(item.id, "quantity", next, () => setQuantity(item.id, next));
-            }}
-            onCheckedChange={(checked) =>
-              void save(item.id, "checked", checked, () => setChecked(item.id, checked))
-            }
-            onRemove={() => void remove(item)}
-          />
-        ))}
-      </ul>
+      <div className="flex flex-col gap-4">
+        <ul className="flex flex-col divide-y rounded-lg border">
+          {items.map((item) => (
+            <ShoppingListItem
+              key={item.id}
+              item={item}
+              noPriceInPostalCode={
+                postalCode && !pricedProductIds.has(item.productId)
+                  ? `${postalCode} eller ${areaLabel}`
+                  : null
+              }
+              error={errors[item.id]}
+              onQuantityChange={(quantity) => {
+                const next = clampQuantity(quantity);
+                void save(item.id, "quantity", next, () => setQuantity(item.id, next));
+              }}
+              onCheckedChange={(checked) =>
+                void save(item.id, "checked", checked, () => setChecked(item.id, checked))
+              }
+              onRemove={() => void remove(item)}
+            />
+          ))}
+        </ul>
 
-      {markedCount > 0 && (
-        <div className="flex flex-col gap-1">
-          <Button
-            type="button"
-            variant="outline"
-            className="h-11 sm:w-fit"
-            onClick={() => void clearMarked()}
-          >
-            Fjern markerte varer fra listen ({markedCount})
-          </Button>
-          {clearFailed && (
-            <p role="alert" className="text-sm text-destructive">
-              {SAVE_FAILED}
-            </p>
-          )}
-        </div>
-      )}
+        {markedCount > 0 && (
+          <div className="flex flex-col gap-1">
+            <Button
+              type="button"
+              variant="outline"
+              className="h-11 sm:w-fit"
+              onClick={() => void clearMarked()}
+            >
+              Fjern markerte varer fra listen ({markedCount})
+            </Button>
+            {clearFailed && (
+              <p role="alert" className="text-sm text-destructive">
+                {SAVE_FAILED}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
 
-      <section id="billigste-butikk" className="flex scroll-mt-16 flex-col gap-3">
+      <section
+        id="billigste-butikk"
+        className="flex scroll-mt-16 flex-col gap-3 lg:sticky lg:top-20 lg:col-start-2 lg:row-start-2"
+      >
         <div>
           <h2 className="text-lg font-semibold">Billigste butikk</h2>
           {postalCode && (

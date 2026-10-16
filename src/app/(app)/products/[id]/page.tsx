@@ -35,41 +35,48 @@ export default async function ProductPage({
   ]);
 
   return (
-    <PageColumn width="default" className="flex flex-col gap-6">
+    <PageColumn
+      width="wide"
+      className="flex flex-col gap-6 lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8"
+    >
       <Link
         href="/search"
-        className="-mb-3 flex min-h-11 w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        className="-mb-3 flex min-h-11 w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground lg:col-span-2"
       >
         <ChevronLeft aria-hidden className="size-4" /> Til søk
       </Link>
 
-      <div>
-        <h1 className="text-xl font-semibold">{product.name}</h1>
-        {product.brand && (
-          <p className="text-sm text-muted-foreground">{product.brand}</p>
+      <div className="flex flex-col gap-6">
+        <div>
+          <h1 className="text-xl font-semibold">{product.name}</h1>
+          {product.brand && (
+            <p className="text-sm text-muted-foreground">{product.brand}</p>
+          )}
+        </div>
+
+        <AddToListButton
+          productId={product.id}
+          productName={product.name}
+          initialOnList={onList}
+          showLabel
+        />
+
+        {session && canEditCatalogue(session.user.role) && (
+          <Button asChild variant="outline" className="sm:w-fit">
+            <Link href={`/admin/products/${product.id}`}>Rediger produkt</Link>
+          </Button>
         )}
       </div>
 
-      <AddToListButton
-        productId={product.id}
-        productName={product.name}
-        initialOnList={onList}
-        showLabel
-      />
-
-      {session && canEditCatalogue(session.user.role) && (
-        <Button asChild variant="outline" className="sm:w-fit">
-          <Link href={`/admin/products/${product.id}`}>Rediger produkt</Link>
-        </Button>
-      )}
-
       {postalCode && (
-        <ProductPrices
-          productId={product.id}
-          postalCode={postalCode}
-          prices={prices}
-          recentReports={recentReports}
-        />
+        <div className="flex flex-col gap-6">
+          <ProductPrices
+            productId={product.id}
+            postalCode={postalCode}
+            prices={prices}
+            recentReports={recentReports}
+          />
+        </div>
       )}
     </PageColumn>
   );

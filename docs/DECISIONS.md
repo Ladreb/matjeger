@@ -37,3 +37,6 @@ An admin hides a report (`PriceReport.hiddenAt`, `hiddenById`); nothing is delet
 
 ## 8. Accuracy: show how many agree, keep latest wins (decided, 2026-10-12)
 The shown price stays the latest visible report (#2). Next to it the product page shows how many distinct users, by each user's latest report, reported the same price for that store chain in the last 30 days. Reason: it needs no change to which price wins, so search, shopping list and the dashboard stay consistent, and it still tells the user how much to trust the price. A median was rejected for now because a median across few reports can hide a real price change that the latest report shows.
+
+## 9. Laptop layout: two columns where a page has two halves (decided, 2026-10-16)
+From 1024 px the product page and the shopping list use two columns. Other pages stay a centred column. The phone layout is unchanged and still the product. Reason: a single 672 px column on a 1440 px screen looked empty and top-heavy, but most pages (profile, scan, forms) have one task and do not need two columns. Search is next (results left, a shopping list panel right).
