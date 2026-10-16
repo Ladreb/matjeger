@@ -12,6 +12,6 @@ export function PageColumn({
   ...props
 }: React.ComponentProps<"div"> & { width: keyof typeof widths }) {
   return (
-    <div className={cn("mx-auto w-full p-4", widths[width], className)} {...props} />
+    <div className={cn("mx-auto w-full p-4 lg:pt-10", widths[width], className)} {...props} />
   );
 }
