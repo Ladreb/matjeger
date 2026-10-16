@@ -3,8 +3,8 @@ import { PageColumn } from "@/components/page-column";
 export default function ProductLoading() {
   return (
     <PageColumn
-      width="default"
-      className="flex animate-pulse flex-col gap-6"
+      width="wide"
+      className="flex animate-pulse flex-col gap-6 lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8"
     >
       <p role="status" className="sr-only">
         Laster…

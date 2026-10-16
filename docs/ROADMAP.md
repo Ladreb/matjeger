@@ -55,5 +55,7 @@ Update checkboxes as work lands.
 
 - [x] UX polish (issue #38): branded 404 "Fant ikke siden", one 16 px side padding via `PageColumn`, product page back link, "Billigst" tag, missing chains line and "Endre" postal code link, bigger "Se sammenligning", static example card on the landing page
 
+- [ ] Laptop search: results left, shopping list panel right (product page and shopping list already use two columns, see `docs/technology/architecture.md`)
+
 ## Housekeeping
 - [ ] Stale worktrees (`.claude/worktrees/*`) and branches
